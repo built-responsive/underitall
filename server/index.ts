@@ -14,7 +14,7 @@ app.set("trust proxy", true);
 // CORS configuration for Shopify proxy support
 const allowedOrigins = [
   'https://its-under-it-all.myshopify.com',
-  'https://its-under-it-all.replit.app/',
+  'https://its-under-it-all.replit.app',
   'https://2d8f7c0c-938e-4f87-b0ca-9f262520d64e-00-2o84gg8qrj25w.spock.replit.dev',
   'http://localhost:5000',
   'http://0.0.0.0:5000',
