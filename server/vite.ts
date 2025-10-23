@@ -44,6 +44,11 @@ export async function setupVite(app: Express, server: Server) {
   app.use("*", async (req, res, next) => {
     const url = req.originalUrl;
 
+    // Skip API routes - they're handled by Express routes
+    if (url.startsWith('/api/')) {
+      return next();
+    }
+
     // Skip static asset paths - let them be handled by static middleware
     if (url.startsWith('/brand/') || url.startsWith('/assets/') || url.startsWith('https://its-under-it-all.replit.app/brand/') || url.startsWith('https://its-under-it-all.myshopify.com/assets/')) {
       return next();
