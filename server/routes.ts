@@ -186,10 +186,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Test CRM connection
   app.post("/api/admin/test-crm", async (req, res) => {
     try {
+      console.log("\n🔍 ===== CRM TEST STARTED =====");
+      
       const crmBaseUrl = process.env.CRM_BASE_URL;
       const crmApiKey = process.env.CRM_API_KEY;
 
+      console.log("📋 CRM Config Check:");
+      console.log("  - Base URL:", crmBaseUrl ? "✅ Set" : "❌ Missing");
+      console.log("  - API Key:", crmApiKey ? "✅ Set" : "❌ Missing");
+
       if (!crmBaseUrl || !crmApiKey) {
+        console.log("❌ CRM credentials missing");
         return res.json({
           success: false,
           message: "CRM credentials not configured in environment variables",
@@ -200,10 +207,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         APIKey: crmApiKey,
         Resource: "Account",
         Operation: "Read",
-        Data: {
-          // Test with a simple read operation
-        },
+        Data: {},
       };
+
+      console.log("📤 Sending request to:", `${crmBaseUrl}/api/v1`);
+      console.log("📤 Payload:", JSON.stringify(testPayload, null, 2));
 
       const response = await fetch(`${crmBaseUrl}/api/v1`, {
         method: "POST",
@@ -211,10 +219,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         body: JSON.stringify(testPayload),
       });
 
+      console.log("📡 Response received:");
+      console.log("  - Status:", response.status);
+      console.log("  - Status Text:", response.statusText);
+
       // Check if response is JSON before parsing
       const contentType = response.headers.get("content-type");
+      console.log("  - Content-Type:", contentType);
+
       if (!contentType || !contentType.includes("application/json")) {
         const textResponse = await response.text();
+        console.log("❌ Non-JSON response received:");
+        console.log(textResponse.substring(0, 500));
         return res.json({
           success: false,
           message: `CRM returned non-JSON response (${response.status}). Check CRM_BASE_URL configuration.`,
@@ -229,11 +245,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const data = await response.json();
 
-      console.log("📦 CRM Test Response:", JSON.stringify(data, null, 2));
-      console.log("📊 CRM Response Status:", data.Status);
-      console.log("📊 CRM Response Message:", data.Message);
+      console.log("\n📦 ===== FULL CRM RESPONSE =====");
+      console.log(JSON.stringify(data, null, 2));
+      console.log("================================\n");
+
+      console.log("📊 Response Fields:");
+      console.log("  - Status:", data.Status);
+      console.log("  - Message:", data.Message);
+      console.log("  - Data:", data.Data ? JSON.stringify(data.Data, null, 2) : "null");
 
       if (data.Status === "Success" || response.ok) {
+        console.log("✅ CRM test successful");
         return res.json({
           success: true,
           message: `Connected to Clarity CRM (${crmBaseUrl})`,
@@ -241,14 +263,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      console.log("❌ CRM Test Failed - Full Details:", JSON.stringify(data, null, 2));
+      console.log("❌ CRM test failed");
+      console.log("Failure reason:", data.Message || "Unknown");
+      
       res.json({
         success: false,
         message: `CRM Error: ${data.Message || "Unknown error"}`,
         details: data,
       });
     } catch (error) {
-      console.error("❌ CRM test error:", error);
+      console.error("\n❌ ===== CRM TEST EXCEPTION =====");
+      console.error("Error type:", error instanceof Error ? error.constructor.name : typeof error);
+      console.error("Error message:", error instanceof Error ? error.message : String(error));
+      console.error("Stack trace:", error instanceof Error ? error.stack : "N/A");
+      console.error("================================\n");
+      
       res.json({
         success: false,
         message: error instanceof Error ? error.message : "Connection test failed",
