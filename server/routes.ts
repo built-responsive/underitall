@@ -580,10 +580,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const adminToken = process.env.SHOPIFY_ADMIN_ACCESS_TOKEN;
     const appGid = "290419769345"; // App GID from Shopify (its-under-it-all)
 
-    console.log("Environment check:");
+    console.log("🔧 Environment check:");
     console.log(`  - shopDomain: ${shopDomain ? "✅ Set" : "❌ Missing"}`);
     console.log(`  - adminToken: ${adminToken ? `✅ Set (${adminToken.length} chars)` : "❌ Missing"}`);
     console.log(`  - appGid: ${appGid}`);
+    console.log(`  - Target type: app--${appGid}--wholesale_account\n`);
 
     if (!shopDomain || !adminToken) {
       console.log("⚠️ Shopify credentials not configured");
@@ -591,9 +592,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
-      console.log("📡 Fetching metaobject definitions from Shopify...");
-      // First, try to find the definition by searching all definitions
-      // since the actual type string includes the client_id: app--{client_id}--wholesale_account
+      console.log("📡 Fetching ALL metaobject definitions from Shopify GraphQL API...\n");
+      
       const listQuery = `
         query {
           metaobjectDefinitions(first: 50) {
@@ -619,31 +619,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
         },
       );
 
+      console.log(`📥 GraphQL response status: ${listResponse.status}\n`);
+      
       const listData = await listResponse.json();
 
-      console.log("🔍 Searching for wholesale_account metaobject definition...\n");
-
       if (listData.errors) {
-        console.error("❌ GraphQL errors:\n" + JSON.stringify(listData.errors, null, 2) + "\n");
+        console.error("❌ GraphQL errors:");
+        console.error(JSON.stringify(listData.errors, null, 2));
         return { success: false, message: listData.errors[0]?.message || "GraphQL query failed" };
       }
 
       const definitions = listData.data?.metaobjectDefinitions?.nodes || [];
-      console.log(`📋 Found ${definitions.length} total metaobject definitions\n`);
+      console.log(`📋 FOUND ${definitions.length} TOTAL METAOBJECT DEFINITIONS:\n`);
+      
+      // Log ALL definitions for debugging
+      definitions.forEach((d: any, idx: number) => {
+        console.log(`   ${idx + 1}. Type: "${d.type}"`);
+        console.log(`      Name: "${d.name}"`);
+        console.log(`      ID: ${d.id}`);
+        console.log(`      Count: ${d.metaobjectsCount}`);
+        console.log("");
+      });
 
-      // Find definition by searching for the wholesale_account handle in the type
-      // The actual type for app-owned metaobjects is app--{client_id}--{handle}
+      // Target type to find
       const appOwnedType = `app--${appGid}--wholesale_account`;
-      const existingDef = definitions.find((def: any) =>
-        def.type === appOwnedType
-      );
+      console.log(`🎯 SEARCHING FOR: "${appOwnedType}"\n`);
+
+      // Try exact match first
+      let existingDef = definitions.find((def: any) => def.type === appOwnedType);
+      
+      if (!existingDef) {
+        console.log("⚠️ EXACT MATCH FAILED - trying case-insensitive search...\n");
+        existingDef = definitions.find((def: any) => 
+          def.type.toLowerCase() === appOwnedType.toLowerCase()
+        );
+      }
+      
+      if (!existingDef) {
+        console.log("⚠️ CASE-INSENSITIVE FAILED - trying partial match (contains 'wholesale_account')...\n");
+        existingDef = definitions.find((def: any) => 
+          def.type.includes('wholesale_account')
+        );
+      }
 
       if (existingDef) {
-        console.log("✅ Metaobject definition FOUND:\n");
-        console.log(`   - Type: ${existingDef.type}\n`);
-        console.log(`   - Name: ${existingDef.name}\n`);
-        console.log(`   - ID: ${existingDef.id}\n`);
-        console.log(`   - Entry Count: ${existingDef.metaobjectsCount}\n`);
+        console.log("✅ ✅ ✅ METAOBJECT DEFINITION FOUND! ✅ ✅ ✅\n");
+        console.log(`   Type: "${existingDef.type}"`);
+        console.log(`   Name: "${existingDef.name}"`);
+        console.log(`   ID: ${existingDef.id}`);
+        console.log(`   Entry Count: ${existingDef.metaobjectsCount}\n`);
+        
         return {
           success: true,
           id: existingDef.id,
@@ -653,14 +678,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         };
       }
 
-      console.log("⚠️ Metaobject definition NOT FOUND\n");
-      console.log("Available definitions:\n");
-      definitions.forEach((d: any) => {
-        console.log(`  - ${d.type} (${d.name})\n`);
-      });
-      return { success: false, message: "Metaobject definition not found. Run 'shopify app deploy' to sync shopify.app.toml configuration." };
+      console.log("❌ ❌ ❌ METAOBJECT DEFINITION NOT FOUND ❌ ❌ ❌\n");
+      console.log("🔍 Debug Info:");
+      console.log(`   - Searched for: "${appOwnedType}"`);
+      console.log(`   - Total definitions checked: ${definitions.length}`);
+      console.log(`   - Available types: ${definitions.map((d: any) => d.type).join(', ')}\n`);
+      
+      return { 
+        success: false, 
+        message: `Metaobject definition "${appOwnedType}" not found. Available: ${definitions.map((d: any) => d.type).join(', ')}` 
+      };
     } catch (error) {
-      console.error("❌ Error checking metaobject definition:", error);
+      console.error("❌ EXCEPTION in checkWholesaleMetaobjectDefinition:");
+      console.error(error);
       return { success: false, message: error instanceof Error ? error.message : "Unknown error" };
     }
   }
