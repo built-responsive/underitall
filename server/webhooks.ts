@@ -24,16 +24,30 @@ function verifyShopifyWebhook(req: Request): boolean {
     return false;
   }
 
-  const body = JSON.stringify(req.body);
+  // Use raw body (captured during JSON parsing) for signature verification
+  const body = (req as any).rawBody;
+  if (!body) {
+    console.warn("⚠️ Raw body not available for HMAC verification");
+    return false;
+  }
+
   const hash = crypto
     .createHmac("sha256", webhookSecret)
     .update(body, "utf8")
     .digest("base64");
 
-  return crypto.timingSafeEqual(
+  const isValid = crypto.timingSafeEqual(
     Buffer.from(hmacHeader),
     Buffer.from(hash)
   );
+
+  if (!isValid) {
+    console.warn("⚠️ HMAC verification failed");
+    console.warn("Expected:", hash);
+    console.warn("Received:", hmacHeader);
+  }
+
+  return isValid;
 }
 
 // Customer creation webhook

@@ -35,15 +35,16 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
 }));
-// Raw body parsing for webhook signature verification
-app.use("/api/webhooks", express.json({
-  verify: (req: any, res, buf) => {
-    req.rawBody = buf.toString('utf8');
+
+// Capture raw body for webhook signature verification
+app.use(express.json({
+  verify: (req: any, res, buf, encoding) => {
+    if (req.originalUrl.startsWith('/api/webhooks/')) {
+      req.rawBody = buf.toString('utf8');
+    }
   }
 }));
 
-// Standard JSON parsing for other routes
-app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 // Serve brand images from both locations
