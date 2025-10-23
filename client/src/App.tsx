@@ -35,34 +35,44 @@ function ShopifyAppBridge({ children }: { children: React.ReactNode }) {
 
         if (shopOrigin && host && (window as any).ShopifyApp) {
           const app = (window as any).ShopifyApp.createApp({
-            apiKey: '78a602699150bda4e49a40861707d500', // Your client_id from shopify.app.toml
+            apiKey: '78a602699150bda4e49a40861707d500',
             host: host,
             forceRedirect: true
           });
 
-          // Set up navigation with TitleBar
+          // Navigation via History API (updates browser URL without reload)
+          const History = (window as any).ShopifyApp.History;
+          const history = History.create(app);
+
+          // Set up TitleBar with navigation actions
           const TitleBar = (window as any).ShopifyApp.TitleBar;
-          TitleBar.create(app, {
+          const titleBar = TitleBar.create(app, {
             title: 'UnderItAll Tools',
             buttons: {
               primary: undefined,
               secondary: [
                 {
+                  label: 'Dashboard',
+                  onClick: () => {
+                    history.dispatch(History.Action.PUSH, `/dashboard?shop=${shopOrigin}&host=${host}`);
+                  }
+                },
+                {
                   label: 'Calculator',
                   onClick: () => {
-                    window.location.href = `/calculator?shop=${shopOrigin}&host=${host}`;
+                    history.dispatch(History.Action.PUSH, `/calculator?shop=${shopOrigin}&host=${host}`);
                   }
                 },
                 {
                   label: 'Registration',
                   onClick: () => {
-                    window.location.href = `/?shop=${shopOrigin}&host=${host}`;
+                    history.dispatch(History.Action.PUSH, `/?shop=${shopOrigin}&host=${host}`);
                   }
                 },
                 {
                   label: 'Settings',
                   onClick: () => {
-                    window.location.href = `/settings?shop=${shopOrigin}&host=${host}`;
+                    history.dispatch(History.Action.PUSH, `/settings?shop=${shopOrigin}&host=${host}`);
                   }
                 }
               ]

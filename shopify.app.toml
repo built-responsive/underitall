@@ -2,7 +2,7 @@
 
 client_id = "78a602699150bda4e49a40861707d500"
 name = "its-under-it-all"
-application_url = "https://its-under-it-all.replit.app"
+application_url = "https://its-under-it-all.replit.app/dashboard"
 embedded = true
 handle = "its-under-it-all"
 
@@ -38,23 +38,6 @@ redirect_urls = [
   "https://its-under-it-all.replit.app/api/auth",
   "https://its-under-it-all.replit.app/auth/callback"
 ]
-
-[[app_navigation.links]]
-label = "Dashboard"
-destination = "/dashboard"
-
-[[app_navigation.links]]
-label = "Calculator"
-destination = "/calculator"
-
-[[app_navigation.links]]
-label = "Registration"
-destination = "/"
-
-[[app_navigation.links]]
-label = "Settings"
-destination = "/settings"
-
 
 [metaobjects.app.wholesale_account]
 name = "Wholesale Account"
