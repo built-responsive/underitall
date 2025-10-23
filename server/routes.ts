@@ -209,6 +209,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         body: JSON.stringify(testPayload),
       });
 
+      // Check if response is JSON before parsing
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        const textResponse = await response.text();
+        return res.json({
+          success: false,
+          message: `CRM returned non-JSON response (${response.status}). Check CRM_BASE_URL configuration.`,
+          details: {
+            status: response.status,
+            statusText: response.statusText,
+            contentType,
+            preview: textResponse.substring(0, 200),
+          },
+        });
+      }
+
       const data = await response.json();
 
       if (data.Status === "Success" || response.ok) {
