@@ -1,3 +1,4 @@
+
 # UnderItAll - Shopify Rug Pad Application
 
 ## Overview
@@ -53,7 +54,7 @@ Every code edit, file change, configuration update, or system modification MUST 
 ## Shopify Extensions
 
 ### Wholesale Account Profile Extension
-Located in `extensions/wholesale-accounts/`, this Shopify Customer Account UI Extension displays wholesale account information on the customer profile page.
+Located in `extensions/wholesale-account-profile/`, this Shopify Customer Account UI Extension displays wholesale account information on the customer profile page.
 
 **Extension Details:**
 - **Target:** `customer-account.profile.block.render` (appears on customer profile page)
@@ -111,3 +112,73 @@ Body: {
 **Required Secrets:**
 - `SHOPIFY_ADMIN_ACCESS_TOKEN` - Shopify Admin API access token with `write_metaobjects` permission
 - `SHOPIFY_SHOP_DOMAIN` - Your Shopify store domain
+
+## Wholesale Onboarding Flow
+
+### Complete 5-Phase Architecture
+
+**Phase 1: Application Submission**
+- User submits registration form with business credentials
+- AI-powered company enrichment auto-fills details
+- Tax exemption documentation uploaded
+- Database record created with `pending` status
+
+**Phase 2: Admin Approval**
+- Admin reviews credentials in dashboard
+- Approves/rejects application with notes
+- Triggers automated account creation
+
+**Phase 3: Shopify Integration (Source of Truth)**
+- Creates `wholesale_account` metaobject with all business details
+- Creates Shopify customer with metaobject reference (bidirectional)
+- Links customer ↔ metaobject via metafields
+
+**Phase 4: CRM Synchronization**
+- Creates Clarity CRM Account
+- Creates CRM Contact linked to Account
+- Uploads tax documentation as attachment
+- Saves `clarity_id` back to Shopify metaobject
+
+**Phase 5: Webhook-Driven Sync**
+- `metaobjects/update` webhook → syncs to CRM Account
+- `customers/update` webhook → syncs to CRM Contact
+- CRM confirmation webhooks logged for audit trail
+
+### Data Flow Diagram
+
+```
+Registration Form
+    ↓
+Database (pending)
+    ↓
+Admin Approval
+    ↓
+Shopify Metaobject → Customer (with metafield)
+    ↓
+CRM Account → Contact → Attachment
+    ↓
+Webhook Synchronization (ongoing)
+```
+
+### Key Endpoints
+
+```
+POST   /api/wholesale-registration
+GET    /api/wholesale-registrations
+PATCH  /api/wholesale-registration/:id
+POST   /api/wholesale-registration/:id/create-shopify-account
+PATCH  /api/wholesale-account/:metaobjectId
+POST   /api/webhooks/metaobjects/update
+POST   /api/webhooks/customers/update
+POST   /api/webhooks/clarity/account_create
+POST   /api/webhooks/clarity/contact_create
+```
+
+## Documentation References
+
+- **[README.md](README.md)** - Complete project overview and API reference
+- **[docs/BRAND_GUIDELINES.md](docs/BRAND_GUIDELINES.md)** - Visual identity specifications
+- **[docs/SHOPIFY_INTEGRATION.md](docs/SHOPIFY_INTEGRATION.md)** - Integration guide with customer account extension
+- **[docs/ONBOARD_FLOW.md](docs/ONBOARD_FLOW.md)** - Detailed wholesale onboarding flow
+- **[docs/SHOPIFY_APP_BLOCKS.md](docs/SHOPIFY_APP_BLOCKS.md)** - Theme app blocks deployment
+- **[AGENT.md](AGENT.md)** - AI agent system knowledge

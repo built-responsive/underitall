@@ -1,3 +1,4 @@
+
 # UnderItAll Shopify Integration Guide
 
 This guide explains how to integrate the UnderItAll Rug Pad Calculator and AI Chat Assistant into your Shopify theme.
@@ -24,6 +25,8 @@ Before integrating, you need:
    - Name it "UnderItAll Integration"
    - Configure API scopes:
      - `write_draft_orders` (for creating draft orders)
+     - `write_metaobjects` (for wholesale account management)
+     - `write_customers` (for customer creation)
      - `read_products` (for product search in chat)
      - `read_inventory` (optional - for stock checking)
 
@@ -131,31 +134,95 @@ Add this script to your theme's `theme.liquid` file, just before `</body>`:
 </script>
 ```
 
-#### Calculator Widget
+## Customer Account Extension Integration
 
-For embedding the calculator on specific pages:
+### Overview
 
-```html
-<!-- Add to your page template where you want the calculator -->
-<div id="underitall-calculator-root"></div>
+The Wholesale Account Profile Extension allows customers to manage their wholesale account information directly from their Shopify customer account profile page. This provides a seamless self-service experience without requiring admin intervention for basic updates.
 
-<script>
-  window.UnderItAllCalculatorConfig = {
-    apiUrl: 'https://your-replit-app.replit.app',
-    theme: 'light', // or 'dark'
-    defaultThickness: '1/8', // or '1/4'
-  };
-</script>
-<script src="https://your-replit-app.replit.app/calculator-widget.js"></script>
+### Installation (Shopify App)
+
+**Automatic Installation via Shopify CLI:**
+1. Extension is included in `extensions/wholesale-account-profile/`
+2. Deploy app: `npm run shopify app deploy`
+3. Extension automatically appears in customer account profiles
+4. No theme customization required
+
+**Manual Configuration:**
+- Extension target: `customer-account.profile.block.render`
+- Appears under "Account Information" section
+- Visible only to customers with linked `wholesale_account` metaobject
+
+### Customer Experience
+
+**When Customer Has Wholesale Account:**
+1. Navigate to customer account profile
+2. See "Wholesale Account Information" card
+3. Edit fields directly in form
+4. Click "Update Account" button
+5. See success message confirming update
+6. Changes immediately reflected in Shopify Admin
+
+**When Customer Lacks Wholesale Account:**
+- Shows informational banner: "No wholesale account found"
+- Prompts to contact support for wholesale access
+- Prevents unauthorized wholesale account creation
+
+### API Configuration
+
+**Required Environment Variables:**
+```bash
+SHOPIFY_ADMIN_ACCESS_TOKEN=shpat_xxxxx  # Must have write_metaobjects scope
+SHOPIFY_SHOP_DOMAIN=your-store.myshopify.com
 ```
 
-### Method 4: Full Shopify App (Advanced)
+**Backend Endpoint:**
+- Path: `PATCH /api/wholesale-account/:metaobjectId`
+- Authentication: Uses Shopify Admin API token
+- Rate Limiting: Respects Shopify API limits (2 req/sec)
 
-For the most native integration, consider building a Shopify App Extension that embeds directly into your Shopify admin and storefront. This requires:
+### Customization Options
 
-1. Converting the application to a Shopify App
-2. Using Shopify App Bridge for embedded experiences
-3. Publishing to the Shopify App Store (optional)
+**Editable Fields (Default):**
+- Company Name
+- Email
+- Phone
+- Website
+- Instagram
+- Street Address
+- Suite/Unit
+- City, State, ZIP
+- VAT/Tax ID
+- Tax Exempt Status
+- Source
+- Additional Message
+
+**Add New Field:**
+1. Update Shopify metaobject definition in Admin
+2. Edit `ProfileBlock.jsx` to add TextField/Checkbox
+3. Update `PATCH /api/wholesale-account/:metaobjectId` handler
+4. Test update flow
+
+**Remove Field:**
+1. Remove from `ProfileBlock.jsx` form
+2. Keep backend handler support (for backward compatibility)
+
+### Troubleshooting
+
+**Extension Not Appearing:**
+- Verify app installed on store
+- Check customer has `custom.wholesale_account` metafield
+- Redeploy extension: `npm run shopify app deploy`
+
+**Update Fails:**
+- Check `SHOPIFY_ADMIN_ACCESS_TOKEN` has `write_metaobjects` scope
+- Verify metaobject ID is valid GID format
+- Check Shopify Admin API logs for errors
+
+**Data Not Syncing:**
+- Verify `metaobjects/update` webhook is configured
+- Check `webhook_logs` table for webhook delivery
+- Ensure CRM API credentials are valid
 
 ## Feature Integration Details
 

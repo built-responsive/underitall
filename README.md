@@ -1,4 +1,3 @@
-
 # UnderItAll Shopify Tools
 
 > **Custom perforated rug pads. Made for designers.**
@@ -17,6 +16,7 @@ UnderItAll Shopify Tools provides a complete suite of trade-focused features:
 - **Admin Dashboard** – Full-featured management console for registrations, quotes, and draft orders
 - **CRM Integration** – Automated account and contact creation in Clarity CRM
 - **Shopify Integration** – Metaobject-based wholesale accounts, customer creation, and draft order generation
+- **Customer Account Extension** – Self-service wholesale account management portal
 
 **Built with:** React + TypeScript, Express.js, PostgreSQL, OpenAI GPT-5  
 **Deployed on:** Replit  
@@ -47,7 +47,7 @@ UnderItAll Shopify Tools provides a complete suite of trade-focused features:
 - **Border Radius:** 11px (small), 16px (medium), 22px (large)
 - **Spacing Scale:** 8px, 12px, 16px, 24px, 32px increments
 
-See [`BRAND_GUIDELINES.md`](BRAND_GUIDELINES.md) for complete visual identity specifications.
+See [`docs/BRAND_GUIDELINES.md`](docs/BRAND_GUIDELINES.md) for complete visual identity specifications.
 
 ---
 
@@ -128,41 +128,67 @@ SESSION_SECRET="xxxxx"
 │   │   └── priceBreakMap_Thick.json
 │   ├── routes.ts             # API endpoints
 │   ├── storage.ts            # Database interface
+│   ├── webhooks.ts           # Webhook handlers
 │   └── db.ts                 # Drizzle ORM setup
 │
 ├── shared/                   # Shared TypeScript types
 │   └── schema.ts             # Database schemas
 │
-├── extensions/               # Shopify Theme App Blocks
-│   └── underitall-blocks/
-│       ├── blocks/           # Liquid templates
-│       ├── assets/           # JS/CSS bundles
+├── extensions/               # Shopify Extensions
+│   ├── underitall-blocks/    # Theme app blocks
+│   │   ├── blocks/           # Liquid templates
+│   │   ├── assets/           # JS/CSS bundles
+│   │   └── shopify.extension.toml
+│   └── wholesale-account-profile/  # Customer account extension
+│       ├── src/ProfileBlock.jsx
 │       └── shopify.extension.toml
 │
-├── migrations/               # Database migrations
+├── docs/                     # Documentation
+│   ├── BRAND_GUIDELINES.md
+│   ├── ONBOARD_FLOW.md
+│   ├── SHOPIFY_INTEGRATION.md
+│   └── SHOPIFY_APP_BLOCKS.md
 │
-├── BRAND_GUIDELINES.md       # Visual identity specs
-├── SHOPIFY_INTEGRATION.md    # Integration guide
-├── SHOPIFY_APP_BLOCKS.md     # Theme blocks setup
-└── replit.md                 # Development docs
+└── AGENT.md                  # AI agent instructions
 ```
 
 ---
 
 ## 🧮 Features Deep Dive
 
-### 1. Wholesale Registration
+### 1. Wholesale Registration & Onboarding
 
-**What it does:**
-- Collects business credentials (firm name, contact, address, tax ID)
-- Supports file uploads for certifications and tax documentation
-- Admin approval workflow with notes and rejection reasons
-- Automated Shopify metaobject and customer creation
-- CRM integration (Clarity CRM) for account and contact creation
+**Complete Flow Architecture:**
 
-**Routes:**
-- Registration form: `/wholesale-registration`
-- Admin dashboard: `/admin`
+**Phase 1: Application Submission** (`/wholesale-registration`)
+- Business information collection (company, address, contact)
+- AI-powered company enrichment (auto-fills website, Instagram, address)
+- Tax exemption documentation upload (PDF/JPG/PNG, 50MB max)
+- EIN format validation (`XX-XXXXXXX` or `NA`)
+- Stored in PostgreSQL with `pending` status
+
+**Phase 2: Admin Approval** (`/admin` dashboard)
+- Review business credentials and tax documents
+- Approve/reject with admin notes
+- Triggers automated Shopify + CRM account creation
+
+**Phase 3: Shopify Integration** (Source of Truth)
+- **Metaobject Creation**: `wholesale_account` type via GraphQL
+  - Fields: company, email, phone, website, instagram, address (full), tax_exempt, vat_tax_id, clarity_id, owner
+- **Customer Creation**: REST API (Basic plan compatible)
+  - Bidirectional reference via `custom.wholesale_account` metafield
+  - Tags: `wholesale, trade-program, {business_type}`
+
+**Phase 4: CRM Synchronization** (Clarity CRM)
+- **Account Creation**: Maps metaobject → CRM Account
+- **Contact Creation**: Maps customer → CRM Contact (linked to Account)
+- **Attachment Upload**: Tax ID proof → CRM attachment
+- **Saves `clarity_id`** back to Shopify metaobject
+
+**Phase 5: Webhook-Driven Sync**
+- `metaobjects/update` → Syncs to CRM Account
+- `customers/update` → Syncs to CRM Contact
+- Bidirectional confirmation webhooks from Clarity CRM
 
 **API Endpoints:**
 ```
@@ -170,21 +196,50 @@ POST   /api/wholesale-registration          # Submit application
 GET    /api/wholesale-registrations         # List all (admin)
 PATCH  /api/wholesale-registration/:id      # Approve/reject
 POST   /api/wholesale-registration/:id/create-shopify-account
+POST   /api/webhooks/metaobjects/update     # Shopify webhook
+POST   /api/webhooks/customers/update       # Shopify webhook
+POST   /api/webhooks/clarity/account_create # CRM webhook
 ```
-
-**Shopify Integration:**
-- Creates `wholesale_account` metaobject with business details
-- Creates Shopify customer with metaobject reference
-- Tags customers as `wholesale, trade-program`
-
-**CRM Integration:**
-- Creates Clarity CRM Account with business info
-- Creates Contact linked to Account
-- Uploads tax/VAT proof as attachment
 
 ---
 
-### 2. Rug Pad Calculator
+### 2. Customer Account Extension (Self-Service Portal)
+
+**Location:** `extensions/wholesale-account-profile/`  
+**Target:** `customer-account.profile.block.render`  
+**API Version:** 2025-10
+
+**Features:**
+- Fetches customer's `custom.wholesale_account` metafield reference
+- Queries metaobject to display all wholesale account fields
+- Editable form fields with real-time validation
+- Update API: `PATCH /api/wholesale-account/:metaobjectId`
+- Success/error banners with auto-dismiss (5 seconds)
+
+**Customer Experience:**
+1. Navigate to Shopify customer account profile
+2. See "Wholesale Account Information" card
+3. Edit fields directly (company, email, phone, address, tax info)
+4. Click "Update Account" button
+5. See success message confirming update
+6. Changes immediately reflected in Shopify Admin
+
+**Editable Fields:**
+- Company Name, Email, Phone
+- Website, Instagram
+- Street Address, Suite/Unit, City, State, ZIP
+- VAT/Tax ID, Tax Exempt Status
+- Source, Additional Message
+
+**Technical Implementation:**
+- React components from `@shopify/ui-extensions-react/customer-account`
+- Storefront API queries for metaobject data
+- Admin API mutations for updates
+- Session token authentication
+
+---
+
+### 3. Rug Pad Calculator
 
 **What it does:**
 - Real-time pricing based on CSV-sourced matrices (⅛" and ¼" thickness)
@@ -205,20 +260,9 @@ GET    /api/calculator/quotes               # All quotes (admin)
 POST   /api/draft-order                     # Create Shopify draft order
 ```
 
-**Pricing Engine:**
-- Loads matrices from `priceBreakMap_Thin.json` and `priceBreakMap_Thick.json`
-- Uses `lookupPrice()` function with interpolation for intermediate sizes
-- Supports all shape calculations (Rectangle, Round, Square, Free Form)
-- Real-time updates via React `useEffect`
-
-**Draft Order Creation:**
-- Formatted dimensions in feet'inches" notation
-- Custom properties for Project Name, PO Number, Client Name
-- Direct link to Shopify Admin for order management
-
 ---
 
-### 3. AI Chat Assistant
+### 4. AI Chat Assistant
 
 **What it does:**
 - Floating chat bubble on all pages
@@ -226,6 +270,7 @@ POST   /api/draft-order                     # Create Shopify draft order
 - Answers rug pad questions, provides sizing guidance
 - Maintains conversation history across sessions
 - Product recommendations and installation tips
+- **Enhanced with wholesale onboarding knowledge**
 
 **Component:** `client/src/components/chat-bubble.tsx`
 
@@ -236,205 +281,86 @@ POST   /api/chat/message                    # Send message & get AI response
 GET    /api/chat/conversation/:id/messages  # Get history
 ```
 
-**System Prompt:**
-The chat uses a custom system prompt that positions the AI as a knowledgeable rug pad expert, familiar with:
-- UnderItAll's Luxe Lite (⅛") and Luxe (¼") products
-- Perforated edge technology
-- Custom sizing and installation guidance
-- Trade-only exclusivity
-
----
-
-### 4. Admin Dashboard
-
-**What it does:**
-- Registration approval/rejection workflow
-- Calculator quote analytics
-- Draft order management with Shopify links
-- CSV settings for pricing matrix updates
-- Expandable registration cards with full details
-
-**Routes:**
-- Dashboard: `/admin`
-
-**Features:**
-- Pending/approved/rejected registration filtering
-- Inline file links for certifications
-- One-click Shopify account creation
-- CRM sync status tracking
-- Collapsible card UI with detailed views
-
----
-
-## 🎨 Brand Styling
-
-### Navigation
-
-The application features a sticky navigation header:
-- **Auto-hides in Shopify iframes** (detects `window !== window.top`)
-- **Responsive design:** Icon-only on mobile (<640px), full text on desktop
-- **Positioned:** `top-0` with `z-50` to stay above all content
-
-### Calculator Sticky Header
-
-The calculator includes a sticky orange header below navigation:
-- **Dynamic shape thumbnail** – Updates when shape selection changes
-- **Large white total price** – Prominent display for trade professionals
-- **Condensed quote details** – Dimensions (feet'inches"), area, price/sqft, thickness, quantity
-- **Action buttons:** Save Quote, Create Draft Order
-- **Positioned:** `top-16` (below nav) with `z-40`
-
-### Color Usage
-
-- **Rorange (#F2633A):** Primary CTAs, accents, active states
-- **Greige (#E1E0DA):** Borders, dividers, subtle backgrounds
-- **Felt Gray (#696A6D):** Secondary text, disabled states
-- **Soft Black (#212227):** Primary text, headers
-- **Cream (#F3F1E9):** Page backgrounds, cards
-
-### Typography
-
-- **Archivo:** Headlines (600-700 weight) – Confident, modern
-- **Lora Italic:** Feature text, accents (400 weight) – Elegant, distinctive
-- **Vazirmatn:** Body text, forms (400-500 weight) – Clean, readable
-
 ---
 
 ## 🔗 Shopify Integration
 
-### Theme App Blocks
+### Metaobject Schema (`wholesale_account`)
 
-Deploy calculator and chat as drag-and-drop theme blocks:
-
-```bash
-# Build extension bundles
-npm run build:extensions
-
-# Deploy to Shopify
-shopify app deploy
+Complete field structure:
+```typescript
+{
+  company: string;
+  email: string;
+  phone: string;
+  website?: string;
+  instagram?: string;
+  address: string;
+  address2?: string;
+  city: string;
+  state: string;
+  zip: string;
+  vat_tax_id: string;
+  tax_exempt: boolean;
+  source: string;
+  message?: string;
+  account_type: string[];
+  sample_set: boolean;
+  tax_proof?: string; // GenericFile GID
+  clarity_id?: string; // CRM Account ID
+  owner: string[]; // Customer GIDs
+}
 ```
 
-See [`SHOPIFY_APP_BLOCKS.md`](SHOPIFY_APP_BLOCKS.md) for complete setup instructions.
+### Webhook Configuration
 
-### Configuration
+**Shopify → Our App:**
+- `metaobjects/update` (filter: `type:wholesale_account`)
+- `customers/update`
 
-Update `shopify.app.toml` with your credentials:
-
-```toml
-client_id = "your-app-client-id"
-name = "UNDERITALL TOOLS"
-application_url = "https://your-app.replit.app"
-embedded = true
-
-[auth]
-redirect_urls = [
-  "https://your-app.replit.app",
-  "https://your-app.replit.app/auth/callback"
-]
-
-[access_scopes]
-scopes = "write_customers,write_draft_orders,write_metaobjects,read_products"
-```
-
-### Metaobject Schema
-
-The `wholesale_account` metaobject includes:
-- `company` (text)
-- `email` (text)
-- `phone` (text)
-- `website` (text)
-- `instagram` (text)
-- `source` (text)
-- `message` (text)
-- `sample_set` (boolean)
-- `tax_exempt` (boolean)
-- `vat_tax_id` (text)
-
----
-
-## 📊 Database Schema
-
-All tables defined in [`shared/schema.ts`](shared/schema.ts):
-
-**Core Tables:**
-- `wholesaleRegistrations` – Business applications
-- `calculatorQuotes` – Saved pricing quotes
-- `draftOrders` – Shopify draft order tracking
-- `chatConversations` – Chat session tracking
-- `chatMessages` – Conversation history
-
-**Migrations:**
-- `0001_add_missing_columns.sql` – Initial schema setup
-- `0002_add_registration_fields.sql` – Registration enhancements
-
----
-
-## 🛠️ Development
-
-### Running Locally
-
-```bash
-# Start development server
-npm run dev
-```
-
-This starts:
-- Express backend on port 5000
-- Vite dev server with HMR
-- PostgreSQL database connection
-
-### Updating Price Matrices
-
-1. Export updated pricing from Google Sheets as CSV
-2. Convert to JSON format
-3. Replace `server/utils/priceBreakMap_Thin.json` and `priceBreakMap_Thick.json`
-4. Redeploy
-
-Or use the Admin Dashboard CSV settings to update URLs (production feature).
-
-### Database Migrations
-
-```bash
-# Generate new migration
-npm run db:generate
-
-# Apply migrations
-npm run db:migrate
-```
-
----
-
-## 🚢 Deployment
-
-### Replit Deployment
-
-1. Click **Deploy** button in Replit
-2. Your app will be available at: `https://your-app.replit.app`
-3. Update Shopify app URLs in `shopify.app.toml`
-4. Redeploy Shopify app: `shopify app deploy`
-
-### Custom Domain (Optional)
-
-1. In Replit: Deployments → Custom Domain
-2. Add your domain (e.g., `tools.underitall.com`)
-3. Update DNS records as instructed
-4. Update all URLs in `shopify.app.toml`
+**Clarity CRM → Our App:**
+- Account create/update confirmations
+- Contact create/update confirmations
 
 ---
 
 ## 📖 Documentation
 
-- **[BRAND_GUIDELINES.md](BRAND_GUIDELINES.md)** – Official visual identity and design system
-- **[SHOPIFY_INTEGRATION.md](SHOPIFY_INTEGRATION.md)** – Complete Shopify integration guide
-- **[SHOPIFY_APP_BLOCKS.md](SHOPIFY_APP_BLOCKS.md)** – Theme app blocks deployment
-- **[design_guidelines.md](design_guidelines.md)** – UI/UX implementation specs
-- **[replit.md](replit.md)** – Development and feature documentation
+- **[docs/BRAND_GUIDELINES.md](docs/BRAND_GUIDELINES.md)** – Official visual identity and design system
+- **[docs/SHOPIFY_INTEGRATION.md](docs/SHOPIFY_INTEGRATION.md)** – Complete Shopify integration guide
+- **[docs/ONBOARD_FLOW.md](docs/ONBOARD_FLOW.md)** – Detailed wholesale onboarding flow
+- **[docs/SHOPIFY_APP_BLOCKS.md](docs/SHOPIFY_APP_BLOCKS.md)** – Theme app blocks deployment
+- **[AGENT.md](AGENT.md)** – AI agent system knowledge
+
+---
+
+## 🧪 Testing
+
+**Wholesale Registration:**
+- ✅ Submit application with all fields
+- ✅ AI-powered company enrichment
+- ✅ Upload tax ID documentation
+- ✅ Admin approval workflow
+- ✅ Shopify metaobject creation
+- ✅ Shopify customer creation (with metafield reference)
+- ✅ CRM account and contact creation
+- ✅ Tax proof attachment upload to CRM
+- ✅ Webhook synchronization (Shopify ↔ CRM)
+
+**Customer Account Extension:**
+- ✅ Extension renders on customer profile page
+- ✅ Fetches metaobject data via metafield reference
+- ✅ Form fields populate with current values
+- ✅ Update API endpoint works correctly
+- ✅ Success/error banners display appropriately
+- ✅ Changes reflected in Shopify Admin immediately
 
 ---
 
 ## 🔒 Security
 
 - **API Keys:** Stored as environment variables (never committed)
+- **Webhook Verification:** HMAC-SHA256 signature validation
 - **Session Security:** Encrypted session cookies
 - **Input Validation:** All API endpoints use Zod schemas
 - **CORS:** Configured for Shopify domains only
@@ -442,141 +368,13 @@ npm run db:migrate
 
 ---
 
-## 🧪 Testing
-
-End-to-end testing checklist:
-
-**Wholesale Registration:**
-- ✅ Submit application with all fields
-- ✅ Upload certification and tax ID files
-- ✅ Admin approval workflow
-- ✅ Shopify metaobject creation
-- ✅ CRM account and contact creation
-
-**Calculator:**
-- ✅ Real-time pricing updates (test 8'×10' → 12'×10')
-- ✅ All shape calculations (Rectangle, Round, Square, Free Form)
-- ✅ Draft order creation
-- ✅ Quote persistence
-
-**Chat Assistant:**
-- ✅ GPT-5 responses
-- ✅ Conversation history persistence
-- ✅ Product recommendations
-
----
-
-## 📝 API Reference
-
-### Calculator
-
-**Calculate Price**
-```http
-POST /api/calculator/calculate
-Content-Type: application/json
-
-{
-  "width": 8,
-  "length": 10,
-  "thickness": "thin",
-  "quantity": 1
-}
-```
-
-**Create Draft Order**
-```http
-POST /api/draft-order
-Content-Type: application/json
-
-{
-  "quoteId": "uuid",
-  "customerInfo": {
-    "email": "customer@example.com",
-    "first_name": "John",
-    "last_name": "Doe"
-  }
-}
-```
-
-### Wholesale Registration
-
-**Submit Application**
-```http
-POST /api/wholesale-registration
-Content-Type: application/json
-
-{
-  "firmName": "Design Firm",
-  "contactName": "John Doe",
-  "email": "john@designfirm.com",
-  "phone": "+1234567890",
-  "businessAddress": "123 Main St",
-  "city": "New York",
-  "state": "NY",
-  "zipCode": "10001",
-  "businessType": "design_firm",
-  "isTaxExempt": true,
-  "taxId": "12-3456789",
-  "accountPassword": "securePassword123"
-}
-```
-
-**Approve/Reject**
-```http
-PATCH /api/wholesale-registration/:id
-Content-Type: application/json
-
-{
-  "status": "approved",
-  "adminNotes": "Verified credentials"
-}
-```
-
-### Chat
-
-**Send Message**
-```http
-POST /api/chat/message
-Content-Type: application/json
-
-{
-  "conversationId": "uuid",
-  "content": "What thickness should I use?",
-  "sessionId": "session-uuid"
-}
-```
-
----
-
-## 🤝 Contributing
-
-This is a proprietary application for UnderItAll. Internal development only.
-
----
-
-## 📄 License
-
-Proprietary – UnderItAll, Inc.
-
----
-
-## 🆘 Support
-
-For technical issues or feature requests:
-1. Review documentation in `docs/`
-2. Check Replit console for errors
-3. Review Shopify API logs
-4. Contact: **dev@underitall.com**
-
----
-
 ## 🎯 Roadmap
 
 **Planned Enhancements:**
+- [ ] Bidirectional CRM sync (CRM → Shopify metaobject updates)
 - [ ] Customer account portal with order history
 - [ ] Automated email notifications for approvals
 - [ ] Admin bulk operations for draft orders
-- [ ] Persistent chat history with recommendations
 - [ ] Real-time inventory integration
 - [ ] Multi-currency support for international trade
 - [ ] Advanced analytics dashboard
@@ -585,7 +383,7 @@ For technical issues or feature requests:
 
 **Built with ❤️ on Replit**  
 **Version:** 1.0.0 MVP  
-**Last Updated:** October 2025
+**Last Updated:** January 2025
 
 ---
 

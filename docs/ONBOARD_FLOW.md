@@ -214,7 +214,7 @@ If customer creation fails (e.g., on Basic Shopify plan), the flow continues—m
 }
 ```
 
-**Action:** Save `AccountId` for contact creation.
+**Action:** Save `AccountId` to metaobject's `clarity_id` field.
 
 ### Step 4.2: Create Clarity CRM Contact
 
@@ -309,436 +309,107 @@ If customer creation fails (e.g., on Basic Shopify plan), the flow continues—m
               Clarity webhooks (confirmation)
 ```
 
-### Webhook 1: `metaobjects/update`
+### Webhook Handlers
 
-**Shopify sends:** When wholesale_account metaobject is created or updated in admin.
+**Configured in `shopify.app.toml`:**
+```toml
+[[webhooks.subscriptions]]
+topics = ["metaobjects/update"]
+uri = "https://join.itsunderitall.com/api/webhooks/metaobjects/update"
+filter = "type:wholesale_account"
 
-**Endpoint:** `POST /api/webhooks/shopify` or `POST /api/webhooks/metaobjects/update`
-
-**Sample Payload:**
-```json
-{
-  "id": "gid://shopify/Metaobject/137780953248",
-  "type": "wholesale_account",
-  "fields": {
-    "company": "Magnolify, Inc.",
-    "email": "magnolify@gmail.com",
-    "phone": "3862445990",
-    "website": "https://magnolify.pro",
-    "instagram": "magnolify",
-    "address": "210 Oklahoma Ave",
-    "address2": "123",
-    "city": "Satsuma",
-    "state": "FL",
-    "zip": "32189",
-    "source": "Friend",
-    "message": "Testing",
-    "account_type": "[\"Specialty Retail Location - Rugs\"]",
-    "sample_set": true,
-    "tax_exempt": true,
-    "vat_tax_id": "93-1805911",
-    "tax_proof": "gid://shopify/GenericFile/38482657902752",
-    "clarity_id": "99512ad0-c8ab-4769-ad30-f6e71687954f",
-    "owner": "[\"gid://shopify/Customer/8523485118624\"]"
-  },
-  "handle": "magnolify-inc",
-  "display_name": "Magnolify, Inc.",
-  "created_at": "2025-10-20T00:58:28-04:00",
-  "updated_at": "2025-10-22T03:50:00-04:00"
-}
+[[webhooks.subscriptions]]
+topics = ["customers/update"]
+uri = "https://join.itsunderitall.com/api/webhooks/customers/update"
 ```
 
-**Processing Logic:**
+---
 
-1. **Verify webhook signature** (HMAC-SHA256 with `SHOPIFY_WEBHOOK_SECRET`)
-2. **Log to database** (`webhook_logs` table)
-3. **Check for `clarity_id`:**
-   - **If exists:** Update CRM Account via `PUT /api/v1/Account/{clarity_id}`
-   - **If missing:** Create new CRM Account via `POST /api/v1/Account`
-4. **Save returned `AccountId` back to Shopify metaobject:**
-   ```graphql
-   mutation UpdateMetaobject {
-     metaobjectUpdate(
-       id: "gid://shopify/Metaobject/137780953248",
-       metaobject: {
-         fields: [{ key: "clarity_id", value: "26fb47bc-..." }]
-       }
-     ) {
-       metaobject { id }
-     }
-   }
-   ```
+## Shopify Extensions
 
-**Field Mapping (Shopify → CRM):**
+### Wholesale Account Profile Extension
+
+**Complete Customer Self-Service Extension**
+
+This Shopify Customer Account UI Extension allows wholesale customers to view and manage their wholesale account information directly from their Shopify customer profile page.
+
+#### Extension Architecture
+
+**Location:** `extensions/wholesale-account-profile/`  
+**Target:** `customer-account.profile.block.render` (Customer profile page)  
+**API Version:** 2025-10  
+**Technologies:** React (`@shopify/ui-extensions-react/customer-account`)
+
+#### Data Flow
+
+**1. Extension Configuration** (`shopify.extension.toml`)
+```toml
+[extensions.capabilities]
+api_access = true  # Enables Storefront API queries
+```
+
+**2. Fetch Customer's Metaobject**
 ```javascript
-{
-  Name: fields.company,
-  CompanyPhone: fields.phone,
-  Email: fields.email,
-  Address1: fields.address,
-  Address2: fields.address2,
-  City: fields.city,
-  State: fields.state,
-  ZipCode: fields.zip,
-  Website: fields.website,
-  Instagram: fields.instagram ? `https://www.instagram.com/${fields.instagram}` : "",
-  "Account Type": fields.account_type,
-  "Sample Set": fields.sample_set ? "Yes" : "No",
-  Registration: fields.tax_exempt ? "Registered with documentation" : "No documentation",
-  Note: `Shopify Metaobject ID: ${id}`,
-  Description: fields.message
+// Query customer's wholesale_account metafield
+customer(id: $customerId) {
+  metafield(namespace: "custom", key: "wholesale_account") {
+    reference {
+      ... on Metaobject {
+        id
+        handle
+        fields { key value }
+      }
+    }
+  }
 }
 ```
 
-### Webhook 2: `customers/update`
+**3. Update Flow**
+```
+User edits form → Submit button clicked → 
+  Frontend: setSubmitting(true) →
+  API Call: PATCH /api/wholesale-account/:metaobjectId →
+  Backend: Shopify Admin GraphQL metaobjectUpdate mutation →
+  Response: Success/Error →
+  Frontend: Show banner, update local state
+```
 
-**Shopify sends:** When customer record is updated (including metafield changes).
+#### Backend Update API
 
-**Endpoint:** `POST /api/webhooks/customers/update`
+**Endpoint:** `PATCH /api/wholesale-account/:metaobjectId`
 
-**Sample Payload:**
+**Request Body:**
 ```json
 {
-  "id": 8523485118624,
-  "email": "magnolify@gmail.com",
-  "first_name": "Paul",
-  "last_name": "Smith",
-  "phone": "+13862445990",
-  "state": "disabled",
-  "tax_exempt": false,
-  "addresses": [{
-    "id": 9730211217568,
-    "address1": "210 Oklahoma Ave",
-    "city": "Satsuma",
-    "province": "Florida",
-    "zip": "32189",
-    "country": "United States",
-    "company": "Magnolify, Inc."
-  }],
-  "default_address": { /* same as above */ },
-  "admin_graphql_api_id": "gid://shopify/Customer/8523485118624"
+  "company": "Updated Company Name",
+  "email": "new@email.com",
+  "phone": "555-123-4567",
+  "website": "https://newsite.com",
+  "instagram": "newhandle",
+  "address": "123 New St",
+  "address2": "Suite 200",
+  "city": "New York",
+  "state": "NY",
+  "zip": "10001",
+  "vat_tax_id": "12-3456789",
+  "tax_exempt": true,
+  "source": "Updated source",
+  "message": "Updated notes"
 }
 ```
 
-**Processing Logic:**
+#### Testing Checklist
 
-1. **Verify webhook signature**
-2. **Log to database**
-3. **Fetch customer's metafield** to get linked `wholesale_account`:
-   ```graphql
-   query GetCustomerMetafields {
-     customer(id: "gid://shopify/Customer/8523485118624") {
-       metafield(namespace: "custom", key: "wholesale_account") {
-         value
-       }
-     }
-   }
-   ```
-   **Returns:** `gid://shopify/Metaobject/137780953248`
-
-4. **Fetch metaobject to get `clarity_id`:**
-   ```graphql
-   query GetMetaobject {
-     metaobject(id: "gid://shopify/Metaobject/137780953248") {
-       fields {
-         key
-         value
-       }
-     }
-   }
-   ```
-
-5. **Check for existing contact in CRM:**
-   - Query by email or linked `AccountId`
-   - **If exists:** Update contact
-   - **If missing:** Create new contact
-
-6. **Create/Update CRM Contact:**
-   ```json
-   {
-     "AccountId": "26fb47bc-...",
-     "FirstName": "Paul",
-     "LastName": "Smith",
-     "Email": "magnolify@gmail.com",
-     "Phone": "+13862445990",
-     "Address1": "210 Oklahoma Ave",
-     "City": "Satsuma",
-     "State": "FL",
-     "ZipCode": "32189"
-   }
-   ```
-
-7. **Save `ContactId` to metaobject** (for future reference):
-   - Could add a `clarity_contact_id` field to metaobject
-   - Or store in a separate mapping table
-
-### Webhook 3: Clarity CRM Webhooks (Confirmation)
-
-**CRM sends:** When Account or Contact is created/updated in Clarity.
-
-**Endpoints:**
-- `POST /api/webhooks/clarity/account_create`
-- `POST /api/webhooks/clarity/contact_create`
-
-**Sample Account Payload:**
-```json
-{
-  "Data": {
-    "Type": "Converted"
-  },
-  "Event": "add",
-  "Entity": "underitall",
-  "EventId": "414524c5-3f6c-40de-a589-18fe3240d5ce",
-  "Resource": "account",
-  "ResourceId": "353e9122-d10f-4059-99f6-d63dd5707705",
-  "EventHookId": "53746019-335f-4756-8f35-6d0e85f2c63d",
-  "AppSignature": "claritysoft-webhook-97fa1165-b246-4211-aae6-8657c78260ec"
-}
-```
-
-**Sample Contact Payload:**
-```json
-{
-  "Data": {
-    "Type": "Converted"
-  },
-  "Event": "add",
-  "Resource": "contact",
-  "ResourceId": "1d1e96b4-cbe2-41cf-990d-19de60054db8",
-  "EventHookId": "5b9f02fe-48af-456c-bf46-8baece3b362c"
-}
-```
-
-**Processing Logic:**
-1. **Log to database** (`webhook_logs`)
-2. **Extract `ResourceId`** (Account/Contact ID)
-3. **Update metaobject with CRM IDs** (optional, for reference):
-   - Add custom fields: `clarity_account_id`, `clarity_contact_id`
-4. **Send admin notification** (optional)
-
----
-
-## Data Flow Summary
-
-### Initial Creation Flow
-
-```
-Registration Form Submission
-    ↓
-Database Record (status: pending)
-    ↓
-Admin Approval
-    ↓
-┌─────────────────────────────────────────────┐
-│ Create Shopify Wholesale Account Metaobject │
-└─────────────────────────────────────────────┘
-    ↓
-┌─────────────────────────────────────────────┐
-│ Create Shopify Customer (with metafield)    │
-└─────────────────────────────────────────────┘
-    ↓
-┌─────────────────────────────────────────────┐
-│ Create Clarity CRM Account                  │
-│ (Save AccountId to metaobject.clarity_id)   │
-└─────────────────────────────────────────────┘
-    ↓
-┌─────────────────────────────────────────────┐
-│ Create Clarity CRM Contact                  │
-│ (Linked to AccountId)                       │
-└─────────────────────────────────────────────┘
-    ↓
-Upload Tax ID Proof to CRM as Attachment
-```
-
-### Ongoing Sync Flow (Webhook-Driven)
-
-**Scenario 1: Shopify Metaobject Updated**
-```
-Admin updates metaobject in Shopify
-    ↓
-Shopify fires metaobjects/update webhook
-    ↓
-Our app receives webhook → logs to DB
-    ↓
-Extracts clarity_id from metaobject
-    ↓
-Updates CRM Account via Clarity API
-    ↓
-CRM fires account_create webhook (confirmation)
-    ↓
-Our app logs confirmation
-```
-
-**Scenario 2: Shopify Customer Updated**
-```
-Admin updates customer in Shopify
-    ↓
-Shopify fires customers/update webhook
-    ↓
-Our app receives webhook → logs to DB
-    ↓
-Fetches customer metafield → gets metaobject GID
-    ↓
-Fetches metaobject → gets clarity_id
-    ↓
-Updates CRM Contact via Clarity API
-    ↓
-CRM fires contact_create webhook (confirmation)
-    ↓
-Our app logs confirmation
-```
-
----
-
-## Database Schema Updates Needed
-
-### Add CRM Tracking Fields to Metaobject
-
-**Shopify Admin:** Add custom fields to `wholesale_account` metaobject definition:
-- `clarity_account_id` (Single line text)
-- `clarity_contact_id` (Single line text)
-- `last_synced_at` (Date and time)
-
-### Webhook Logs Table (Already Exists)
-
-```sql
-CREATE TABLE webhook_logs (
-  id SERIAL PRIMARY KEY,
-  timestamp TIMESTAMP NOT NULL DEFAULT NOW(),
-  type TEXT NOT NULL,
-  source TEXT NOT NULL, -- 'shopify' or 'crm'
-  payload JSONB,
-  shop_domain TEXT,
-  topic TEXT,
-  created_at TIMESTAMP NOT NULL DEFAULT NOW()
-);
-```
-
-**Indexes:**
-```sql
-CREATE INDEX idx_webhook_logs_type ON webhook_logs(type);
-CREATE INDEX idx_webhook_logs_source ON webhook_logs(source);
-CREATE INDEX idx_webhook_logs_timestamp ON webhook_logs(timestamp DESC);
-```
-
----
-
-## Error Handling & Edge Cases
-
-### 1. Customer Creation Fails (Shopify Basic Plan)
-- **Action:** Continue with metaobject creation
-- **Warning:** Log warning, notify admin
-- **Workaround:** Manual customer creation or upgrade plan
-
-### 2. CRM Account Creation Fails
-- **Action:** Retry with exponential backoff (3 attempts)
-- **Fallback:** Log error, send admin notification
-- **Manual Fix:** Admin can retry via dashboard
-
-### 3. Webhook Delivery Fails
-- **Shopify:** Auto-retries for 48 hours
-- **Our App:** Log all attempts in `webhook_logs`
-- **Recovery:** Re-process failed webhooks via admin dashboard
-
-### 4. Duplicate Prevention
-- **Shopify:** Check for existing metaobject by `handle` before creation
-- **CRM:** Use "Create Or Edit" operation (idempotent)
-- **Customer:** Check email uniqueness before creation
-
-### 5. Webhook Signature Verification Fails
-- **Action:** Reject webhook with 401 status
-- **Log:** Record failed verification attempt
-- **Alert:** Notify admin if multiple failures (potential attack)
-
----
-
-## Testing Checklist
-
-### Manual Testing Steps
-
-1. **Registration Submission:**
-   - [ ] Fill out form with valid data
-   - [ ] Submit and verify database record created
-   - [ ] Verify status is `pending`
-
-2. **Admin Approval:**
-   - [ ] Log into admin dashboard
-   - [ ] Approve registration
-   - [ ] Verify Shopify metaobject created
-   - [ ] Verify Shopify customer created (if applicable)
-   - [ ] Verify CRM account created
-   - [ ] Verify CRM contact created
-   - [ ] Verify tax ID proof uploaded to CRM
-
-3. **Webhook Reception:**
-   - [ ] Update metaobject in Shopify admin
-   - [ ] Verify `metaobjects/update` webhook received
-   - [ ] Verify webhook logged in database
-   - [ ] Verify CRM account updated
-   - [ ] Update customer in Shopify admin
-   - [ ] Verify `customers/update` webhook received
-   - [ ] Verify CRM contact updated
-
-4. **CRM Confirmation Webhooks:**
-   - [ ] Create account in CRM manually
-   - [ ] Verify `clarity/account_create` webhook received
-   - [ ] Create contact in CRM manually
-   - [ ] Verify `clarity/contact_create` webhook received
-
-### Automated Testing (Future)
-
-```javascript
-// Test metaobject webhook processing
-test('processes metaobjects/update webhook', async () => {
-  const payload = { /* sample webhook payload */ };
-  const response = await request(app)
-    .post('/api/webhooks/metaobjects/update')
-    .send(payload);
-  
-  expect(response.status).toBe(200);
-  // Verify CRM API called
-  // Verify database logged
-});
-```
-
----
-
-## Monitoring & Observability
-
-### Key Metrics to Track
-
-1. **Registration Funnel:**
-   - Submissions per day
-   - Approval rate
-   - Time to approval
-
-2. **Integration Health:**
-   - Shopify API success rate
-   - CRM API success rate
-   - Webhook delivery rate
-
-3. **Error Rates:**
-   - Failed customer creations
-   - Failed CRM syncs
-   - Webhook signature failures
-
-### Logging Strategy
-
-**Console Logs:**
-```javascript
-console.log("📥 Webhook received:", topic);
-console.log("✅ CRM account created:", accountId);
-console.log("❌ Customer creation failed:", error);
-```
-
-**Database Logs:**
-- All webhooks in `webhook_logs`
-- Failed operations flagged for review
-
-**Admin Dashboard:**
-- Recent webhook activity
-- Failed sync attempts
-- Retry queue
+- [ ] Extension renders on customer profile page
+- [ ] Correctly fetches metaobject data via metafield reference
+- [ ] Form fields populate with current values
+- [ ] Update button shows loading state while submitting
+- [ ] Success banner appears on successful update
+- [ ] Error banner shows specific error messages
+- [ ] Success banner auto-dismisses after 5 seconds
+- [ ] Updated values reflected immediately in form
+- [ ] Shopify Admin shows updated metaobject fields
+- [ ] Webhook triggered on metaobject update (if configured)
 
 ---
 
@@ -750,7 +421,7 @@ console.log("❌ Customer creation failed:", error);
 - **Reject:** All unsigned or invalid webhooks
 
 ### 2. API Key Management
-- **Environment Variables:** Store all keys in `.env` (never commit)
+- **Environment Variables:** Store all keys in `.env` (never committed)
 - **Rotation:** Regularly rotate API keys
 - **Access Control:** Limit API scopes to minimum required
 
@@ -763,118 +434,6 @@ console.log("❌ Customer creation failed:", error);
 - **Shopify API:** 2 requests/second (respect rate limits)
 - **CRM API:** Unknown limits—implement exponential backoff
 - **Webhooks:** No rate limit on incoming webhooks
-
----
-
-## Future Enhancements
-
-1. **Bidirectional Sync:**
-   - Currently: Shopify → CRM
-   - Future: CRM → Shopify (update metaobjects when CRM changes)
-
-2. **Customer Portal:**
-   - Allow approved customers to log in
-   - View order history
-   - Update contact information (syncs back to Shopify + CRM)
-
-3. **Automated Notifications:**
-   - Email customer on approval
-   - Slack notification for admin team
-   - SMS alerts for urgent issues
-
-4. **Bulk Import:**
-   - CSV upload for existing wholesale customers
-   - Automatic metaobject + CRM creation
-
-5. **Analytics Dashboard:**
-   - Registration trends
-   - Top business types
-   - Geographic distribution
-
----
-
-## Support & Troubleshooting
-
-### Common Issues
-
-**Issue:** Webhook not received
-- **Check:** Shopify webhook subscription is active
-- **Verify:** Endpoint URL is publicly accessible
-- **Test:** Use Shopify webhook tester in admin
-
-**Issue:** CRM sync fails
-- **Check:** API key is valid
-- **Verify:** Payload matches Clarity API schema
-- **Retry:** Use manual retry button in admin dashboard
-
-**Issue:** Duplicate accounts created
-- **Check:** Metaobject handle uniqueness
-- **Fix:** Implement duplicate detection logic
-- **Cleanup:** Manually merge duplicates in Shopify + CRM
-
-### Contact Information
-
-- **Technical Support:** dev@underitall.com
-- **CRM API Docs:** https://docs.claritycrm.com/api
-- **Shopify Webhooks:** https://shopify.dev/docs/api/admin-rest/webhooks
-
----
-
-## Appendix: API Reference
-
-### Shopify Admin API
-
-**Create Metaobject:**
-```
-POST /admin/api/2024-10/graphql.json
-```
-
-**Create Customer:**
-```
-POST /admin/api/2024-10/customers.json
-```
-
-**Update Metaobject:**
-```
-POST /admin/api/2024-10/graphql.json
-```
-
-### Clarity CRM API
-
-**Base URL:** `https://claritymobileapi.claritycrm.com`
-
-**Create Account:**
-```
-POST /api/v1
-Body: { APIKey, Resource: "Account", Operation: "Create Or Edit", Data }
-```
-
-**Create Contact:**
-```
-POST /api/v1
-Body: { APIKey, Resource: "Contact", Operation: "Create Or Edit", Data }
-```
-
-**Upload Attachment:**
-```
-POST /api/v1/Attachment/Create
-Body: { APIKey, Resource: "Attachment", Data }
-```
-
-### Our Webhook Endpoints
-
-**Shopify Webhooks:**
-- `POST /api/webhooks/shopify` (generic)
-- `POST /api/webhooks/metaobjects/update`
-- `POST /api/webhooks/customers/update`
-- `POST /api/webhooks/customers/create`
-
-**CRM Webhooks:**
-- `POST /api/webhooks/clarity/account_create`
-- `POST /api/webhooks/clarity/contact_create`
-
-**Webhook Logs:**
-- `GET /api/webhooks/logs?source=shopify&limit=100`
 
 ---
 
