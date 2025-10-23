@@ -1,0 +1,1319 @@
+{
+  "data": {
+    "metaobjectDefinitionByType": {
+      "id": "gid://shopify/MetaobjectDefinition/11984371947",
+      "name": "Wholesale Account",
+      "type": "app--290419769345--wholesale_account",
+      "description": null,
+      "displayNameKey": "company",
+      "metaobjectsCount": 1,
+      "metaobjectsWriteAccess": true,
+      "standardTemplate": null,
+      "owningApp": {
+        "id": "gid://shopify/App/290419769345",
+        "title": "its-under-it-all",
+        "developerType": "PARTNER",
+        "developerName": "Responsive Web Solutions LLC",
+        "appStoreAppUrl": null,
+        "applicationUrl": "https://its-under-it-all.replit.app/dashboard",
+        "icon": {
+          "id": null,
+          "url": "https://cdn.shopify.com/s/files/applications/78a602699150bda4e49a40861707d500_100x.png?1761202103",
+          "__typename": "Image"
+        },
+        "__typename": "App"
+      },
+      "access": {
+        "storefront": "PUBLIC_READ",
+        "admin": "MERCHANT_READ_WRITE",
+        "__typename": "MetaobjectAccess"
+      },
+      "metafieldDefinitions": [
+        {
+          "description": null,
+          "key": "company",
+          "name": "Company Name",
+          "type": {
+            "name": "single_line_text_field",
+            "__typename": "MetafieldDefinitionType"
+          },
+          "validations": [],
+          "visibleToStorefrontApi": false,
+          "required": true,
+          "adminFilterStatus": "NOT_FILTERABLE",
+          "__typename": "MetaobjectFieldDefinition"
+        },
+        {
+          "description": null,
+          "key": "email",
+          "name": "Email",
+          "type": {
+            "name": "single_line_text_field",
+            "__typename": "MetafieldDefinitionType"
+          },
+          "validations": [],
+          "visibleToStorefrontApi": false,
+          "required": true,
+          "adminFilterStatus": "NOT_FILTERABLE",
+          "__typename": "MetaobjectFieldDefinition"
+        },
+        {
+          "description": null,
+          "key": "phone",
+          "name": "Phone",
+          "type": {
+            "name": "single_line_text_field",
+            "__typename": "MetafieldDefinitionType"
+          },
+          "validations": [],
+          "visibleToStorefrontApi": false,
+          "required": false,
+          "adminFilterStatus": "NOT_FILTERABLE",
+          "__typename": "MetaobjectFieldDefinition"
+        },
+        {
+          "description": null,
+          "key": "website",
+          "name": "Website",
+          "type": {
+            "name": "single_line_text_field",
+            "__typename": "MetafieldDefinitionType"
+          },
+          "validations": [],
+          "visibleToStorefrontApi": false,
+          "required": false,
+          "adminFilterStatus": "NOT_FILTERABLE",
+          "__typename": "MetaobjectFieldDefinition"
+        },
+        {
+          "description": null,
+          "key": "instagram",
+          "name": "Instagram Handle",
+          "type": {
+            "name": "single_line_text_field",
+            "__typename": "MetafieldDefinitionType"
+          },
+          "validations": [],
+          "visibleToStorefrontApi": false,
+          "required": false,
+          "adminFilterStatus": "NOT_FILTERABLE",
+          "__typename": "MetaobjectFieldDefinition"
+        },
+        {
+          "description": null,
+          "key": "address",
+          "name": "Business Address",
+          "type": {
+            "name": "single_line_text_field",
+            "__typename": "MetafieldDefinitionType"
+          },
+          "validations": [],
+          "visibleToStorefrontApi": false,
+          "required": false,
+          "adminFilterStatus": "NOT_FILTERABLE",
+          "__typename": "MetaobjectFieldDefinition"
+        },
+        {
+          "description": null,
+          "key": "address2",
+          "name": "Address Line 2",
+          "type": {
+            "name": "single_line_text_field",
+            "__typename": "MetafieldDefinitionType"
+          },
+          "validations": [],
+          "visibleToStorefrontApi": false,
+          "required": false,
+          "adminFilterStatus": "NOT_FILTERABLE",
+          "__typename": "MetaobjectFieldDefinition"
+        },
+        {
+          "description": null,
+          "key": "city",
+          "name": "City",
+          "type": {
+            "name": "single_line_text_field",
+            "__typename": "MetafieldDefinitionType"
+          },
+          "validations": [],
+          "visibleToStorefrontApi": false,
+          "required": false,
+          "adminFilterStatus": "NOT_FILTERABLE",
+          "__typename": "MetaobjectFieldDefinition"
+        },
+        {
+          "description": null,
+          "key": "state",
+          "name": "State",
+          "type": {
+            "name": "single_line_text_field",
+            "__typename": "MetafieldDefinitionType"
+          },
+          "validations": [],
+          "visibleToStorefrontApi": false,
+          "required": false,
+          "adminFilterStatus": "NOT_FILTERABLE",
+          "__typename": "MetaobjectFieldDefinition"
+        },
+        {
+          "description": null,
+          "key": "zip",
+          "name": "ZIP Code",
+          "type": {
+            "name": "single_line_text_field",
+            "__typename": "MetafieldDefinitionType"
+          },
+          "validations": [],
+          "visibleToStorefrontApi": false,
+          "required": false,
+          "adminFilterStatus": "NOT_FILTERABLE",
+          "__typename": "MetaobjectFieldDefinition"
+        },
+        {
+          "description": null,
+          "key": "source",
+          "name": "How Did You Hear About Us",
+          "type": {
+            "name": "multi_line_text_field",
+            "__typename": "MetafieldDefinitionType"
+          },
+          "validations": [],
+          "visibleToStorefrontApi": false,
+          "required": false,
+          "adminFilterStatus": "NOT_FILTERABLE",
+          "__typename": "MetaobjectFieldDefinition"
+        },
+        {
+          "description": null,
+          "key": "message",
+          "name": "Admin Notes",
+          "type": {
+            "name": "multi_line_text_field",
+            "__typename": "MetafieldDefinitionType"
+          },
+          "validations": [],
+          "visibleToStorefrontApi": false,
+          "required": false,
+          "adminFilterStatus": "NOT_FILTERABLE",
+          "__typename": "MetaobjectFieldDefinition"
+        },
+        {
+          "description": null,
+          "key": "account_type",
+          "name": "Account Type",
+          "type": {
+            "name": "list.single_line_text_field",
+            "__typename": "MetafieldDefinitionType"
+          },
+          "validations": [],
+          "visibleToStorefrontApi": false,
+          "required": false,
+          "adminFilterStatus": "NOT_FILTERABLE",
+          "__typename": "MetaobjectFieldDefinition"
+        },
+        {
+          "description": null,
+          "key": "sample_set",
+          "name": "Sample Set Received",
+          "type": {
+            "name": "boolean",
+            "__typename": "MetafieldDefinitionType"
+          },
+          "validations": [],
+          "visibleToStorefrontApi": false,
+          "required": false,
+          "adminFilterStatus": "NOT_FILTERABLE",
+          "__typename": "MetaobjectFieldDefinition"
+        },
+        {
+          "description": null,
+          "key": "tax_exempt",
+          "name": "Tax Exempt",
+          "type": {
+            "name": "boolean",
+            "__typename": "MetafieldDefinitionType"
+          },
+          "validations": [],
+          "visibleToStorefrontApi": false,
+          "required": false,
+          "adminFilterStatus": "NOT_FILTERABLE",
+          "__typename": "MetaobjectFieldDefinition"
+        },
+        {
+          "description": null,
+          "key": "vat_tax_id",
+          "name": "VAT/Tax ID",
+          "type": {
+            "name": "single_line_text_field",
+            "__typename": "MetafieldDefinitionType"
+          },
+          "validations": [],
+          "visibleToStorefrontApi": false,
+          "required": false,
+          "adminFilterStatus": "NOT_FILTERABLE",
+          "__typename": "MetaobjectFieldDefinition"
+        },
+        {
+          "description": null,
+          "key": "tax_proof",
+          "name": "Tax Proof Document",
+          "type": {
+            "name": "file_reference",
+            "__typename": "MetafieldDefinitionType"
+          },
+          "validations": [],
+          "visibleToStorefrontApi": false,
+          "required": false,
+          "adminFilterStatus": "NOT_FILTERABLE",
+          "__typename": "MetaobjectFieldDefinition"
+        },
+        {
+          "description": null,
+          "key": "clarity_id",
+          "name": "Clarity CRM Account ID",
+          "type": {
+            "name": "single_line_text_field",
+            "__typename": "MetafieldDefinitionType"
+          },
+          "validations": [],
+          "visibleToStorefrontApi": false,
+          "required": false,
+          "adminFilterStatus": "NOT_FILTERABLE",
+          "__typename": "MetaobjectFieldDefinition"
+        }
+      ],
+      "capabilities": {
+        "publishable": {
+          "enabled": false,
+          "__typename": "MetaobjectCapabilitiesPublishable"
+        },
+        "translatable": {
+          "enabled": true,
+          "__typename": "MetaobjectCapabilitiesTranslatable"
+        },
+        "renderable": {
+          "enabled": false,
+          "data": null,
+          "__typename": "MetaobjectCapabilitiesRenderable"
+        },
+        "onlineStore": {
+          "enabled": false,
+          "data": null,
+          "__typename": "MetaobjectCapabilitiesOnlineStore"
+        },
+        "__typename": "MetaobjectCapabilities"
+      },
+      "__typename": "MetaobjectDefinition"
+    },
+    "metaobjectDefinitionsCount": {
+      "limit": 128,
+      "totalCount": 1,
+      "__typename": "MetaobjectDefinitionsCount"
+    },
+    "metafieldDefinitionTypes": [
+      {
+        "name": "boolean",
+        "category": "TRUE_FALSE",
+        "supportedValidations": [],
+        "supportsDefinitionMigrations": true,
+        "__typename": "MetafieldDefinitionType"
+      },
+      {
+        "name": "color",
+        "category": "COLOR",
+        "supportedValidations": [],
+        "supportsDefinitionMigrations": true,
+        "__typename": "MetafieldDefinitionType"
+      },
+      {
+        "name": "date_time",
+        "category": "DATE_TIME",
+        "supportedValidations": [
+          {
+            "type": "date_time",
+            "name": "min",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "date_time",
+            "name": "max",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          }
+        ],
+        "supportsDefinitionMigrations": true,
+        "__typename": "MetafieldDefinitionType"
+      },
+      {
+        "name": "date",
+        "category": "DATE_TIME",
+        "supportedValidations": [
+          {
+            "type": "date",
+            "name": "min",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "date",
+            "name": "max",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          }
+        ],
+        "supportsDefinitionMigrations": true,
+        "__typename": "MetafieldDefinitionType"
+      },
+      {
+        "name": "dimension",
+        "category": "MEASUREMENT",
+        "supportedValidations": [
+          {
+            "type": "dimension",
+            "name": "min",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "dimension",
+            "name": "max",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          }
+        ],
+        "supportsDefinitionMigrations": true,
+        "__typename": "MetafieldDefinitionType"
+      },
+      {
+        "name": "id",
+        "category": "ID",
+        "supportedValidations": [
+          {
+            "type": "number_integer",
+            "name": "min",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "number_integer",
+            "name": "max",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "single_line_text_field",
+            "name": "regex",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          }
+        ],
+        "supportsDefinitionMigrations": true,
+        "__typename": "MetafieldDefinitionType"
+      },
+      {
+        "name": "json",
+        "category": "JSON",
+        "supportedValidations": [
+          {
+            "type": "json",
+            "name": "schema",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          }
+        ],
+        "supportsDefinitionMigrations": true,
+        "__typename": "MetafieldDefinitionType"
+      },
+      {
+        "name": "language",
+        "category": "LANGUAGE",
+        "supportedValidations": [],
+        "supportsDefinitionMigrations": true,
+        "__typename": "MetafieldDefinitionType"
+      },
+      {
+        "name": "list.color",
+        "category": "COLOR",
+        "supportedValidations": [
+          {
+            "type": "number_integer",
+            "name": "list.min",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "number_integer",
+            "name": "list.max",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          }
+        ],
+        "supportsDefinitionMigrations": true,
+        "__typename": "MetafieldDefinitionType"
+      },
+      {
+        "name": "list.date_time",
+        "category": "DATE_TIME",
+        "supportedValidations": [
+          {
+            "type": "date_time",
+            "name": "min",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "date_time",
+            "name": "max",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "number_integer",
+            "name": "list.min",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "number_integer",
+            "name": "list.max",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          }
+        ],
+        "supportsDefinitionMigrations": true,
+        "__typename": "MetafieldDefinitionType"
+      },
+      {
+        "name": "list.date",
+        "category": "DATE_TIME",
+        "supportedValidations": [
+          {
+            "type": "date",
+            "name": "min",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "date",
+            "name": "max",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "number_integer",
+            "name": "list.min",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "number_integer",
+            "name": "list.max",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          }
+        ],
+        "supportsDefinitionMigrations": true,
+        "__typename": "MetafieldDefinitionType"
+      },
+      {
+        "name": "list.dimension",
+        "category": "MEASUREMENT",
+        "supportedValidations": [
+          {
+            "type": "dimension",
+            "name": "min",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "dimension",
+            "name": "max",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "number_integer",
+            "name": "list.min",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "number_integer",
+            "name": "list.max",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          }
+        ],
+        "supportsDefinitionMigrations": true,
+        "__typename": "MetafieldDefinitionType"
+      },
+      {
+        "name": "list.number_decimal",
+        "category": "NUMBER",
+        "supportedValidations": [
+          {
+            "type": "number_decimal",
+            "name": "min",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "number_decimal",
+            "name": "max",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "number_integer",
+            "name": "max_precision",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "number_integer",
+            "name": "list.min",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "number_integer",
+            "name": "list.max",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          }
+        ],
+        "supportsDefinitionMigrations": true,
+        "__typename": "MetafieldDefinitionType"
+      },
+      {
+        "name": "list.number_integer",
+        "category": "NUMBER",
+        "supportedValidations": [
+          {
+            "type": "number_integer",
+            "name": "min",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "number_integer",
+            "name": "max",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "number_integer",
+            "name": "list.min",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "number_integer",
+            "name": "list.max",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          }
+        ],
+        "supportsDefinitionMigrations": true,
+        "__typename": "MetafieldDefinitionType"
+      },
+      {
+        "name": "list.rating",
+        "category": "RATING",
+        "supportedValidations": [
+          {
+            "type": "number_decimal",
+            "name": "scale_min",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "number_decimal",
+            "name": "scale_max",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "number_integer",
+            "name": "list.min",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "number_integer",
+            "name": "list.max",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          }
+        ],
+        "supportsDefinitionMigrations": true,
+        "__typename": "MetafieldDefinitionType"
+      },
+      {
+        "name": "list.single_line_text_field",
+        "category": "TEXT",
+        "supportedValidations": [
+          {
+            "type": "number_integer",
+            "name": "min",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "number_integer",
+            "name": "max",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "single_line_text_field",
+            "name": "regex",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "list.single_line_text_field",
+            "name": "choices",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "number_integer",
+            "name": "list.min",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "number_integer",
+            "name": "list.max",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          }
+        ],
+        "supportsDefinitionMigrations": true,
+        "__typename": "MetafieldDefinitionType"
+      },
+      {
+        "name": "list.url",
+        "category": "URL",
+        "supportedValidations": [
+          {
+            "type": "list.single_line_text_field",
+            "name": "allowed_domains",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "number_integer",
+            "name": "list.min",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "number_integer",
+            "name": "list.max",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          }
+        ],
+        "supportsDefinitionMigrations": true,
+        "__typename": "MetafieldDefinitionType"
+      },
+      {
+        "name": "list.volume",
+        "category": "MEASUREMENT",
+        "supportedValidations": [
+          {
+            "type": "volume",
+            "name": "min",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "volume",
+            "name": "max",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "number_integer",
+            "name": "list.min",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "number_integer",
+            "name": "list.max",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          }
+        ],
+        "supportsDefinitionMigrations": true,
+        "__typename": "MetafieldDefinitionType"
+      },
+      {
+        "name": "list.weight",
+        "category": "MEASUREMENT",
+        "supportedValidations": [
+          {
+            "type": "weight",
+            "name": "min",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "weight",
+            "name": "max",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "number_integer",
+            "name": "list.min",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "number_integer",
+            "name": "list.max",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          }
+        ],
+        "supportsDefinitionMigrations": true,
+        "__typename": "MetafieldDefinitionType"
+      },
+      {
+        "name": "money",
+        "category": "MONEY",
+        "supportedValidations": [],
+        "supportsDefinitionMigrations": true,
+        "__typename": "MetafieldDefinitionType"
+      },
+      {
+        "name": "multi_line_text_field",
+        "category": "TEXT",
+        "supportedValidations": [
+          {
+            "type": "number_integer",
+            "name": "min",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "number_integer",
+            "name": "max",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "single_line_text_field",
+            "name": "regex",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          }
+        ],
+        "supportsDefinitionMigrations": true,
+        "__typename": "MetafieldDefinitionType"
+      },
+      {
+        "name": "number_decimal",
+        "category": "NUMBER",
+        "supportedValidations": [
+          {
+            "type": "number_decimal",
+            "name": "min",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "number_decimal",
+            "name": "max",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "number_integer",
+            "name": "max_precision",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          }
+        ],
+        "supportsDefinitionMigrations": true,
+        "__typename": "MetafieldDefinitionType"
+      },
+      {
+        "name": "number_integer",
+        "category": "NUMBER",
+        "supportedValidations": [
+          {
+            "type": "number_integer",
+            "name": "min",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "number_integer",
+            "name": "max",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          }
+        ],
+        "supportsDefinitionMigrations": true,
+        "__typename": "MetafieldDefinitionType"
+      },
+      {
+        "name": "rating",
+        "category": "RATING",
+        "supportedValidations": [
+          {
+            "type": "number_decimal",
+            "name": "scale_min",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "number_decimal",
+            "name": "scale_max",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          }
+        ],
+        "supportsDefinitionMigrations": true,
+        "__typename": "MetafieldDefinitionType"
+      },
+      {
+        "name": "rich_text_field",
+        "category": "TEXT",
+        "supportedValidations": [],
+        "supportsDefinitionMigrations": true,
+        "__typename": "MetafieldDefinitionType"
+      },
+      {
+        "name": "single_line_text_field",
+        "category": "TEXT",
+        "supportedValidations": [
+          {
+            "type": "number_integer",
+            "name": "min",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "number_integer",
+            "name": "max",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "single_line_text_field",
+            "name": "regex",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "list.single_line_text_field",
+            "name": "choices",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          }
+        ],
+        "supportsDefinitionMigrations": true,
+        "__typename": "MetafieldDefinitionType"
+      },
+      {
+        "name": "url",
+        "category": "URL",
+        "supportedValidations": [
+          {
+            "type": "list.single_line_text_field",
+            "name": "allowed_domains",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          }
+        ],
+        "supportsDefinitionMigrations": true,
+        "__typename": "MetafieldDefinitionType"
+      },
+      {
+        "name": "link",
+        "category": "LINK",
+        "supportedValidations": [
+          {
+            "type": "list.single_line_text_field",
+            "name": "allowed_domains",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          }
+        ],
+        "supportsDefinitionMigrations": true,
+        "__typename": "MetafieldDefinitionType"
+      },
+      {
+        "name": "list.link",
+        "category": "LINK",
+        "supportedValidations": [
+          {
+            "type": "list.single_line_text_field",
+            "name": "allowed_domains",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "number_integer",
+            "name": "list.min",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "number_integer",
+            "name": "list.max",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          }
+        ],
+        "supportsDefinitionMigrations": true,
+        "__typename": "MetafieldDefinitionType"
+      },
+      {
+        "name": "volume",
+        "category": "MEASUREMENT",
+        "supportedValidations": [
+          {
+            "type": "volume",
+            "name": "min",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "volume",
+            "name": "max",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          }
+        ],
+        "supportsDefinitionMigrations": true,
+        "__typename": "MetafieldDefinitionType"
+      },
+      {
+        "name": "weight",
+        "category": "MEASUREMENT",
+        "supportedValidations": [
+          {
+            "type": "weight",
+            "name": "min",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "weight",
+            "name": "max",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          }
+        ],
+        "supportsDefinitionMigrations": true,
+        "__typename": "MetafieldDefinitionType"
+      },
+      {
+        "name": "company_reference",
+        "category": "REFERENCE",
+        "supportedValidations": [],
+        "supportsDefinitionMigrations": true,
+        "__typename": "MetafieldDefinitionType"
+      },
+      {
+        "name": "list.company_reference",
+        "category": "REFERENCE",
+        "supportedValidations": [
+          {
+            "type": "number_integer",
+            "name": "list.min",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "number_integer",
+            "name": "list.max",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          }
+        ],
+        "supportsDefinitionMigrations": true,
+        "__typename": "MetafieldDefinitionType"
+      },
+      {
+        "name": "customer_reference",
+        "category": "REFERENCE",
+        "supportedValidations": [],
+        "supportsDefinitionMigrations": true,
+        "__typename": "MetafieldDefinitionType"
+      },
+      {
+        "name": "list.customer_reference",
+        "category": "REFERENCE",
+        "supportedValidations": [
+          {
+            "type": "number_integer",
+            "name": "list.min",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "number_integer",
+            "name": "list.max",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          }
+        ],
+        "supportsDefinitionMigrations": true,
+        "__typename": "MetafieldDefinitionType"
+      },
+      {
+        "name": "product_reference",
+        "category": "REFERENCE",
+        "supportedValidations": [],
+        "supportsDefinitionMigrations": true,
+        "__typename": "MetafieldDefinitionType"
+      },
+      {
+        "name": "list.product_reference",
+        "category": "REFERENCE",
+        "supportedValidations": [
+          {
+            "type": "number_integer",
+            "name": "list.min",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "number_integer",
+            "name": "list.max",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          }
+        ],
+        "supportsDefinitionMigrations": true,
+        "__typename": "MetafieldDefinitionType"
+      },
+      {
+        "name": "collection_reference",
+        "category": "REFERENCE",
+        "supportedValidations": [],
+        "supportsDefinitionMigrations": true,
+        "__typename": "MetafieldDefinitionType"
+      },
+      {
+        "name": "list.collection_reference",
+        "category": "REFERENCE",
+        "supportedValidations": [
+          {
+            "type": "number_integer",
+            "name": "list.min",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "number_integer",
+            "name": "list.max",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          }
+        ],
+        "supportsDefinitionMigrations": true,
+        "__typename": "MetafieldDefinitionType"
+      },
+      {
+        "name": "variant_reference",
+        "category": "REFERENCE",
+        "supportedValidations": [],
+        "supportsDefinitionMigrations": true,
+        "__typename": "MetafieldDefinitionType"
+      },
+      {
+        "name": "list.variant_reference",
+        "category": "REFERENCE",
+        "supportedValidations": [
+          {
+            "type": "number_integer",
+            "name": "list.min",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "number_integer",
+            "name": "list.max",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          }
+        ],
+        "supportsDefinitionMigrations": true,
+        "__typename": "MetafieldDefinitionType"
+      },
+      {
+        "name": "file_reference",
+        "category": "REFERENCE",
+        "supportedValidations": [
+          {
+            "type": "list.single_line_text_field",
+            "name": "file_type_options",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          }
+        ],
+        "supportsDefinitionMigrations": true,
+        "__typename": "MetafieldDefinitionType"
+      },
+      {
+        "name": "list.file_reference",
+        "category": "REFERENCE",
+        "supportedValidations": [
+          {
+            "type": "list.single_line_text_field",
+            "name": "file_type_options",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "number_integer",
+            "name": "list.min",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "number_integer",
+            "name": "list.max",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          }
+        ],
+        "supportsDefinitionMigrations": true,
+        "__typename": "MetafieldDefinitionType"
+      },
+      {
+        "name": "product_taxonomy_value_reference",
+        "category": "REFERENCE",
+        "supportedValidations": [
+          {
+            "type": "single_line_text_field",
+            "name": "product_taxonomy_attribute_handle",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          }
+        ],
+        "supportsDefinitionMigrations": true,
+        "__typename": "MetafieldDefinitionType"
+      },
+      {
+        "name": "list.product_taxonomy_value_reference",
+        "category": "REFERENCE",
+        "supportedValidations": [
+          {
+            "type": "single_line_text_field",
+            "name": "product_taxonomy_attribute_handle",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "number_integer",
+            "name": "list.min",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "number_integer",
+            "name": "list.max",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          }
+        ],
+        "supportsDefinitionMigrations": true,
+        "__typename": "MetafieldDefinitionType"
+      },
+      {
+        "name": "metaobject_reference",
+        "category": "REFERENCE",
+        "supportedValidations": [
+          {
+            "type": "single_line_text_field",
+            "name": "metaobject_definition_id",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "single_line_text_field",
+            "name": "metaobject_definition_type",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          }
+        ],
+        "supportsDefinitionMigrations": true,
+        "__typename": "MetafieldDefinitionType"
+      },
+      {
+        "name": "list.metaobject_reference",
+        "category": "REFERENCE",
+        "supportedValidations": [
+          {
+            "type": "single_line_text_field",
+            "name": "metaobject_definition_id",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "single_line_text_field",
+            "name": "metaobject_definition_type",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "number_integer",
+            "name": "list.min",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "number_integer",
+            "name": "list.max",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          }
+        ],
+        "supportsDefinitionMigrations": true,
+        "__typename": "MetafieldDefinitionType"
+      },
+      {
+        "name": "mixed_reference",
+        "category": "REFERENCE",
+        "supportedValidations": [
+          {
+            "type": "list.single_line_text_field",
+            "name": "metaobject_definition_ids",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "list.single_line_text_field",
+            "name": "metaobject_definition_types",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          }
+        ],
+        "supportsDefinitionMigrations": true,
+        "__typename": "MetafieldDefinitionType"
+      },
+      {
+        "name": "list.mixed_reference",
+        "category": "REFERENCE",
+        "supportedValidations": [
+          {
+            "type": "list.single_line_text_field",
+            "name": "metaobject_definition_ids",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "list.single_line_text_field",
+            "name": "metaobject_definition_types",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "number_integer",
+            "name": "list.min",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "number_integer",
+            "name": "list.max",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          }
+        ],
+        "supportsDefinitionMigrations": true,
+        "__typename": "MetafieldDefinitionType"
+      },
+      {
+        "name": "page_reference",
+        "category": "REFERENCE",
+        "supportedValidations": [],
+        "supportsDefinitionMigrations": true,
+        "__typename": "MetafieldDefinitionType"
+      },
+      {
+        "name": "list.page_reference",
+        "category": "REFERENCE",
+        "supportedValidations": [
+          {
+            "type": "number_integer",
+            "name": "list.min",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "number_integer",
+            "name": "list.max",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          }
+        ],
+        "supportsDefinitionMigrations": true,
+        "__typename": "MetafieldDefinitionType"
+      },
+      {
+        "name": "article_reference",
+        "category": "REFERENCE",
+        "supportedValidations": [],
+        "supportsDefinitionMigrations": true,
+        "__typename": "MetafieldDefinitionType"
+      },
+      {
+        "name": "list.article_reference",
+        "category": "REFERENCE",
+        "supportedValidations": [
+          {
+            "type": "number_integer",
+            "name": "list.min",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "number_integer",
+            "name": "list.max",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          }
+        ],
+        "supportsDefinitionMigrations": true,
+        "__typename": "MetafieldDefinitionType"
+      },
+      {
+        "name": "order_reference",
+        "category": "REFERENCE",
+        "supportedValidations": [],
+        "supportsDefinitionMigrations": true,
+        "__typename": "MetafieldDefinitionType"
+      },
+      {
+        "name": "list.order_reference",
+        "category": "REFERENCE",
+        "supportedValidations": [
+          {
+            "type": "number_integer",
+            "name": "list.min",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          },
+          {
+            "type": "number_integer",
+            "name": "list.max",
+            "__typename": "MetafieldDefinitionSupportedValidation"
+          }
+        ],
+        "supportsDefinitionMigrations": true,
+        "__typename": "MetafieldDefinitionType"
+      }
+    ]
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 18,
+      "actualQueryCost": 18,
+      "throttleStatus": {
+        "maximumAvailable": 20000,
+        "currentlyAvailable": 19982,
+        "restoreRate": 1000
+      }
+    }
+  }
+}

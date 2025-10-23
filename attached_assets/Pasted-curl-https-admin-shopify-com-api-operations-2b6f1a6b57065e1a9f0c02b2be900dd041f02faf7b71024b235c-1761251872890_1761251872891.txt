@@ -1,0 +1,26 @@
+curl ^"https://admin.shopify.com/api/operations/2b6f1a6b57065e1a9f0c02b2be900dd041f02faf7b71024b235c8eda530d5427/MetaobjectDefinition/shopify/its-under-it-all?operationName=MetaobjectDefinition^&variables=^%^7B^%^22skipMetaobjectDefinitionByType^%^22^%^3Afalse^%^2C^%^22type^%^22^%^3A^%^22app--290419769345--wholesale_account^%^22^%^7D^" ^
+  -H ^"accept: application/json^" ^
+  -H ^"accept-language: en-US,en;q=0.9^" ^
+  -H ^"apollographql-client-name: core^" ^
+  -H ^"cache-control: no-cache,no-store,must-revalidate,max-age=0^" ^
+  -H ^"content-type: application/json^" ^
+  -b ^"_shopify_essential_=c33a6981-3a0e-44d7-b531-3c9c8c4c1a99; _ga=GA1.1.1494167322.1761183459; FPID=FPID2.2.LkPrecOrN2EBNReH5jAfgQjjJIFamyCi5p9gHY3CDAA^%^3D.1761183459; FPLC=2MJoWjygPmlThruk7LNQOK^%^2Fv5LH5VLyRnCPyNv32q^%^2FDY8EcL3F0e^%^2BL7FE5TMdYBuX9J9rI^%^2Fl1zi4YLitZnZ^%^2FNYEZSmRiVXCPgQTPZwq2Yhi0LZJ3bZEiIZEAlcT3Yg^%^3D^%^3D; FPAU=1.2.106240649.1761183462; v:a:3=^%^7B^%^2228b3587426d007ed5c4eaad4edaed3b0^%^22^%^3A^%^7B^%^22variant^%^22^%^3A^%^22treatment^%^22^%^2C^%^22createdAt^%^22^%^3A1761187133907^%^7D^%^2C^%^225b7673cf371ac36f17aaebb285f6b1ff^%^22^%^3A^%^7B^%^22variant^%^22^%^3A^%^22control^%^22^%^2C^%^22createdAt^%^22^%^3A1761187133907^%^7D^%^2C^%^2232fa6e0a7f9d000df83e6daca6e3ee01^%^22^%^3A^%^7B^%^22variant^%^22^%^3A^%^22control^%^22^%^2C^%^22createdAt^%^22^%^3A1761187133907^%^7D^%^7D; _merchant_marketing=:AZoO7v5bAAAA7T-p1HYlpEpnBFH55BuOdf22fOOGp0wfAaRjZQ:; _gcl_au=1.1.691378208.1761187134; li_fat_id_s=undefined; koa.sid=rHkJA07vDrjz0wsnAg1wgFR--VIy7elR; koa.sid.sig=xOpv2obEHKTmNWnclZ3Qc2ikvjo; mto_pvs=3; _fbp=fb.1.1761196335543.767131494133018107; _ga_W6NECZNE63=GS2.1.s1761203111^$o6^$g1^$t1761203325^$j60^$l0^$h638958003; _shopify_s=6e58f037-ec3c-44c8-bed1-6e4f6c88156d; _shopify_y=039c978a-7F26-4B4E-850A-ADE7D775CB90; _merchant_essential=^%^3AAZoSxPy4AAEAmUL6v0S2_GWND4pKWhAU1QA7OcdeSukB-VVcL_oIcgwdBkYLHDf6CdXLQqo1rWSN0Ny4UBbzeDPaNqCzuzJFpN9Mt5agwDvzD9TSY9QX2OST-H7ZLekE5lkffEqIbtf48TkJ1oELsxQ3q5mljrOaUR6lyxPCi9R7eLsjEeoT6P31IcKRimp-l9tydHf-xe2-C4bjlAKB4PKhZfyYLEVtUc08jAqhD9dvoGGI4VykH-JkPoNUCbKYrX8Tn3rTKeEe9os7X-ABie1N2P66b9W-srrgeVhUZwSJ6aptfwQei-Wph354jPTbfIydmwBcNMYIxZGcrynYJeytGK39IouQENTLBXRUBhxVABb1lb8xIJGzFFCNQnYbSog9Lpbluy6JHeCTJixl6HeKxrsQtOXgATRlyuSY9wSYxFqNkvS-Xq-tgwu_m0xBQkRAnEmKIJoHOwLxq4Rh0aq5nqmMLg5rzSSsitNmLrrunR89H5gX-4JZqA91GR1D0n_Lcjx_gKMqhAKqVb8jRAMNGakRma05tlZbzgJg9Usm6BQv-OuQlskMCm1jgU-28_4tJeIhzrYF5kkRVyE9T386kO03D_MMmhwT5q84Aulf9o21sRn844y19abqu2DSZAKxPpjTCNl-6TvXL_WLVrCQgcMVpKwTJOp0EYkgeJiLkrVKj0Pxn1TNEX-8nhuZ6OdQQzPh_wmQmdIh47ySG8Bk7KyTr13CieZEUPU29ZpZaWWYng^%^3A^" ^
+  -H ^"priority: u=1, i^" ^
+  -H ^"referer: https://admin.shopify.com/store/its-under-it-all/settings/custom_data/metaobjects/app--290419769345--wholesale_account^" ^
+  -H ^"sec-ch-ua: ^\^"Google Chrome^\^";v=^\^"141^\^", ^\^"Not?A_Brand^\^";v=^\^"8^\^", ^\^"Chromium^\^";v=^\^"141^\^"^" ^
+  -H ^"sec-ch-ua-mobile: ?0^" ^
+  -H ^"sec-ch-ua-platform: ^\^"Windows^\^"^" ^
+  -H ^"sec-fetch-dest: empty^" ^
+  -H ^"sec-fetch-mode: cors^" ^
+  -H ^"sec-fetch-site: same-origin^" ^
+  -H ^"shopify-build-version: 8958.8ceff10deb92458550a5d029b134f491a86274ce.0^" ^
+  -H ^"shopify-proxy-api-enable: true^" ^
+  -H ^"target-manifest-route-id: metaobject-definition:update^" ^
+  -H ^"target-pathname: /store/:storeHandle/settings/custom_data/metaobjects/:type^" ^
+  -H ^"target-slice: metafielddefinitions-section^" ^
+  -H ^"traceparent: 00-967ab399629454ffeb625f57b1a60161-52a54ad066955b10-01^" ^
+  -H ^"user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36^" ^
+  -H ^"x-cloud-trace-context: 967ab399629454ffeb625f57b1a60161/5955248341202066192;o=1^" ^
+  -H ^"x-csrf-token: XcU1jeBXA8-gfTpAr2EhxNytuLuQjjW2Vpqu3w^" ^
+  -H ^"x-shopify-trace-context: 967ab399629454ffeb625f57b1a60161/5955248341202066192;o=1^" ^
+  -H ^"x-shopify-trace-hint: true^"
