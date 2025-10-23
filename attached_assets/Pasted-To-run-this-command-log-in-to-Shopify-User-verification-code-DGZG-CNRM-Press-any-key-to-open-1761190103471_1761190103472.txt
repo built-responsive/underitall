@@ -1,0 +1,57 @@
+To run this command, log in to Shopify.
+User verification code: DGZG-CNRM
+👉 Press any key to open the login page on your browser
+Opened link to start the auth process: https://accounts.shopify.com/activate-with-code?device_code%5Buser_code%5D=DGZG-CNRM
+✔ Logged in.
+╭─ error ──────────────────────────────────────────────────────────────────────╮
+│                                                                              │
+│  No app with client ID `61dd114a8d5446e2af4a4ca35f06a17b` found              │
+│                                                                              │
+│  Next steps:                                                                 │
+│    • Check that your account has permission to develop apps for this         │
+│      organization or contact the owner of the organization to grant you      │
+│      permission                                                              │
+│    • Run `shopify auth logout` to log into a different account than          │
+│      paul@builtresponsive.com                                                │
+│    • Pass `--reset` to your command to create a new app                      │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+~/workspace/underitall$ shopify app init
+?  Get started building your app:
+✔  Build a React Router app (recommended)
+
+?  For your React Router template, which language do you want?
+✔  JavaScript
+
+?  Create this project as a new app on Shopify?
+✔  Yes, create it as a new app
+
+?  App name:
+✔  its-under-it-all
+
+╭─ info ───────────────────────────────────────────────────────────────────────╮
+│                                                                              │
+│  Initializing project with `npm`                                             │
+│  Use the `--package-manager` flag to select a different package manager.     │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+
+╭─ success ────────────────────────────────────────────────────────────────────╮
+│                                                                              │
+│  its-under-it-all is ready for you to build!                                 │
+│                                                                              │
+│  Next steps                                                                  │
+│    • Run `cd its-under-it-all`                                               │
+│    • For extensions, run `shopify app generate extension`                    │
+│    • To see your app, run `shopify app dev`                                  │
+│                                                                              │
+│  Reference                                                                   │
+│    • Shopify docs [1]                                                        │
+│    • For an overview of commands, run `shopify app --help`                   │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+[1] https://shopify.dev
+
+~/workspace/underitall$ 

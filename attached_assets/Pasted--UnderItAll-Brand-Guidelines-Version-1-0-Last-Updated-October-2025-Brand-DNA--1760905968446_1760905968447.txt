@@ -1,0 +1,188 @@
+# UnderItAll Brand Guidelines
+
+**Version:** 1.0  
+**Last Updated:** October 2025
+
+## Brand DNA
+
+### Core Values
+
+- **WE PROMISE**: Deep commitment and truth-first transparency
+- **WE CONNECT**: Elevating experience, product, and people
+- **WE VENTURE**: Venturing boldly to improve, not settle
+
+### Brand Positioning
+
+- To-the-trade only (closed for credentialed designers)
+- Elevated experience & peace of mind
+- Scissorless, perforated rug pads as hero product
+
+### Mission
+
+**A pad for every rug.**
+
+### Brand Essence
+
+- **Personality:** Confident, Open, Venturous
+- **Tone:** Forthright, Engaging, Unconventional
+- **Archetype:** Benevolent Outlaw
+
+## Target Audience: "Creator Kate"
+
+- Interior designers, often women aged 40–55
+- Creative, decisive, love exclusivity
+- Prefer unique, "not for everyone" products
+
+## Messaging
+
+### Primary Headlines
+
+- Rug pads have never been easier.
+- Rug pads reinvented.
+- Perforated rug pads for a scissorless install.
+
+### Secondary Headlines
+
+- Custom perforated rug pads. Made for designers.
+- A brilliant new standard in rug pads.
+
+### Supporting Copy
+
+- Custom cut with perforated edges for a precise, scissorless install.
+- Fast, easy, and oddly satisfying.
+
+## Visual Identity
+
+### Logo
+
+- **Primary:** Felt Gray, perforated accents, modern/industrial
+- **Secondary:** Cream
+- **Tagline:** "CUSTOM PERFORATED RUG PADS"
+- **Icon:** "UA" integration, Rorange accent
+
+### Typography
+
+- **Archivo Regular** - Headlines (60pt/64pt for H1, 32pt/36pt for H2)
+- **Lora Italic** - Accent text and features
+- **Vazirmatn** - Body/eyebrow text (18pt/32pt for H3, 20pt/34pt for body)
+
+### Color Palette
+
+| Name       | HEX     | Usage                          |
+|------------|---------|--------------------------------|
+| Rorange    | #F2633A | Primary accent, CTAs           |
+| Greige     | #E1E0DA | Neutral warmth, backgrounds    |
+| Felt Gray  | #696A6D | Industrial, grounding, secondary|
+| Soft Black | #212227 | Contrast, text                 |
+| Cream      | #F3F1E9 | Backgrounds, balance           |
+
+### Design Elements
+
+- **Border Radius:** 11px (small), 16px (medium), 22px (large)
+- **Spacing:** 8px, 12px, 16px, 24px, 32px increments
+- **Shadows:** Subtle, using Felt Gray with low opacity
+
+## Product Information
+
+### Product Types
+
+1. **Luxe Lite ⅛" (Thin)**
+   - Thinner profile
+   - Ideal for low-pile rugs
+   - Lighter weight
+
+2. **Luxe ¼" (Thick)**
+   - Standard thickness
+   - Best for most applications
+   - Enhanced cushioning
+
+### Key Features
+
+- Custom cut with perforated edges
+- Scissorless installation
+- 100% recycled materials
+- Latex-free
+- Trade-only access
+- Same-day shipping available
+
+### Shapes Available
+
+- Rectangle
+- Square
+- Round
+- Free Form
+
+## Calculator-Specific Guidelines
+
+### Form Design
+
+- Clear, labeled inputs
+- Minimum 2 feet, maximum 40 feet
+- Integer-only measurements
+- Real-time calculation
+
+### Quote Display
+
+- Prominent total price in Rorange
+- Secondary pricing details in Felt Gray
+- Feature list in Lora Italic
+- Clear call-to-action button
+
+### User Experience
+
+- Instant feedback on input changes
+- Mobile-responsive design
+- Accessible form labels
+- Error-free calculation display
+
+## Usage in Digital Products
+
+### Do's
+
+✓ Use brand colors consistently  
+✓ Maintain typography hierarchy  
+✓ Keep layouts clean and spacious  
+✓ Use Rorange for primary actions  
+✓ Feature perforated edges imagery when possible
+
+### Don'ts
+
+✗ Don't use off-brand colors  
+✗ Don't overcrowd the interface  
+✗ Don't use generic stock photos  
+✗ Don't compromise on accessibility  
+✗ Don't ignore mobile experience
+
+## Accessibility Standards
+
+- WCAG 2.1 AA compliance minimum
+- Sufficient color contrast (4.5:1 for text)
+- Keyboard navigation support
+- Screen reader compatibility
+- Clear focus indicators
+
+## Voice & Tone
+
+### Voice Characteristics
+
+- **Confident** but not arrogant
+- **Professional** but approachable
+- **Innovative** but not gimmicky
+- **Exclusive** but not elitist
+
+### Tone in Calculator
+
+- Clear and directive
+- Helpful and informative
+- Reassuring about custom orders
+- Emphasize ease and convenience
+
+## Implementation Notes
+
+This calculator implementation follows all brand guidelines:
+
+- Uses official brand colors and typography
+- Implements spacing and border radius system
+- Features brand messaging in copy
+- Maintains professional, trade-focused tone
+- Provides seamless, elevated user experience

@@ -1,0 +1,31 @@
+
+/* UnderItAll Chat Block Styles */
+/* Brand colors and design system */
+
+:root {
+  --uia-rorange: #F2633A;
+  --uia-felt-gray: #696A6D;
+  --uia-greige: #E1E0DA;
+  --uia-soft-black: #212227;
+  --uia-cream: #F3F1E9;
+  --uia-white: #FFFFFF;
+}
+
+#underitall-chat-root {
+  font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* Ensure the chat bubble renders correctly in Shopify theme */
+#underitall-chat-root * {
+  box-sizing: border-box;
+}
+
+/* Override any theme styles that might interfere */
+#underitall-chat-root button {
+  all: unset;
+  cursor: pointer;
+}
+
+#underitall-chat-root input {
+  all: unset;
+}

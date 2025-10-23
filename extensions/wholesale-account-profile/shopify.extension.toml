@@ -1,0 +1,15 @@
+api_version = "2025-01"
+
+[[extensions]]
+uid = "wholesale-account-profile-extension"
+type = "ui_extension"
+name = "Wholesale Account Profile"
+handle = "wholesale-account-profile"
+
+[[extensions.targeting]]
+module = "./src/ProfileBlock.jsx"
+target = "customer-account.profile.block.render"
+
+[extensions.capabilities]
+api_access = true
+network_access = true

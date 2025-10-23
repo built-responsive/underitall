@@ -1,0 +1,116 @@
+import OpenAI from "openai";
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
+const response = await openai.chat.completions.create({
+  model: "gpt-4o-mini-search-preview-2025-03-11",
+  messages: [
+    {
+      "role": "system",
+      "content": [
+        {
+          "type": "text",
+          "text": "Return a single US business profile as a JSON object that perfectly matches the provided JSON Schema specification below.\n\n- Search and confirm the business’s existence in US sources ONLY. Ignore companies in other countries, even if the name is similar or the same.\n- Use only official and authoritative sources, prioritizing in this order:\n    1. The company’s official website\n    2. US state/government business registries\n    3. Verified business listing platforms\n- Do NOT use generic directories unless the above are unavailable.\n- If you find conflicting data, choose the information from the freshest (most recently updated) and most authoritative source. If uncertainty persists, set the field to null.\n- If no matching US business exists with the name, return an object with ALL fields set to null.\n\nBefore providing your answer:\n- Think step-by-step through which sources you check, how you assess US relevance, and how you resolve conflicts for any ambiguous data.\n- Summarize your chain of reasoning in a \"reasoning\" field.\n- The completed JSON must be strictly valid per the schema: all required fields present, all values matching their regex/pattern constraints, no additional properties.\n- The only allowable output is the JSON object (without explanations or commentary).\n\n### Output format:\nProduce your response as a single, compact JSON object matching exactly this structure. All fields must be included, strictly comply with the specified types/patterns, and do not output extra properties.\n\n### JSON Schema (for your reference – the output you generate must adhere to this structure):\n\n{\n  \"website\": \"string|null (must start with https:// if not null, uri format)\",\n  \"instagramHandle\": \"string|null (must start with @ if not null)\",\n  \"businessAddress\": \"string|null\",\n  \"businessAddress2\": \"string|null\",\n  \"city\": \"string|null\",\n  \"state\": \"string|null (2 upper-case letter state code)\",\n  \"zipCode\": \"string|null (5 or 9 digit US zip)\",\n  \"phone\": \"string|null (US format: (999) 999-9999)\"\n}\n\nInclude a \"reasoning\" string: Summarize briefly (1–3 sentences) the key steps, how sources/ties were resolved, and if/why any fields are null.\n\n### Example\n\n**Input:** \"Fred's Carpet Cleaning\"\n\n**Output:**\n{\n  \"website\": \"https://fredscarpetcleaning.com\",\n  \"instagramHandle\": \"@fredscarpetcleaning\",\n  \"businessAddress\": \"123 Elm St\",\n  \"businessAddress2\": null,\n  \"city\": \"Denver\",\n  \"state\": \"CO\",\n  \"zipCode\": \"80202\",\n  \"phone\": \"(303) 555-1234\",\n  \"reasoning\": \"Located matching business on official website and state registry. Website data agreed with registry; confirmed US-only. BusinessAddress2 was not listed anywhere so set null.\"\n}\n\n**Input:** \"Petra Ltd\"  \n**Output:**\n{\n  \"website\": null,\n  \"instagramHandle\": null,\n  \"businessAddress\": null,\n  \"businessAddress2\": null,\n  \"city\": null,\n  \"state\": null,\n  \"zipCode\": null,\n  \"phone\": null,\n  \"reasoning\": \"Searched official US registries, company website, and verified sources. No US business by this name found; left all fields null.\"\n}\n\n### Important Reminders\n- Include \"reasoning\" last, after all profile fields.\n- Do not give any output besides the required JSON object.\n- Adhere strictly to the schema—any violation is an error.\n\n---\n\n**Reminder: Return one US business profile as a strict JSON object per schema; search US sources only; reasoning always appears after the profile fields; never describe or output anything else.**"
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "Please quickly find reliable results for the name I give you regarding a US business : \n  \"Return ONE US business profile as JSON that EXACTLY matches the provided JSON Schema.\",\n  \"Search US sources ONLY. If no US match exists, set ALL fields to null.\",\n  \"Prefer official sources (company site > state registries > verified platforms) over directories.\",\n  \"If conflicting info, pick the most authoritative AND freshest source; otherwise null.\",\n  \"If you encounter a non-US entity with the same/similar name, IGNORE it and keep searching for a US entity.\",\n  geoContext // from your code\n].join(\"\\n\");\nconst schema = {\n  name: \"BusinessProfile\",\n  schema: {\n    $schema: \"https://json-schema.org/draft/2020-12/schema\",\n    title: \"BusinessProfile\",\n    type: \"object\",\n    properties: {\n      website: { type: [\"string\",\"null\"], pattern: \"^https://\", format: \"uri\" },\n      instagramHandle: { type: [\"string\",\"null\"], pattern: \"^@.+$\" },\n      businessAddress: { type: [\"string\",\"null\"] },\n      businessAddress2: { type: [\"string\",\"null\"] },\n      city: { type: [\"string\",\"null\"] },\n      state: { type: [\"string\",\"null\"], pattern: \"^[A-Z]{2}$\" },\n      zipCode: { type: [\"string\",\"null\"], pattern: \"^\\\\d{5}(-\\\\d{4})?$\" },\n      phone: { type: [\"string\",\"null\"], pattern: \"^\\\\(\\\\d{3}\\\\) \\\\d{3}-\\\\d{4}$\" }\n    },\n    required: [\"website\",\"instagramHandle\",\"businessAddress\",\"businessAddress2\",\"city\",\"state\",\"zipCode\",\"phone\"],\n    additionalProperties: false\n  },\n  strict: true\n};\n"
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "Underitall Holdings LLC"
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "text",
+          "text": "{\n  \"website\": \"https://www.itsunderitall.com/\",\n  \"instagramHandle\": \"@itsunderitall\",\n  \"businessAddress\": \"11800 Wills Road, Suite 140\",\n  \"businessAddress2\": \"\",\n  \"city\": \"Alpharetta\",\n  \"state\": \"GA\",\n  \"zipCode\": \"30009\",\n  \"phone\": \"(404) 436-0985\"\n}"
+        }
+      ]
+    }
+  ],
+  response_format: {
+    "type": "json_schema",
+    "json_schema": {
+      "name": "BusinessProfile",
+      "strict": true,
+      "schema": {
+        "type": "object",
+        "properties": {
+          "website": {
+            "type": "string",
+            "pattern": "^https://",
+            "description": "Business website URL starting with https://"
+          },
+          "instagramHandle": {
+            "type": "string",
+            "pattern": "^@.+$",
+            "description": "Instagram handle, must start with @"
+          },
+          "businessAddress": {
+            "type": "string",
+            "description": "Primary business address"
+          },
+          "businessAddress2": {
+            "type": "string",
+            "description": "Secondary address line (apt, suite, etc.)"
+          },
+          "city": {
+            "type": "string",
+            "description": "City name"
+          },
+          "state": {
+            "type": "string",
+            "pattern": "^[A-Z]{2}$",
+            "description": "Two-letter state code"
+          },
+          "zipCode": {
+            "type": "string",
+            "pattern": "^\\d{5}(-\\d{4})?$",
+            "description": "ZIP code in 5- or 9-digit format"
+          },
+          "phone": {
+            "type": "string",
+            "pattern": "^\\(\\d{3}\\) \\d{3}-\\d{4}$",
+            "description": "Phone number in format (XXX) XXX-XXXX"
+          }
+        },
+        "required": [
+          "website",
+          "instagramHandle",
+          "businessAddress",
+          "businessAddress2",
+          "city",
+          "state",
+          "zipCode",
+          "phone"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  web_search_options: {
+    "user_location": {
+      "type": "approximate",
+      "approximate": {
+        "country": "US"
+      }
+    }
+  },
+  store: true
+});

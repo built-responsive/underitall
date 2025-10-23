@@ -1,0 +1,100 @@
+developer
+Scan a provided document to identify all valid information, specifically extracting any matches to an Employer Identification Number (EIN) pattern.
+
+Carefully analyze the entire document text.
+Extract any text strings that match the standard EIN format (two digits, a dash, then seven digits; e.g., 12-3456789).
+List all EIN matches found.
+Also, extract and list any other valid information present in the document, such as business names, addresses, or dates, if available.
+Before listing results, briefly describe the reasoning or process used to identify and validate EINs and other information (reasoning should come first, followed by the final output).
+If no EINs are found, explicitly state this in your output.
+Output Format:
+Present your results in JSON with the following fields:
+
+"reasoning": [Your reasoning or identification process, max 3 sentences]
+"EIN_matches": [list of all found EINs as strings, or empty array]
+"other_valid_info": [list of other valid info strings, may include business name, address, or relevant data, or empty array]
+Example 1
+
+Input document:
+"ABC Corp, EIN: 98-7654321, 456 Elm St, Springfield"
+
+Output:
+{
+"reasoning": "I scanned the document for patterns matching the EIN format (XX-XXXXXXX) and extracted other business-related information for context.",
+"EIN_matches": ["98-7654321"],
+"other_valid_info": ["ABC Corp", "456 Elm St", "Springfield"]
+}
+
+Example 2
+
+Input document:
+"This is a letter with no tax ID or business info."
+
+Output:
+{
+"reasoning": "I reviewed the document but did not find any text matching the EIN format or other valid information.",
+"EIN_matches": [],
+"other_valid_info": []
+}
+
+Important: First reason about the search process, then present extracted EINs and information in JSON, as shown above.
+
+Reminder:
+
+Scan for EIN patterns and other valid info.
+Provide reasoning first, results after, always in the described JSON format.
+Output
+1,546t
+Reasoning
+Evaluating EIN extraction
+
+I need to output JSON structured with reasoning, followed by the EIN_matches list and the other_valid_info list. The user has provided an IRS CP 575 A EIN assignment letter, so I’ll scan for the EIN patterns: exactly two digits, a dash, and then seven digits.
+
+The number 93-1805911 shows up multiple times, and I’ve counted three instances. However, the prompt doesn’t specify whether to deduplicate these. I should probably list all found EINs as strings, even if it feels a bit redundant.
+
+Collecting EIN and valid info
+
+I’m considering whether the user wants all matches or just unique EINs. The phrase "all found EINs" suggests duplicates might be included, but usually, I prefer unique entries for clarity. I’ll create a unique list with ["93-1805911"].
+
+Now, I need to gather other valid information like business names, addresses, dates, and contact details. For instance, the IRS address is Internal Revenue Service, Cincinnati OH 45999-0023. The date of the notice is 06-09-2023, with additional details such as the business name, address, and IRS phone numbers.
+
+Summarizing relevant IRS information
+
+I can include the IRS phone number since it’s relevant, even if it wasn’t explicitly asked for. I want to keep my list concise.
+
+Now, regarding forms, Form 940 and Form 944 are due on 01/31/2024, while Form 1120 is due on 04/15/2024. The tax classification is unspecified, and the name control is MAGN. I’ll note reference numbers, including that one is just a placeholder. It’s essential to analyze the entire document to gather this information. I'll explain how I identified and validated the EINs and relevant data succinctly before listing them.
+
+Preparing JSON output
+
+I need to structure the output as JSON, including a "reasoning" string that explains how I scanned for EIN patterns like XX-XXXXXXX and extracted other information, all under three sentences. It's important to ensure the JSON contains arrays formatted as lists of strings.
+
+For the other_valid_info, I’ll include separate strings like the business name, address, notice details, IRS address, due dates for forms, and website info. I don't think it's necessary to include the "Employer Identification Number" label. I'll double-check that only 93-1805911 appears as the EIN.
+
+Crafting JSON for EIN information
+
+I want to ensure I'm capturing the right patterns in the JSON format. The date "06-09-2023" follows a different pattern than an EIN, which requires exactly two digits, a dash, and seven digits; I won’t include any mismatched data.
+
+For the JSON, I’ll start the "reasoning" with, “I scanned for patterns matching exactly two digits, a dash, and seven digits...” I’ll include "MAGNOLIFY" but skip the "% MAGNOLIFY" line, and I’ll ensure to add "Name control: MAGN". I’ll format the IRS address consistently as well. The final JSON will be concise, with the reasoning limited to two sentences.
+
+assistant
+{
+  "reasoning": "I scanned the text for strings matching the EIN pattern XX-XXXXXXX and confirmed matches by nearby references to EIN. I also extracted clearly labeled business identifiers, addresses, dates, and filing deadlines mentioned in the document.",
+  "EIN_matches": [
+    "93-1805911"
+  ],
+  "other_valid_info": [
+    "Business name: MAGNOLIFY",
+    "IRS address: INTERNAL REVENUE SERVICE, CINCINNATI OH 45999-0023",
+    "Date of this notice: 06-09-2023",
+    "Form: SS-4",
+    "Notice number: CP 575 A",
+    "Business address: 210 OKLAHOMA AVE, SATSUMA, FL 32189",
+    "IRS phone: 1-800-829-4933",
+    "IRS forms and pubs phone: 800-829-3676",
+    "Website: www.irs.gov/forms-pubs",
+    "Form 940 due: 01/31/2024",
+    "Form 944 due: 01/31/2024",
+    "Form 1120 due: 04/15/2024",
+    "Name control: MAGN"
+  ]
+}

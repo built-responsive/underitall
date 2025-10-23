@@ -1,0 +1,52 @@
+rror fetching registrations: error: column "instagram_handle" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getAllWholesaleRegistrations (/home/runner/workspace/server/storage.ts:122:12)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:91:25) {
+  length: 117,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '121',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+7:18:12 AM [express] GET /api/wholesale-registrations 500 in 126ms :: {"error":"Failed to fetch regi…
+7:19:10 AM [express] POST /api/calculator/calculate 200 in 1ms :: {"widthRequested":8,"lengthRequest…
+7:19:12 AM [express] POST /api/calculator/calculate 200 in 1ms :: {"widthRequested":8,"lengthRequest…
+7:19:12 AM [express] POST /api/calculator/calculate 200 in 1ms :: {"widthRequested":8,"lengthRequest…
+Registration error: error: column "instagram_handle" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getWholesaleRegistrationByEmail (/home/runner/workspace/server/storage.ts:92:28)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:55:24) {
+  length: 117,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '121',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}

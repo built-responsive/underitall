@@ -1,0 +1,21 @@
+{
+  "name": "UnderItAll Calculator",
+  "settings": {
+    "api_url": {
+      "label": "API URL",
+      "info": "The URL of your UnderItAll application backend"
+    },
+    "heading": {
+      "label": "Heading"
+    },
+    "description": {
+      "label": "Description"
+    },
+    "show_description": {
+      "label": "Show description"
+    }
+  },
+  "presets": {
+    "name": "Rug Pad Calculator"
+  }
+}

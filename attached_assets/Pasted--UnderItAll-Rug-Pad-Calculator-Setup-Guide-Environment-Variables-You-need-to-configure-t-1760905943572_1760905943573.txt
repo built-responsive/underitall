@@ -1,0 +1,113 @@
+# UnderItAll Rug Pad Calculator - Setup Guide
+
+## Environment Variables
+
+You need to configure the following environment variables in your Vercel project or `.env.local` file:
+
+### Required Variables
+
+\`\`\`env
+# Shopify Store Configuration
+NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN=your-store.myshopify.com
+SHOPIFY_ACCESS_TOKEN=shpat_your_admin_api_token
+\`\`\`
+
+## Shopify Admin API Setup
+
+### 1. Create a Custom App
+
+1. Go to your Shopify Admin: `https://your-store.myshopify.com/admin`
+2. Navigate to **Apps** → **App and sales channel settings**
+3. Click **Develop apps**
+4. Click **Create an app**
+5. Name it "UnderItAll Calculator" or similar
+6. Click **Create app**
+
+### 2. Configure API Scopes
+
+1. Go to the **Configuration** tab
+2. Under **Admin API access scopes**, enable:
+   - `write_draft_orders` - Required to create draft orders
+   - `read_products` - Required to access product data
+3. Click **Save**
+
+### 3. Install the App
+
+1. Go to the **API credentials** tab
+2. Click **Install app**
+3. Confirm the installation
+
+### 4. Get Your Access Token
+
+1. After installation, you'll see the **Admin API access token**
+2. Copy this token (starts with `shpat_`)
+3. Add it to your environment variables as `SHOPIFY_ACCESS_TOKEN`
+
+**Important:** Keep this token secure and never commit it to version control!
+
+### 5. Get Your Store Domain
+
+1. Your store domain is in the format: `your-store.myshopify.com`
+2. Add it to your environment variables as `NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN`
+
+## Product Configuration
+
+The calculator uses the "Custom Rug Pads" product with ID `15198895374496` and its 8 variants:
+
+- Luxe Lite ⅛" (Thin): Rectangle, Round, Square, Free Form
+- Luxe ¼" (Thick): Rectangle, Round, Square, Free Form
+
+These variant IDs are hardcoded in `lib/pricing.ts`. If you need to use different products, update the `PRODUCT_VARIANTS` object.
+
+## Testing
+
+1. Set up your environment variables
+2. Run the development server: `npm run dev`
+3. Fill out the calculator form
+4. Click "Create Order"
+5. You should be redirected to a Shopify invoice URL
+6. Check your Shopify admin under **Orders** → **Draft orders** to see the created order
+
+## Draft Order Features
+
+Each draft order includes:
+
+- Custom line item with calculated pricing
+- All dimension details (width, length, area, price per sq ft)
+- Product variant (thickness and shape)
+- Optional project metadata (project name, location, PO number, design firm)
+- Custom tags for easy filtering
+- Direct invoice URL for customer payment
+
+## Troubleshooting
+
+### "Shopify credentials not configured"
+- Ensure both `NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN` and `SHOPIFY_ACCESS_TOKEN` are set
+- Restart your development server after adding environment variables
+
+### "Shopify API error: 401"
+- Your access token is invalid or expired
+- Regenerate the token in your Shopify app settings
+
+### "Shopify API error: 403"
+- Your app doesn't have the required permissions
+- Check that `write_draft_orders` scope is enabled
+
+### "No length breakpoint" or pricing errors
+- Dimensions must be between 2 and 40 feet
+- Check that the price break map JSON files are correctly loaded
+
+## Production Deployment
+
+When deploying to Vercel:
+
+1. Go to your Vercel project settings
+2. Navigate to **Environment Variables**
+3. Add both `NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN` and `SHOPIFY_ACCESS_TOKEN`
+4. Redeploy your application
+
+## Security Notes
+
+- The `SHOPIFY_ACCESS_TOKEN` is a server-side secret and should never be exposed to the client
+- The draft order API route runs on the server and keeps the token secure
+- The `NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN` is safe to expose as it's just your store's public domain

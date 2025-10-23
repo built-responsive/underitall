@@ -1,0 +1,165 @@
+Nice—this is close. Here are **surgical upgrades** to make it faster, stricter, and more reliable with US-context + CF headers.
+
+---
+
+## 1) Trust proxy + safer CF header read
+
+Add once at app boot:
+
+```ts
+app.set("trust proxy", true);
+```
+
+Keep your helper but prefer canonical CF headers and fallbacks:
+
+```ts
+const readCFGeo = (req: any) => {
+  const h = req.headers;
+  const city = (h['cf-ipcity'] as string) || null;                       // requires "Add visitor location headers"
+  const state = (h['cf-region-code'] as string)                          // 2-letter if present
+             || (h['cf-region'] as string) || null;
+  const country = (h['cf-ipcountry'] as string) || null;                 // always when IP Geolocation is on
+  const ip = (h['cf-connecting-ip'] as string)                           // best behind CF
+        || (h['x-forwarded-for'] as string)?.split(',')[0]?.trim()
+        || req.ip
+        || null;
+  return { ip, city, state, country };
+};
+```
+
+Tip: Ensure **Network → “IP Geolocation”** is enabled and the **“Add visitor location headers” Managed Transform** is on; `CF-IPCountry` is default, city/region headers require the transform. ([Cloudflare Docs][1])
+
+---
+
+## 2) Make the model deterministic + cheaper
+
+* Set `temperature: 0` and a small `max_tokens` (≤600).
+* Optional `seed` for repeatability.
+* Keep your search model; it’s designed for web-search flows. ([OpenAI Platform][2])
+
+---
+
+## 3) Use **Structured Outputs** properly (no cleanup code, strict schema)
+
+You already set `response_format.json_schema`. Tighten the schema so the model *must* output exactly what you need (https, @handle, US-state, ZIP, phone), and keep it **US-only** in the system text. ([OpenAI Platform][3])
+
+**Replace your `schema` with:**
+
+```ts
+const schema = {
+  name: "BusinessProfile",
+  schema: {
+    $schema: "https://json-schema.org/draft/2020-12/schema",
+    title: "BusinessProfile",
+    type: "object",
+    properties: {
+      website: { type: ["string","null"], pattern: "^https://", format: "uri" },
+      instagramHandle: { type: ["string","null"], pattern: "^@.+$" },
+      businessAddress: { type: ["string","null"] },
+      businessAddress2: { type: ["string","null"] },
+      city: { type: ["string","null"] },
+      state: { type: ["string","null"], pattern: "^[A-Z]{2}$" },
+      zipCode: { type: ["string","null"], pattern: "^\\d{5}(-\\d{4})?$" },
+      phone: { type: ["string","null"], pattern: "^\\(\\d{3}\\) \\d{3}-\\d{4}$" }
+    },
+    required: ["website","instagramHandle","businessAddress","businessAddress2","city","state","zipCode","phone"],
+    additionalProperties: false
+  },
+  strict: true
+};
+```
+
+Structured Outputs guarantees schema shape, so you can **delete** any code-fence stripping and just:
+
+```ts
+const enriched = JSON.parse(openaiData.choices[0].message.content);
+```
+
+(That’s the supported path for `json_schema` format.) ([OpenAI Platform][3])
+
+---
+
+## 4) Short, forceful system prompt (US-only + geo tie-break)
+
+Swap your `systemPrompt` for this lean version:
+
+```ts
+const systemPrompt = [
+  "Return ONE US business profile as JSON that EXACTLY matches the provided JSON Schema.",
+  "Search US sources ONLY. If no US match exists, set ALL fields to null.",
+  "Prefer official sources (company site > state registries > verified platforms) over directories.",
+  "If conflicting info, pick the most authoritative AND freshest source; otherwise null.",
+  "If you encounter a non-US entity with the same/similar name, IGNORE it and keep searching for a US entity.",
+  geoContext // from your code
+].join("\n");
+```
+
+Keep your `geoContext` logic, but only inject location when `country === "US"`; otherwise keep it “unknown” so you don’t bias toward non-US. (You already did this—nice.)
+
+---
+
+## 5) Tighten the OpenAI call
+
+Replace your fetch body with:
+
+```ts
+body: JSON.stringify({
+  model: "gpt-4o-mini-search-preview",
+  temperature: 0,
+  seed: 7,
+  max_tokens: 600,
+  response_format: { type: "json_schema", json_schema: schema },
+  messages: [
+    { role: "system", content: systemPrompt },
+    { role: "user", content: `Company to research: "${companyName}". Search the web for current, real data. Return ONLY the JSON.` }
+  ]
+})
+```
+
+(Structured outputs doc recommends `json_schema` when you’re not calling tools.) ([OpenAI Platform][3])
+
+---
+
+## 6) Optional: throttle IP fallback (free tier note)
+
+If you add `/api/geo-locate` as a fallback, cache results and guard it (don’t call per keystroke). The **ipapi.co** free tier is ≈1,000/day and not intended for production. ([ipapi.co][4])
+
+---
+
+## 7) Small resiliency touches
+
+* Add a **request timeout** via `AbortController` for the OpenAI call (e.g., 8–10s) to fail fast and return `blankProfile()`.
+* Log only the **company name** (you already do); avoid logging the full model response in production.
+* Consider a one-minute **memory cache** keyed by `companyName|state` to avoid duplicate lookups during form retries.
+
+**Timeout pattern:**
+
+```ts
+const ac = new AbortController();
+const t = setTimeout(() => ac.abort(), 10000);
+const openaiResponse = await fetch("https://api.openai.com/v1/chat/completions", { method:"POST", headers, body, signal: ac.signal }).finally(() => clearTimeout(t));
+```
+
+---
+
+## 8) Drop-in patch (minimal diff)
+
+* Add `app.set("trust proxy", true);`
+* Replace your `schema` with the strict version above.
+* Add `temperature: 0`, `seed: 7`, `max_tokens: 600`, and (optionally) the timeout pattern.
+* Keep your route shape; **no other logic changes needed**.
+
+---
+
+### Why this is faster/safer
+
+* **Shorter prompt + strict schema** ⇒ fewer tokens, no post-parsing. ([OpenAI Platform][3])
+* **Header-first geo** ⇒ zero network latency; fall back only when necessary. ([Cloudflare Docs][1])
+* **US-only rule** is enforced at instruction level; schema patterns stop format drift (https, @handle, ZIP, phone).
+
+If you want, I can hand you a tiny in-memory LRU to cache enrichments and an `express-rate-limit` guard for `/api/enrich-company`.
+
+[1]: https://developers.cloudflare.com/network/ip-geolocation/?utm_source=chatgpt.com "IP geolocation · Cloudflare Network settings docs"
+[2]: https://platform.openai.com/docs/models/gpt-4o-mini-search-preview?utm_source=chatgpt.com "GPT-4o mini Search Preview"
+[3]: https://platform.openai.com/docs/guides/structured-outputs?utm_source=chatgpt.com "Structured model outputs - OpenAI API"
+[4]: https://ipapi.co/docs/?utm_source=chatgpt.com "ipapi - IP Address Lookup and Geolocation API | No SignUp"

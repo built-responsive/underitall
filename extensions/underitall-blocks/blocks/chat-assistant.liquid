@@ -1,0 +1,55 @@
+{% comment %}
+  UnderItAll Chat Assistant Block
+  Embeds the AI-powered chat bubble into the Shopify theme
+{% endcomment %}
+
+{{ 'chat-block.css' | asset_url | stylesheet_tag }}
+
+<div id="underitall-chat-root" 
+     data-api-url="{{ block.settings.api_url }}"
+     data-position="{{ block.settings.position }}"
+     data-enabled="{{ block.settings.enabled }}">
+  <script>
+    window.UNDERITALL_CHAT_API_URL = "{{ block.settings.api_url }}";
+  </script>
+</div>
+
+<script src="{{ 'chat-block.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "UnderItAll Chat Assistant",
+  "target": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "api_url",
+      "label": "API URL",
+      "default": "https://underitall-tools.replit.app",
+      "info": "The URL of your UnderItAll application backend"
+    },
+    {
+      "type": "select",
+      "id": "position",
+      "label": "Position",
+      "options": [
+        {
+          "value": "bottom-right",
+          "label": "Bottom Right"
+        },
+        {
+          "value": "bottom-left",
+          "label": "Bottom Left"
+        }
+      ],
+      "default": "bottom-right"
+    },
+    {
+      "type": "checkbox",
+      "id": "enabled",
+      "label": "Enable chat assistant",
+      "default": true
+    }
+  ]
+}
+{% endschema %}

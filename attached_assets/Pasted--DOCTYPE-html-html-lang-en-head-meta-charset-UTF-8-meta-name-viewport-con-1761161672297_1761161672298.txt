@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopify <> Clarity CRM Sync Architecture</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700&family=Lora:ital@1&family=Vazirmatn:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            background-color: #F3F1E9; /* Cream */
+            color: #212227; /* Soft Black */
+        }
+        h1, h2, h3, h4 {
+            font-family: 'Archivo', sans-serif;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        .flow-line-container {
+            position: relative;
+        }
+        .flow-line::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 100%;
+            bottom: -2rem;
+            width: 2px;
+            background-color: #F2633A; /* Rorange */
+            transform: translateX(-50%);
+        }
+        .flow-arrow {
+            color: #F2633A; /* Rorange */
+            font-size: 2rem;
+            line-height: 1;
+        }
+        .font-lora-italic { 
+            font-family: 'Lora', serif; 
+            font-style: italic; 
+        }
+        .rounded-md-std { border-radius: 16px; }
+        .rounded-lg-std { border-radius: 22px; }
+        .shadow-std { box-shadow: 0 4px 12px rgba(105, 106, 109, 0.08); }
+        .shadow-elevated { box-shadow: 0 8px 32px rgba(0, 0, 0, 0.16); }
+    </style>
+</head>
+<body class="bg-[#F3F1E9] text-[#212227]">
+    <div class="container mx-auto p-4 md:p-8">
+
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold text-[#212227] mb-4">Shopify <> Clarity CRM Sync Architecture</h1>
+            <p class="text-lg text-[#696A6D] max-w-3xl mx-auto font-lora-italic">An automated, real-time data synchronization pipeline ensuring data integrity between e-commerce and customer relationship management systems.</p>
+            <div class="mt-6 text-center">
+                <button id="explainButton" class="bg-[#F2633A] text-white font-semibold py-3 px-6 rounded-md-std shadow-std transform transition-transform duration-200 ease-out hover:scale-102">
+                    ✨ Explain this Architecture in Simple Terms
+                </button>
+            </div>
+        </header>
+
+        <section class="mb-12">
+            <h2 class="text-3xl font-semibold text-center mb-8 text-[#212227]">High-Level Data Flow</h2>
+            <div class="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-8">
+                <div class="bg-white rounded-lg-std shadow-std p-6 text-center">
+                    <h3 class="text-2xl font-semibold text-[#212227]">🛍️ Shopify</h3>
+                    <p class="text-[#696A6D]">Source of Truth</p>
+                </div>
+                <div class="flow-arrow font-bold text-3xl transform md:-rotate-0 rotate-90">&rarr;</div>
+                <div class="bg-white rounded-lg-std shadow-std p-6 text-center">
+                    <h3 class="text-2xl font-semibold text-[#212227]">⚙️ Our Application</h3>
+                    <p class="text-[#696A6D]">Webhook Processor</p>
+                </div>
+                <div class="flow-arrow font-bold text-3xl transform md:-rotate-0 rotate-90">&rarr;</div>
+                <div class="bg-white rounded-lg-std shadow-std p-6 text-center">
+                    <h3 class="text-2xl font-semibold text-[#212227]">📊 Clarity CRM</h3>
+                    <p class="text-[#696A6D]">Destination System</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-12">
+            <h2 class="text-3xl font-semibold text-center mb-12 text-[#212227]">Phase I: The Onboarding Journey</h2>
+            <p class="text-center text-[#696A6D] max-w-3xl mx-auto mb-12">When a new wholesale partner is onboarded, a linear data flow creates and links accounts across all platforms, establishing a persistent connection from the start.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                
+                <div class="bg-white p-6 rounded-lg-std shadow-std border-l-4 border-[#F2633A]">
+                    <h3 class="font-semibold text-xl mb-2 text-[#212227]"><span class="text-[#F2633A]">1.</span> Registration Submitted</h3>
+                    <p class="text-[#696A6D]">A new partner submits the registration form. Data is saved to a PostgreSQL table with a `pending` status.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg-std shadow-std border-l-4 border-[#F2633A]">
+                    <h3 class="font-semibold text-xl mb-2 text-[#212227]"><span class="text-[#F2633A]">2.</span> Admin Approval</h3>
+                    <p class="text-[#696A6D]">An admin verifies credentials in the dashboard and approves the application, triggering the creation flow.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg-std shadow-std border-l-4 border-[#F2633A]">
+                    <h3 class="font-semibold text-xl mb-2 text-[#212227]"><span class="text-[#F2633A]">3.</span> Shopify Metaobject Creation</h3>
+                    <p class="text-[#696A6D]">A `wholesale_account` metaobject is created in Shopify to store all company-level information.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg-std shadow-std border-l-4 border-[#F2633A]">
+                    <h3 class="font-semibold text-xl mb-2 text-[#212227]"><span class="text-[#F2633A]">4.</span> Shopify Customer Creation</h3>
+                    <p class="text-[#696A6D]">A customer record is created and linked back to the company's metaobject via a metafield reference.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg-std shadow-std border-l-4 border-[#F2633A]">
+                    <h3 class="font-semibold text-xl mb-2 text-[#212227]"><span class="text-[#F2633A]">5.</span> Clarity CRM Account Sync</h3>
+                    <p class="text-[#696A6D]">A new Account is created in Clarity CRM. The returned `AccountId` is immediately saved back to the Shopify metaobject.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg-std shadow-std border-l-4 border-[#F2633A]">
+                    <h3 class="font-semibold text-xl mb-2 text-[#212227]"><span class="text-[#F2633A]">6.</span> CRM Contact & Attachment</h3>
+                    <p class="text-[#696A6D]">An associated Contact is created in the CRM, and the partner's tax document is uploaded as an attachment.</p>
+                </div>
+            </div>
+        </section>
+        
+        <section class="mb-12">
+            <h2 class="text-3xl font-semibold text-center mb-12 text-[#212227]">Phase II: Keeping Everything in Sync</h2>
+            <p class="text-center text-[#696A6D] max-w-3xl mx-auto mb-12">Once an account exists, robust webhooks ensure that any changes made in Shopify are instantly and automatically reflected in Clarity CRM, eliminating manual data entry.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="bg-white rounded-lg-std shadow-std p-6">
+                    <h3 class="text-2xl font-semibold mb-4 text-[#212227] text-center">🏢 Company Sync</h3>
+                    <p class="text-center text-sm text-[#696A6D] mb-6">via `metaobjects/update` webhook</p>
+                    <div class="space-y-4">
+                        <div class="bg-[#F3F1E9] p-4 rounded-md-std">
+                            <p class="font-semibold">Trigger:</p>
+                            <p class="text-[#696A6D]">`wholesale_account` metaobject is updated in Shopify.</p>
+                        </div>
+                        <div class="bg-[#F3F1E9] p-4 rounded-md-std">
+                            <p class="font-semibold">Logic:</p>
+                            <p class="text-[#696A6D]">The app verifies the webhook and checks for the `clarity_id` in the payload.</p>
+                        </div>
+                        <div class="bg-[#F3F1E9] p-4 rounded-md-std">
+                            <p class="font-semibold">CRM Action:</p>
+                            <p class="text-[#696A6D]">Updates the corresponding Account record in Clarity CRM, ensuring data like tax status is always current.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg-std shadow-std p-6">
+                    <h3 class="text-2xl font-semibold mb-4 text-[#212227] text-center">👤 Contact Sync</h3>
+                    <p class="text-center text-sm text-[#696A6D] mb-6">via `customers/update` webhook</p>
+                    <div class="space-y-4">
+                        <div class="bg-[#F3F1E9] p-4 rounded-md-std">
+                            <p class="font-semibold">Trigger:</p>
+                            <p class="text-[#696A6D]">An individual customer record is updated in Shopify.</p>
+                        </div>
+                        <div class="bg-[#F3F1E9] p-4 rounded-md-std">
+                            <p class="font-semibold">Logic:</p>
+                            <p class="text-[#696A6D]">The app retrieves the linked company's `clarity_id` from the customer's metaobject.</p>
+                        </div>
+                        <div class="bg-[#F3F1E9] p-4 rounded-md-std">
+                            <p class="font-semibold">CRM Action:</p>
+                            <p class="text-[#696A6D]">Updates the corresponding Contact record in Clarity CRM, using the `clarity_id` to link to the parent account.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-12">
+            <h2 class="text-3xl font-semibold text-center mb-12 text-[#212227]">Webhook Event Volume (Sample Data)</h2>
+            <p class="text-center text-[#696A6D] max-w-3xl mx-auto mb-12">Visualizing the relative frequency of different webhook events helps in understanding the system's activity and monitoring its health. Contact updates are typically more frequent than company-level updates.</p>
+             <div class="bg-white rounded-lg-std shadow-std p-6">
+                <div class="chart-container">
+                    <canvas id="webhookChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2 class="text-3xl font-semibold text-center mb-12 text-[#212227]">Security & Reliability Pillars</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+                <div class="bg-white rounded-lg-std shadow-std p-8">
+                    <div class="text-5xl mb-4">🔐</div>
+                    <h3 class="text-xl font-semibold text-[#212227]">Signature Verification</h3>
+                    <p class="text-[#696A6D] mt-2">All incoming Shopify webhooks are rigorously verified using HMAC-SHA256 signatures to ensure data integrity and prevent unauthorized access.</p>
+                </div>
+                <div class="bg-white rounded-lg-std shadow-std p-8">
+                    <div class="text-5xl mb-4">🔁</div>
+                    <h3 class="text-xl font-semibold text-[#212227]">Idempotency & Retries</h3>
+                    <p class="text-[#696A6D] mt-2">The system uses "Create Or Edit" logic to prevent duplicate entries. Failed CRM operations are automatically retried with exponential backoff.</p>
+                </div>
+                <div class="bg-white rounded-lg-std shadow-std p-8">
+                    <div class="text-5xl mb-4">📈</div>
+                    <h3 class="text-xl font-semibold text-[#212227]">Comprehensive Logging</h3>
+                    <p class="text-[#696A6D] mt-2">All webhook activity is meticulously recorded in a PostgreSQL table, providing complete observability for diagnostics and manual retries if necessary.</p>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Gemini Modal -->
+    <div id="geminiModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm hidden">
+        <div class="bg-white rounded-lg-std shadow-elevated w-11/12 md:w-1/2 max-w-2xl max-h-[80vh] flex flex-col">
+            <header class="flex items-center justify-between p-4 border-b border-[#E1E0DA]">
+                <h3 class="text-xl font-semibold text-[#212227]">✨ Simple Explanation</h3>
+                <button id="closeModalButton" class="text-[#696A6D] hover:text-[#212227] text-3xl">&times;</button>
+            </header>
+            <main class="p-6 overflow-y-auto">
+                <!-- Loading Spinner -->
+                <div id="loadingSpinner" class="flex flex-col items-center justify-center min-h-[200px] hidden">
+                    <div class="w-12 h-12 border-4 border-t-transparent rounded-full animate-spin border-[#F2633A]" style="border-top-color: transparent;"></div>
+                    <p class="mt-4 text-[#696A6D]">Generating explanation... Please wait.</p>
+                </div>
+                <!-- Result Content -->
+                <div id="geminiResult" class="text-[#212227] leading-relaxed whitespace-pre-wrap"></div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        function wrapLabels(label, maxLength) {
+            if (label.length <= maxLength) {
+                return label;
+            }
+            const words = label.split(' ');
+            const lines = [];
+            let currentLine = '';
+            for (const word of words) {
+                if ((currentLine + ' ' + word).length > maxLength) {
+                    lines.push(currentLine);
+                    currentLine = word;
+                } else {
+                    currentLine += (currentLine ? ' ' : '') + word;
+                }
+            }
+            if (currentLine) {
+                lines.push(currentLine);
+            }
+            return lines;
+        }
+
+        const webhookData = {
+            labels: [
+                'metaobjects/update',
+                'customers/update',
+                'clarity/account_create',
+                'clarity/contact_create'
+            ].map(label => wrapLabels(label, 16)),
+            datasets: [{
+                label: 'Webhook Events per Day (Sample)',
+                data: [120, 450, 115, 430],
+                backgroundColor: '#F2633A',
+                borderColor: '#212227',
+                borderWidth: 1,
+                borderRadius: 4
+            }]
+        };
+
+        const webhookChartCtx = document.getElementById('webhookChart').getContext('2d');
+        new Chart(webhookChartCtx, {
+            type: 'bar',
+            data: webhookData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false,
+                    },
+                    tooltip: {
+                        callbacks: {
+                            title: function(tooltipItems) {
+                                const item = tooltipItems[0];
+                                let label = item.chart.data.labels[item.dataIndex];
+                                if (Array.isArray(label)) {
+                                  return label.join(' ');
+                                } else {
+                                  return label;
+                                }
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: '#E1E0DA'
+                        },
+                        ticks: {
+                           color: '#212227'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                           color: '#212227'
+                        }
+                    }
+                }
+            }
+        });
+
+        // --- Gemini API Feature ---
+
+        const explainButton = document.getElementById('explainButton');
+        const geminiModal = document.getElementById('geminiModal');
+        const closeModalButton = document.getElementById('closeModalButton');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const geminiResult = document.getElementById('geminiResult');
+
+        // This context is derived from the source material provided in the first prompt.
+        const architectureContext = `
+        The general data sync structure is established as: Shopify Webhooks → Our Application → Clarity CRM.
+        Phase I: Initial Account Creation Flow
+        The data flow begins when a new wholesale trade partner is onboarded, moving linearly from application submission to full account integration across all platforms.
+        1. Registration Submission and Pending Status: The user submits the wholesale registration form, and the data is recorded in the wholesale_registrations PostgreSQL table with a pending status.
+        2. Admin Approval: An administrator reviews the application via the dashboard, verifies credentials (like tax documents uploaded as a file), and approves the application. This approval triggers the creation flow.
+        3. Shopify Metaobject Creation (Company Data): The system first creates a wholesale_account metaobject in Shopify. This metaobject is essential as it holds all company-level information (firm name, address, tax status) and serves as the master company record, effectively mimicking Shopify's B2B features.
+        4. Shopify Customer Creation (Contact Data): A Shopify customer record is created (using the REST Admin API for maximum plan compatibility). This customer record is tagged with wholesale, trade-program and contains a metafield reference linking it directly back to the wholesale_account metaobject.
+        5. Clarity CRM Account Creation and Referencing: The system creates a Clarity CRM Account, mapping the business information. Critically, the AccountId returned from Clarity CRM is immediately saved back into the clarity_id field of the Shopify metaobject. This establishes the persistent, primary reference point between Shopify and the CRM.
+        6. Clarity CRM Contact and Attachment: An associated Contact record is created, linked to the new AccountId. The submitted tax ID proof document is base64 encoded and uploaded as an Attachment to the new CRM Account.
+        Phase II: Ongoing Webhook Synchronization
+        Once the initial account is created, ongoing synchronization relies on robust webhooks to ensure that changes made in Shopify are instantly reflected in Clarity CRM. This architecture eliminates manual data entry and maintains the consistency necessary for an "elevated experience".
+        Shopify Webhooks (Source of Truth Updates)
+        The data flow relies on two primary webhook topics from Shopify:
+        1. metaobjects/update (Company Sync):
+            ◦ Trigger: Fired when the wholesale_account metaobject is created or updated in the Shopify admin.
+            ◦ Logic: The application verifies the webhook signature (HMAC-SHA256) for security. It checks the payload for the existence of the clarity_id.
+            ◦ CRM Action: If the clarity_id exists, the corresponding Clarity CRM Account is updated. If the clarity_id is missing (as in initial creation), a new CRM Account is created, and the resulting AccountId is saved back to the metaobject. This ensures company-level data, such as tax exemption status or company name, is always up-to-date in Clarity.
+        2. customers/update (Contact Sync):
+            ◦ Trigger: Fired when an individual customer record (which represents a contact at the wholesale company) is updated in Shopify.
+            ◦ Logic: After verification, the application fetches the customer's metafield to retrieve the linked wholesale_account GID. It uses the GID to fetch the metaobject and retrieve the crucial clarity_id.
+            ◦ CRM Action: Using the clarity_id to link back to the parent account, the application updates the corresponding Contact record in Clarity CRM.
+        Clarity CRM Confirmation Webhooks
+        The system also integrates confirmation webhooks sent from Clarity CRM (e.g., clarity/account_create and clarity/contact_create). These webhooks allow the application to log the successful creation or update of CRM resources, enabling complete logging and observability of the integration health.
+        Security and Observability
+        To manage this complex data architecture, robust safeguards are implemented:
+        • Signature Verification: All incoming Shopify webhooks are rigorously verified using the HMAC-SHA256 signature to maintain system integrity.
+        • Idempotency and Error Handling: The CRM integration utilizes the "Create Or Edit" operation where possible to prevent duplicate entries. If CRM creation fails, the system is designed to retry with exponential backoff.
+        • Comprehensive Logging: All webhook activity, including type, source, and payload, is meticulously recorded in the webhook_logs PostgreSQL table, offering complete observability and a mechanism for reviewing and retrying failed synchronization attempts.
+        `;
+
+        function showModal() {
+            geminiModal.classList.remove('hidden');
+        }
+
+        function hideModal() {
+            geminiModal.classList.add('hidden');
+        }
+
+        explainButton.addEventListener('click', () => {
+            showModal();
+            geminiResult.innerHTML = '';
+            loadingSpinner.classList.remove('hidden');
+            getSimpleExplanation();
+        });
+
+        closeModalButton.addEventListener('click', hideModal);
+        geminiModal.addEventListener('click', (e) => {
+            if (e.target === geminiModal) {
+                hideModal();
+            }
+        });
+
+        async function fetchWithBackoff(apiUrl, options, retries = 3, delay = 1000) {
+            try {
+                const response = await fetch(apiUrl, options);
+                if (response.ok) {
+                    return await response.json();
+                } else if (retries > 0) {
+                    await new Promise(res => setTimeout(res, delay));
+                    return fetchWithBackoff(apiUrl, options, retries - 1, delay * 2);
+                } else {
+                    throw new Error(`API request failed after retries: ${response.statusText}`);
+                }
+            } catch (error) {
+                if (retries > 0) {
+                    await new Promise(res => setTimeout(res, delay));
+                    return fetchWithBackoff(apiUrl, options, retries - 1, delay * 2);
+                } else {
+                    throw error;
+                }
+            }
+        }
+
+        async function getSimpleExplanation() {
+            const userQuery = "Please explain this system in simple, non-technical terms. Focus on what it does and why it's important. Avoid technical jargon. Aim for a 2-3 paragraph summary suitable for a non-technical manager.";
+            const apiKey = ""; // API key will be provided by the environment
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+
+            const payload = {
+                contents: [{ parts: [{ text: userQuery }] }],
+                systemInstruction: {
+                    parts: [{ text: architectureContext }]
+                },
+            };
+
+            const options = {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            };
+
+            try {
+                const result = await fetchWithBackoff(apiUrl, options);
+                const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                if (text) {
+                    geminiResult.textContent = text;
+                } else {
+                    gemmiResult.textContent = 'Sorry, I couldn\'t generate an explanation at this time. Please try again later.';
+                }
+            } catch (error) {
+                gemiiResult.textContent = 'An error occurred while contacting the AI. Please check your connection and try again.';
+            } finally {
+                loadingSpinner.classList.add('hidden');
+            }
+        }
+
+    </script>
+</body>
+</html>
+

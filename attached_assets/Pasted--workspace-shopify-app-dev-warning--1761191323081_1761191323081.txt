@@ -1,0 +1,54 @@
+
+~/workspace$ shopify app dev
+╭─ warning ─────────────────────────────────────────────────────╮
+│                                                               │
+│  The flag `api-key` has been deprecated in favor of           │
+│  `client-id`                                                  │
+│                                                               │
+╰───────────────────────────────────────────────────────────────╯
+
+
+To run this command, log in to Shopify.
+User verification code: GRDB-KKCC
+👉 Press any key to open the login page on your browser
+Opened link to start the auth process: https://accounts.shopify.com/activate-with-code?device_code%5Buser_code%5D=GRDB-KKCC
+✔ Logged in.
+╭─ error ───────────────────────────────────────────────────────╮
+│                                                               │
+│  No app with client ID `61dd114a8d5446e2af4a4ca35f06a17b`     │
+│  found                                                        │
+│                                                               │
+│  Next steps:                                                  │
+│    • Check that your account has permission to develop apps   │
+│      for this organization or contact the owner of the        │
+│      organization to grant you permission                     │
+│    • Run `shopify auth logout` to log into a different        │
+│      account than paul@builtresponsive.com                    │
+│    • Pass `--reset` to your command to create a new app       │
+│                                                               │
+╰───────────────────────────────────────────────────────────────╯
+
+~/workspace$ shopify app dev --reset
+╭─ warning ─────────────────────────────────────────────────────╮
+│                                                               │
+│  The flag `api-key` has been deprecated in favor of           │
+│  `client-id`                                                  │
+│                                                               │
+╰───────────────────────────────────────────────────────────────╯
+
+╭─ error ───────────────────────────────────────────────────────╮
+│                                                               │
+│  No app with client ID `61dd114a8d5446e2af4a4ca35f06a17b`     │
+│  found                                                        │
+│                                                               │
+│  Next steps:                                                  │
+│    • Check that your account has permission to develop apps   │
+│      for this organization or contact the owner of the        │
+│      organization to grant you permission                     │
+│    • Run `shopify auth logout` to log into a different        │
+│      account than paul@builtresponsive.com                    │
+│    • Pass `--reset` to your command to create a new app       │
+│                                                               │
+╰───────────────────────────────────────────────────────────────╯
+
+~/workspace$ 

@@ -1,0 +1,60 @@
+import OpenAI from "openai";
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
+const response = await openai.chat.completions.create({
+  model: "gpt-5-search-api-2025-10-14",
+  messages: [
+    {
+      "role": "developer",
+      "content": [
+        {
+          "type": "text",
+          "text": "Begin with a concise checklist (3–7 bullets) of what you will do; keep items conceptual, not implementation-level.\n\nReturn a single US business profile as a JSON object conforming exactly to the provided JSON Schema and field order.\n\n- Search and confirm the business’s existence using US sources ONLY. Do not consider companies located in other countries, regardless of name similarity.\n- Rely exclusively on official and authoritative sources, with the following priority:\n    1. The company’s official website\n    2. US state or government business registries\n    3. Verified business listing platforms\n- Do NOT use generic directories unless none of the above are available.\n- If a company has multiple locations, use only the primary or official business address; do not include branch or subsidiary locations.\n- In cases of conflicting data, select information from the most authoritative and recently updated source (prefer sources updated within the last 12 months). If no clarity is achieved, set the field to null.\n- If no US business exists with the given name or no official/authoritative US sources can be found, return a JSON object with ALL fields set to null.\n\nBefore answering:\n- Think step-by-step through each source you consult, how you verify US relevance, and how you resolve ambiguous or conflicting data.\n- Summarize your chain of reasoning in a \"reasoning\" field at the end of the object.\n\nAfter producing the JSON object, validate that all fields meet the schema and order constraints, and that no extra properties are present. If any error is detected, self-correct and reissue the output.\n\nThe JSON response must:\n- Be strictly valid per the schema: every required field present, each value matching its regex/pattern constraints, absolutely no extra properties, and the exact field order as shown below.\n- Be output as a single, compact JSON object, with no comments or explanations outside of the \"reasoning\" field.\n\n---\n\n## Output Format\nFormat your answer as follows, maintaining this precise structure and order:\n\n{\n  \"website\": \"string|null (must start with https:// if not null, uri format)\",\n  \"instagramHandle\": \"string|null (must start with @ if not null)\",\n  \"businessAddress\": \"string|null\",\n  \"businessAddress2\": \"string|null\",\n  \"city\": \"string|null\",\n  \"state\": \"string|null (2 upper-case letter state code, e.g., 'NY')\",\n  \"zipCode\": \"string|null (5 or 9 digit US zip: '12345' or '12345-6789')\",\n  \"phone\": \"string|null (must match US phone pattern: (999) 999-9999)\",\n  \"reasoning\": \"string (1–3 sentence summary explaining the sources checked, how ties or ambiguities were resolved, and noting any fields left null)\"\n}\n\nField constraints:\n- \"website\": null or a string starting with \"https://\" (valid URI format).\n- \"instagramHandle\": null or a string starting with \"@\", with valid Instagram characters only and no spaces.\n- \"state\": null or exactly two uppercase letters representing a valid US state code.\n- \"zipCode\": null or US ZIP code: either five digits (e.g., \"12345\") or five-plus-four digits with hyphen (e.g., \"12345-6789\").\n- \"phone\": null or a string matching the US phone format \"(999) 999-9999\", with correct punctuation and spacing.\n- Fields must appear in the exact order shown, with no additional properties included.\n\nIf no official or authoritative US source is found, or if the business does not exist in the US, set all fields to null and explain this in the \"reasoning\" field.\n\nEnsure \"reasoning\" appears as the final field in the output object."
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "Please quickly find reliable results for the business names you are given : \n  \"Return ONE US business profile as JSON that EXACTLY matches the provided JSON Schema.\",\n  \"Search US sources ONLY. If no US match exists, set ALL fields to null.\",\n  \"Prefer official sources (company site > state registries > verified platforms) over directories.\",\n  \"If conflicting info, pick the most authoritative AND freshest source; otherwise null.\",\n  \"If you encounter a non-US entity with the same/similar name, IGNORE it and keep searching for a US entity.\",\n  geoContext // from your code\n].join(\"\\n\");\nconst schema = {\n  name: \"BusinessProfile\",\n  schema: {\n    $schema: \"https://json-schema.org/draft/2020-12/schema\",\n    title: \"BusinessProfile\",\n    type: \"object\",\n    properties: {\n      website: { type: [\"string\",\"null\"], pattern: \"^https://\", format: \"uri\" },\n      instagramHandle: { type: [\"string\",\"null\"], pattern: \"^@.+$\" },\n      businessAddress: { type: [\"string\",\"null\"] },\n      businessAddress2: { type: [\"string\",\"null\"] },\n      city: { type: [\"string\",\"null\"] },\n      state: { type: [\"string\",\"null\"], pattern: \"^[A-Z]{2}$\" },\n      zipCode: { type: [\"string\",\"null\"], pattern: \"^\\\\d{5}(-\\\\d{4})?$\" },\n      phone: { type: [\"string\",\"null\"], pattern: \"^\\\\(\\\\d{3}\\\\) \\\\d{3}-\\\\d{4}$\" }\n    },\n    required: [\"website\",\"instagramHandle\",\"businessAddress\",\"businessAddress2\",\"city\",\"state\",\"zipCode\",\"phone\"],\n    additionalProperties: false\n  },\n  strict: true\n};\n"
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": " UnderItAll Holdings LLC."
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "text",
+          "text": "{\n  \"website\": \"https://www.itsunderitall.com\",\n  \"instagramHandle\": null,\n  \"businessAddress\": \"11800 Wills Road\",\n  \"businessAddress2\": \"Suite 140\",\n  \"city\": \"Alpharetta\",\n  \"state\": \"GA\",\n  \"zipCode\": \"30009\",\n  \"phone\": \"(404) 436-0985\",\n  \"reasoning\": \"Used the company’s official website for address, phone, and headquarters; no Instagram handle found. All data from UnderItAll Holdings LLC’s official site, which is authoritative and recent.\"\n}"
+        }
+      ]
+    }
+  ],
+  response_format: {
+    "type": "text"
+  },
+  web_search_options: {
+    "search_context_size": "low",
+    "user_location": {
+      "type": "approximate",
+      "approximate": {
+        "country": "US"
+      }
+    }
+  },
+  store: true
+});

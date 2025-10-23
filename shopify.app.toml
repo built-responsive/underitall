@@ -1,0 +1,35 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+client_id = "78a602699150bda4e49a40861707d500"
+name = "its-under-it-all"
+application_url = "https://its-under-it-all.replit.app"
+embedded = true
+
+[build]
+automatically_update_urls_on_dev = true
+
+[webhooks]
+api_version = "2026-01"
+
+[[webhooks.subscriptions]]
+topics = ["customers/create"]
+uri = "/api/webhooks/customers/create"
+
+[[webhooks.subscriptions]]
+topics = ["customers/update"]
+uri = "/api/webhooks/customers/update"
+
+[[webhooks.subscriptions]]
+topics = ["metaobjects/update"]
+uri = "/api/webhooks/metaobjects/update"
+filter = "type:wholesale_account"
+
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = "read_analytics,read_customer_events,read_checkout_branding_settings,write_checkout_branding_settings,write_custom_pixels,read_custom_pixels,write_customers,read_customers,write_draft_orders,read_draft_orders,write_files,read_files,write_metaobjects,read_metaobjects,write_metaobject_definitions,read_metaobject_definitions,write_online_store_navigation,read_online_store_navigation,write_online_store_pages,read_online_store_pages,write_orders,read_orders,write_packing_slip_templates,read_packing_slip_templates,write_pixels,read_pixels,write_price_rules,read_price_rules,write_product_feeds,read_product_feeds,write_product_listings,read_product_listings,write_products,read_products,write_purchase_options,read_purchase_options,write_channels,read_channels,write_script_tags,read_script_tags,write_content,read_content,write_themes,read_themes,read_all_cart_transforms,write_app_proxy,read_app_proxy,write_customer_data_erasure,read_customer_data_erasure,write_customer_merge,read_customer_merge,write_theme_code,write_validations,read_validations,write_discovery,read_discovery,write_discounts,read_discounts,write_assigned_fulfillment_orders,read_assigned_fulfillment_orders,unauthenticated_write_checkouts,unauthenticated_read_checkouts,unauthenticated_read_content,unauthenticated_write_customers,unauthenticated_read_customers,unauthenticated_read_customer_tags,unauthenticated_read_metaobjects,unauthenticated_read_product_listings,unauthenticated_read_product_inventory,unauthenticated_read_product_pickup_locations,unauthenticated_read_product_tags,unauthenticated_read_selling_plans,unauthenticated_write_bulk_operations,unauthenticated_read_bulk_operations,unauthenticated_read_bundles,unauthenticated_read_shop_pay_installments_pricing"
+
+[auth]
+redirect_urls = [ 
+  "https://its-under-it-all.replit.app/api/auth",
+  "https://its-under-it-all.replit.app/auth/callback"
+]

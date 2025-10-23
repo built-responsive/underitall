@@ -1,0 +1,60 @@
+index-Bq-gKhwr.js:293 🔍 Company enrichment triggered with: Responsive
+index-Bq-gKhwr.js:293 📋 Current field values: {website: '(empty)', instagram: '(empty)'}
+index-Bq-gKhwr.js:293 🚀 Starting API enrichment request...
+join:1 Access to fetch at 'https://join.itsunderitall.com/api/enrich-company' from origin 'https://underitall-redeux.myshopify.com' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: The value of the 'Access-Control-Allow-Origin' header in the response must not be the wildcard '*' when the request's credentials mode is 'include'.
+index-Bq-gKhwr.js:48  POST https://join.itsunderitall.com/api/enrich-company net::ERR_FAILED
+_n @ index-Bq-gKhwr.js:48
+u @ index-Bq-gKhwr.js:293
+onBlur @ index-Bq-gKhwr.js:293
+yC @ index-Bq-gKhwr.js:37
+wC @ index-Bq-gKhwr.js:37
+bC @ index-Bq-gKhwr.js:37
+im @ index-Bq-gKhwr.js:37
+Dy @ index-Bq-gKhwr.js:37
+(anonymous) @ index-Bq-gKhwr.js:37
+_h @ index-Bq-gKhwr.js:40
+sy @ index-Bq-gKhwr.js:37
+Eu @ index-Bq-gKhwr.js:37
+th @ index-Bq-gKhwr.js:37
+FC @ index-Bq-gKhwr.js:37
+index-Bq-gKhwr.js:293 ❌ Enrichment failed with error: TypeError: Failed to fetch
+    at _n (index-Bq-gKhwr.js:48:42991)
+    at u (index-Bq-gKhwr.js:293:26145)
+    at onBlur (index-Bq-gKhwr.js:293:31579)
+    at Object.yC (index-Bq-gKhwr.js:37:9855)
+    at wC (index-Bq-gKhwr.js:37:10009)
+    at bC (index-Bq-gKhwr.js:37:10066)
+    at im (index-Bq-gKhwr.js:37:31446)
+    at Dy (index-Bq-gKhwr.js:37:31863)
+    at index-Bq-gKhwr.js:37:36776
+    at _h (index-Bq-gKhwr.js:40:36896)
+u @ index-Bq-gKhwr.js:293
+await in u
+onBlur @ index-Bq-gKhwr.js:293
+yC @ index-Bq-gKhwr.js:37
+wC @ index-Bq-gKhwr.js:37
+bC @ index-Bq-gKhwr.js:37
+im @ index-Bq-gKhwr.js:37
+Dy @ index-Bq-gKhwr.js:37
+(anonymous) @ index-Bq-gKhwr.js:37
+_h @ index-Bq-gKhwr.js:40
+sy @ index-Bq-gKhwr.js:37
+Eu @ index-Bq-gKhwr.js:37
+th @ index-Bq-gKhwr.js:37
+FC @ index-Bq-gKhwr.js:37
+index-Bq-gKhwr.js:293 Error details: {message: 'Failed to fetch', stack: 'TypeError: Failed to fetch\n    at _n (https://join…underitall.com/assets/index-Bq-gKhwr.js:40:36896)'}message: "Failed to fetch"stack: "TypeError: Failed to fetch\n    at _n (https://join.itsunderitall.com/assets/index-Bq-gKhwr.js:48:42991)\n    at u (https://join.itsunderitall.com/assets/index-Bq-gKhwr.js:293:26145)\n    at onBlur (https://join.itsunderitall.com/assets/index-Bq-gKhwr.js:293:31579)\n    at Object.yC (https://join.itsunderitall.com/assets/index-Bq-gKhwr.js:37:9855)\n    at wC (https://join.itsunderitall.com/assets/index-Bq-gKhwr.js:37:10009)\n    at bC (https://join.itsunderitall.com/assets/index-Bq-gKhwr.js:37:10066)\n    at im (https://join.itsunderitall.com/assets/index-Bq-gKhwr.js:37:31446)\n    at Dy (https://join.itsunderitall.com/assets/index-Bq-gKhwr.js:37:31863)\n    at https://join.itsunderitall.com/assets/index-Bq-gKhwr.js:37:36776\n    at _h (https://join.itsunderitall.com/assets/index-Bq-gKhwr.js:40:36896)"[[Prototype]]: Object
+u @ index-Bq-gKhwr.js:293
+await in u
+onBlur @ index-Bq-gKhwr.js:293
+yC @ index-Bq-gKhwr.js:37
+wC @ index-Bq-gKhwr.js:37
+bC @ index-Bq-gKhwr.js:37
+im @ index-Bq-gKhwr.js:37
+Dy @ index-Bq-gKhwr.js:37
+(anonymous) @ index-Bq-gKhwr.js:37
+_h @ index-Bq-gKhwr.js:40
+sy @ index-Bq-gKhwr.js:37
+Eu @ index-Bq-gKhwr.js:37
+th @ index-Bq-gKhwr.js:37
+FC @ index-Bq-gKhwr.js:37
+index-Bq-gKhwr.js:293 ✅ Enrichment process complete

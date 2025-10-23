@@ -1,0 +1,75 @@
+    "metaobject": {
+      "displayName": "Magnolify, Inc.",
+      "id": "gid://shopify/Metaobject/137780953248",
+      "handle": "magnolify-inc",
+      "type": "wholesale_account",
+      "fields": [
+        {
+          "jsonValue": "Magnolify, Inc.",
+          "key": "company",
+          "type": "single_line_text_field",
+          "value": "Magnolify, Inc."
+        },
+        {
+          "jsonValue": "magnolify@gmail.com",
+          "key": "email",
+          "type": "single_line_text_field",
+          "value": "magnolify@gmail.com"
+        },
+        {
+          "jsonValue": "3862445990",
+          "key": "phone",
+          "type": "single_line_text_field",
+          "value": "3862445990"
+        },
+        {
+          "jsonValue": "https://magnolify.pro",
+          "key": "website",
+          "type": "url",
+          "value": "https://magnolify.pro"
+        },
+        {
+          "jsonValue": "magnolify",
+          "key": "instagram",
+          "type": "single_line_text_field",
+          "value": "magnolify"
+        },
+        {
+          "jsonValue": "Friend",
+          "key": "source",
+          "type": "single_line_text_field",
+          "value": "Friend"
+        },
+        {
+          "jsonValue": "Testing",
+          "key": "message",
+          "type": "multi_line_text_field",
+          "value": "Testing"
+        },
+        {
+          "jsonValue": true,
+          "key": "sample_set",
+          "type": "boolean",
+          "value": "true"
+        },
+        {
+          "jsonValue": true,
+          "key": "tax_exempt",
+          "type": "boolean",
+          "value": "true"
+        },
+        {
+          "jsonValue": "93-1805911",
+          "key": "vat_tax_id",
+          "type": "single_line_text_field",
+          "value": "93-1805911"
+        },
+        {
+          "jsonValue": "gid://shopify/GenericFile/38482657902752",
+          "key": "tax_proof",
+          "type": "file_reference",
+          "value": "gid://shopify/GenericFile/38482657902752"
+        }
+      ]
+    }
+  },

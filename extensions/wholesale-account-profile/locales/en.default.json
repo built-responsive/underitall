@@ -1,0 +1,13 @@
+{
+  "title": "Wholesale Account Information",
+  "loading": "Loading wholesale account...",
+  "businessInfo": "Business Information",
+  "addressInfo": "Business Address",
+  "taxInfo": "Tax Information",
+  "additionalInfo": "Additional Information",
+  "edit": "Edit Information",
+  "save": "Save Changes",
+  "cancel": "Cancel",
+  "successMessage": "Wholesale account updated successfully!",
+  "errorMessage": "Error updating wholesale account"
+}

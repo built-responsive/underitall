@@ -1,0 +1,108 @@
+   "line_items": [
+      {
+        "id": 15394989539488,
+        "admin_graphql_api_id": "gid://shopify/LineItem/15394989539488",
+        "attributed_staffs": [],
+        "current_quantity": 1,
+        "fulfillable_quantity": 1,
+        "fulfillment_service": "manual",
+        "fulfillment_status": null,
+        "gift_card": false,
+        "grams": 0,
+        "name": "Custom Rug Pads - Luxe ¼\" - Round",
+        "price": "774.40",
+        "price_set": {
+          "shop_money": {
+            "amount": "774.40",
+            "currency_code": "USD"
+          },
+          "presentment_money": {
+            "amount": "774.40",
+            "currency_code": "USD"
+          }
+        },
+        "product_exists": false,
+        "product_id": null,
+        "properties": [
+          {
+            "name": "📐 Dimensions",
+            "value": "16'0\" round"
+          },
+          {
+            "name": "📏 Total Sq Ft",
+            "value": "201.1"
+          },
+          {
+            "name": "💰 Unit Price",
+            "value": "$774.40"
+          },
+          {
+            "name": "💵 Total Price",
+            "value": "$774.40"
+          },
+          {
+            "name": "📊 Price/Sq Ft",
+            "value": "$3.85"
+          },
+          {
+            "name": "🏢 Project Name",
+            "value": "d"
+          },
+          {
+            "name": "📍 Install Location",
+            "value": "f"
+          },
+          {
+            "name": "📄 PO Number",
+            "value": "g"
+          },
+          {
+            "name": "👤 Design Firm/Attn",
+            "value": "h"
+          },
+          {
+            "name": "🎨 Product",
+            "value": "Luxe ¼\" - Round"
+          },
+          {
+            "name": "🔢 SKU",
+            "value": "UIA-Thick-Rnd-160round"
+          },
+          {
+            "name": "🏭 Vendor",
+            "value": "UNDERITALL"
+          },
+          {
+            "name": "📏 W×L",
+            "value": "16'0\" round"
+          },
+          {
+            "name": "🖼️ Image",
+            "value": "https://cdn.shopify.com/s/files/1/0698/0449/0912/files/felt_texture_circle.jpg?v=1760204381"
+          }
+        ],
+        "quantity": 1,
+        "requires_shipping": true,
+        "sku": "UIA-Thick-Rnd-16x15",
+        "taxable": false,
+        "title": "Custom Rug Pads - Luxe ¼\" - Round",
+        "total_discount": "0.00",
+        "total_discount_set": {
+          "shop_money": {
+            "amount": "0.00",
+            "currency_code": "USD"
+          },
+          "presentment_money": {
+            "amount": "0.00",
+            "currency_code": "USD"
+          }
+        },
+        "variant_id": null,
+        "variant_inventory_management": null,
+        "variant_title": null,
+        "vendor": "",
+        "tax_lines": [],
+        "duties": [],
+        "discount_allocations": []
+      }
+    ],

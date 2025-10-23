@@ -1,0 +1,137 @@
+{
+  "data": {
+    "customer": {
+      "id": "gid://shopify/Customer/8523485118624",
+      "email": "magnolify@gmail.com",
+      "displayName": "Paul Smith",
+      "addresses": [
+        {
+          "address1": "210 Oklahoma Ave",
+          "address2": null,
+          "city": "Satsuma",
+          "company": null,
+          "id": "gid://shopify/MailingAddress/9719432577184?model_name=CustomerAddress",
+          "lastName": "Smith",
+          "firstName": "Paul",
+          "country": "United States",
+          "name": "Paul Smith",
+          "phone": null,
+          "zip": "32189"
+        },
+        {
+          "address1": "210 Oklahoma Ave",
+          "address2": null,
+          "city": "Satsuma",
+          "company": "Magnolify, Inc.",
+          "id": "gid://shopify/MailingAddress/9730211217568?model_name=CustomerAddress",
+          "lastName": "Smith",
+          "firstName": "Paul",
+          "country": "United States",
+          "name": "Paul Smith",
+          "phone": "+13862445990",
+          "zip": "32189"
+        }
+      ],
+      "lastName": "Smith",
+      "phone": "+13862445990",
+      "note": "",
+      "metafield": {
+        "id": "gid://shopify/Metafield/34535391887520",
+        "jsonValue": "gid://shopify/Metaobject/137780953248",
+        "key": "custom.wholesale_account",
+        "namespace": "custom",
+        "references": null
+      },
+      "state": "DISABLED",
+      "taxExempt": false,
+      "tags": [],
+      "firstName": "Paul",
+      "multipassIdentifier": null
+    },
+    "metaobject": {
+      "displayName": "Magnolify, Inc.",
+      "id": "gid://shopify/Metaobject/137780953248",
+      "handle": "magnolify-inc",
+      "type": "wholesale_account",
+      "fields": [
+        {
+          "jsonValue": "Magnolify, Inc.",
+          "key": "company",
+          "type": "single_line_text_field",
+          "value": "Magnolify, Inc."
+        },
+        {
+          "jsonValue": "magnolify@gmail.com",
+          "key": "email",
+          "type": "single_line_text_field",
+          "value": "magnolify@gmail.com"
+        },
+        {
+          "jsonValue": "3862445990",
+          "key": "phone",
+          "type": "single_line_text_field",
+          "value": "3862445990"
+        },
+        {
+          "jsonValue": "https://magnolify.pro",
+          "key": "website",
+          "type": "url",
+          "value": "https://magnolify.pro"
+        },
+        {
+          "jsonValue": "magnolify",
+          "key": "instagram",
+          "type": "single_line_text_field",
+          "value": "magnolify"
+        },
+        {
+          "jsonValue": "Friend",
+          "key": "source",
+          "type": "single_line_text_field",
+          "value": "Friend"
+        },
+        {
+          "jsonValue": "Testing",
+          "key": "message",
+          "type": "multi_line_text_field",
+          "value": "Testing"
+        },
+        {
+          "jsonValue": true,
+          "key": "sample_set",
+          "type": "boolean",
+          "value": "true"
+        },
+        {
+          "jsonValue": true,
+          "key": "tax_exempt",
+          "type": "boolean",
+          "value": "true"
+        },
+        {
+          "jsonValue": "93-1805911",
+          "key": "vat_tax_id",
+          "type": "single_line_text_field",
+          "value": "93-1805911"
+        },
+        {
+          "jsonValue": "gid://shopify/GenericFile/38482657902752",
+          "key": "tax_proof",
+          "type": "file_reference",
+          "value": "gid://shopify/GenericFile/38482657902752"
+        }
+      ]
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 30,
+      "actualQueryCost": 6,
+      "throttleStatus": {
+        "maximumAvailable": 2000,
+        "currentlyAvailable": 1994,
+        "restoreRate": 100
+      }
+    }
+  }
+}

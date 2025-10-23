@@ -1,0 +1,16 @@
+
+api_version = "2025-10"
+
+[[extensions]]
+uid = "686a5fbf-d63f-a333-6bce-c93e330a96ff97484b27"
+type = "theme"
+name = "UnderItAll Tools"
+handle = "underitall-tools"
+
+[[extensions.metafields]]
+namespace = "underitall"
+key = "calculator"
+
+[[extensions.metafields]]
+namespace = "underitall"
+key = "chat"

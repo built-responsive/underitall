@@ -1,0 +1,261 @@
+Got you. Here’s a tighter, faster, US-focused setup with better geolocation from headers and zero “please parse my JSON” drama.
+
+# 1) Get reliable geo from Cloudflare (city/state when available)
+
+Cloudflare only guarantees `CF-IPCountry` by default. City/region/lat/long headers (e.g., `CF-IPCity`, `CF-Region`, `CF-Region-Code`, `CF-Postal-Code`) appear **only if you enable the “Add visitor location headers” Managed Transform**. Turn that on in Cloudflare → Network → *Add visitor location headers*. ([Cloudflare Docs][1])
+
+Minimal, header-safe extraction (Express lowercases header names):
+
+```ts
+// trust proxies so req.ip is correct behind CF
+app.set("trust proxy", true);
+
+function readCFGeo(req: import("express").Request) {
+  const h = req.headers;
+  // These exist only if the Managed Transform is enabled
+  const city = (h["cf-ipcity"] as string) || null;
+  const state = (h["cf-region-code"] as string) || (h["cf-region"] as string) || null; // e.g., CA
+  const country = (h["cf-ipcountry"] as string) || null;
+  // Always present if enabled in CF (separate toggle)
+  const ip = (h["cf-connecting-ip"] as string)
+    || (h["x-forwarded-for"] as string)?.split(",")[0]?.trim()
+    || req.ip
+    || null;
+
+  return { ip, city, state, country };
+}
+```
+
+Add a **fallback** only if headers are missing. Your ipapi.co note is correct; the free tier is ~1,000 lookups/day and *not* for production. Use it sparingly/cached. ([ipapi.co][2])
+
+```ts
+async function geoFallback(ip: string) {
+  const r = await fetch(`https://ipapi.co/${ip}/json/`, { timeout: 2500 });
+  if (!r.ok) return null;
+  const j = await r.json();
+  return {
+    ip,
+    city: j.city ?? null,
+    state: j.region_code ?? j.region ?? null,
+    country: j.country ?? j.country_name ?? null,
+  };
+}
+```
+
+# 2) Make the prompt lean + deterministic (Structured Outputs)
+
+Use **Structured Outputs** via `response_format: { type: "json_schema", json_schema: { …, strict: true } }`. This makes the model *emit valid JSON that matches your schema*, so you can delete all the brittle code-fence stripping/regex cleanup. ([OpenAI Platform][3])
+
+* Use `temperature: 0`, optional `seed` for repeatability.
+* Keep the system message short.
+* Pass your geo context **only if** it’s US (`CF-IPCountry === 'US'`), otherwise say “unknown” (still US-only search rule).
+* Set a smaller `max_tokens` (the object is tiny; 400–600 is plenty).
+
+### Minimal system prompt (faster, same constraints)
+
+```text
+You return a single US business profile as JSON that EXACTLY matches the provided JSON Schema.
+Search US sources only. If no US match, all fields null.
+Prefer official sources (the company’s site > state registries > platforms) over directories.
+If conflicting info, pick the most authoritative + freshest source; otherwise null.
+If country is not US, ignore and keep searching for a US entity with same/similar name.
+```
+
+### Build geo context
+
+```ts
+const { ip, city, state, country } = readCFGeo(req);
+const geoContext = (country === "US" && (city || state))
+  ? `Approx user location: ${[city, state].filter(Boolean).join(", ")} (US). When disambiguating similar names, prefer entities near this area.`
+  : `Approx user location unknown.`
+```
+
+### Call with Structured Outputs
+
+```ts
+const schema = {
+  name: "BusinessProfile",
+  schema: {
+    $schema: "https://json-schema.org/draft/2020-12/schema",
+    title: "BusinessProfile",
+    type: "object",
+    properties: {
+      website: { type: ["string","null"], format: "uri" },
+      instagramHandle: { type: ["string","null"], pattern: "^@.*$" },
+      businessAddress: { type: ["string","null"] },
+      businessAddress2: { type: ["string","null"] },
+      city: { type: ["string","null"] },
+      state: { type: ["string","null"], pattern: "^[A-Z]{2}$" },
+      zipCode: { type: ["string","null"], pattern: "^\\d{5}(-\\d{4})?$" },
+      phone: { type: ["string","null"], pattern: "^\\(\\d{3}\\) \\d{3}-\\d{4}$" }
+    },
+    required: ["website","instagramHandle","businessAddress","businessAddress2","city","state","zipCode","phone"],
+    additionalProperties: false
+  },
+  strict: true
+};
+
+const systemPrompt = [
+  "You return a single US business profile as JSON that EXACTLY matches the provided JSON Schema.",
+  "Search US sources only. If no US match, all fields null.",
+  "Prefer official sources over directories; reconcile conflicts; else null.",
+  "If non-US entity appears, ignore it and keep searching for a US entity.",
+  geoContext
+].join("\n");
+
+const userPrompt = `Company to research: "${companyName}". Return ONLY the JSON.`;
+
+// --- OpenAI call (Chat Completions) ---
+const openaiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "Authorization": `Bearer ${openaiApiKey}`,
+  },
+  body: JSON.stringify({
+    model: "gpt-4o-2024-08-06",        // or "gpt-4o-mini-2024-07-18"
+    temperature: 0,
+    seed: 7,
+    max_tokens: 600,
+    response_format: { type: "json_schema", json_schema: schema },
+    messages: [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: userPrompt }
+    ]
+  })
+});
+```
+
+Then you can **drop the cleanup/parsing hacks** and just:
+
+```ts
+const data = await openaiResponse.json();
+const enriched = JSON.parse(data.choices[0].message.content); // Guaranteed schema
+```
+
+# 3) Full route (condensed + resilient)
+
+```ts
+app.post("/api/enrich-company", async (req, res) => {
+  try {
+    const companyName = (req.body?.companyName || "").trim();
+    if (companyName.length < 3) {
+      return res.json(blankProfile());
+    }
+    if (!process.env.OPENAI_API_KEY) {
+      console.error("OPENAI_API_KEY missing");
+      return res.json(blankProfile());
+    }
+
+    const { ip, city, state, country } = readCFGeo(req);
+    let geoCtx = (country === "US" && (city || state))
+      ? `Approx user location: ${[city, state].filter(Boolean).join(", ")} (US). Prefer nearby entities on ties.`
+      : `Approx user location unknown.`;
+
+    // Optional: lightweight fallback if we lack headers BUT only for US filtering heuristics
+    if (!country || country !== "US") {
+      const fb = ip ? await geoFallback(ip).catch(() => null) : null;
+      if (fb?.country === "US") {
+        geoCtx = `Approx user location: ${[fb.city, fb.state].filter(Boolean).join(", ")} (US). Prefer nearby entities on ties.`;
+      }
+    }
+
+    const systemPrompt = [
+      "You return a single US business profile as JSON that EXACTLY matches the provided JSON Schema.",
+      "Search US sources only. If no US match, all fields null.",
+      "Prefer official sources over directories; reconcile conflicts; else null.",
+      "If non-US entity appears, ignore it and keep searching for a US entity.",
+      geoCtx
+    ].join("\n");
+
+    const schema = {
+      name: "BusinessProfile",
+      schema: {
+        $schema: "https://json-schema.org/draft/2020-12/schema",
+        title: "BusinessProfile",
+        type: "object",
+        properties: {
+          website: { type: ["string","null"], format: "uri" },
+          instagramHandle: { type: ["string","null"], pattern: "^@.*$" },
+          businessAddress: { type: ["string","null"] },
+          businessAddress2: { type: ["string","null"] },
+          city: { type: ["string","null"] },
+          state: { type: ["string","null"], pattern: "^[A-Z]{2}$" },
+          zipCode: { type: ["string","null"], pattern: "^\\d{5}(-\\d{4})?$" },
+          phone: { type: ["string","null"], pattern: "^\\(\\d{3}\\) \\d{3}-\\d{4}$" }
+        },
+        required: ["website","instagramHandle","businessAddress","businessAddress2","city","state","zipCode","phone"],
+        additionalProperties: false
+      },
+      strict: true
+    };
+
+    const r = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-2024-08-06",
+        temperature: 0,
+        seed: 7,
+        max_tokens: 600,
+        response_format: { type: "json_schema", json_schema: schema },
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: `Company to research: "${companyName}". Return ONLY the JSON.` }
+        ]
+      })
+    });
+
+    if (!r.ok) {
+      console.error("OpenAI error:", await r.text());
+      return res.json(blankProfile());
+    }
+
+    const j = await r.json();
+    const enriched = JSON.parse(j.choices?.[0]?.message?.content ?? "{}");
+    return res.json({
+      website: enriched.website ?? null,
+      instagramHandle: enriched.instagramHandle ?? null,
+      businessAddress: enriched.businessAddress ?? null,
+      businessAddress2: enriched.businessAddress2 ?? null,
+      city: enriched.city ?? null,
+      state: enriched.state ?? null,
+      zipCode: enriched.zipCode ?? null,
+      phone: enriched.phone ?? null,
+    });
+  } catch (e) {
+    console.error("Enrichment error:", e);
+    return res.json(blankProfile());
+  }
+});
+
+function blankProfile() {
+  return {
+    website: null,
+    instagramHandle: null,
+    businessAddress: null,
+    businessAddress2: null,
+    city: null,
+    state: null,
+    zipCode: null,
+    phone: null,
+  };
+}
+```
+
+# 4) Practical speed/accuracy wins (small but mighty)
+
+* **Shorter prompts** + **Structured Outputs** = less tokens + no post-parse work. ([OpenAI Platform][3])
+* **Determinism**: `temperature: 0` and a `seed` gives consistent shape. ([OpenAI Cookbook][4])
+* **Header-first geo**: fast and free; only fall back to IP API *if necessary*. ([Cloudflare Docs][1])
+* **US-only gate** is enforced in the instructions; the schema keeps outputs strict.
+
+If you want, I can also drop in a micro-cache (keyed by `companyName|state`) to avoid repeated external calls during a session.
+
+[1]: https://developers.cloudflare.com/network/ip-geolocation/?utm_source=chatgpt.com "IP geolocation · Cloudflare Network settings docs"
+[2]: https://ipapi.co/pricing/?utm_source=chatgpt.com "ipapi - Pricing Plans"
+[3]: https://platform.openai.com/docs/guides/structured-outputs/introduction?utm_source=chatgpt.com "Structured model outputs - OpenAI API"
+[4]: https://cookbook.openai.com/examples/structured_outputs_intro?utm_source=chatgpt.com "Introduction to Structured Outputs - OpenAI"

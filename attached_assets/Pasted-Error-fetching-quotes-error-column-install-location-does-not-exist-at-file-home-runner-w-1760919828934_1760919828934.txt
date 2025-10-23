@@ -1,0 +1,54 @@
+Error fetching quotes: error: column "install_location" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getAllCalculatorQuotes (/home/runner/workspace/server/storage.ts:159:12)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:211:22) {
+  length: 117,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '125',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+12:17:33 AM [express] GET /api/calculator/quotes 500 in 2401ms :: {"error":"Failed to fetch quotes"}
+12:17:34 AM [express] GET /api/wholesale-registrations 304 in 2451ms :: [{"id":"711577fd-813b-4993-aa…
+12:17:34 AM [express] GET /api/draft-orders 304 in 3017ms :: [{"id":"faa20cda-5cc8-416e-8466-d159825a…
+Error fetching quotes: error: column "install_location" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getAllCalculatorQuotes (/home/runner/workspace/server/storage.ts:159:12)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:211:22) {
+  length: 117,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '125',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+12:23:39 AM [express] GET /api/calculator/quotes 500 in 115ms :: {"error":"Failed to fetch quotes"}
+12:23:39 AM [express] GET /api/draft-orders 304 in 133ms :: [{"id":"faa20cda-5cc8-416e-8466-d159825af…
+12:23:41 AM [express] GET /api/wholesale-registrations 304 in 2150ms :: [{"id":"711577fd-813b-4993-aa…

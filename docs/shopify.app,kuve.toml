@@ -1,0 +1,83 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+client_id = "5582dab174be026e3f6fb451ba89839e"
+name = "UNDERITALL TOOLS"
+application_url ="https://join.itsunderitall.com/dashboard"
+embedded = true
+
+[webhooks]
+api_version = "2025-10"
+
+[[webhooks.subscriptions]]
+topics = ["customers/update"]
+uri = "https://join.itsunderitall.com/api/webhooks/customers/update"
+
+[[webhooks.subscriptions]]
+topics = ["metaobjects/create"]
+uri = "https://join.itsunderitall.com/api/webhooks/metaobjects/create"
+filter = "type:wholesale_account"
+
+[[webhooks.subscriptions]]
+topics = ["metaobjects/update"]
+uri = "https://join.itsunderitall.com/api/webhooks/metaobjects/update"
+filter = "type:wholesale_account"
+
+[[webhooks.subscriptions]]
+topics = ["metafield_definitions/create"]
+uri = "https://join.itsunderitall.com/api/webhooks/metafield_definitions/create"
+
+[[webhooks.subscriptions]]
+topics = ["metafield_definitions/update"]
+uri = "https://join.itsunderitall.com/api/webhooks/metafield_definitions/update"
+
+[[webhooks.subscriptions]]
+topics = ["app/uninstalled"]
+uri = "https://join.itsunderitall.com/api/webhooks/app/uninstalled"
+
+[[webhooks.subscriptions]]
+topics = ["customers/update"]
+uri = "https://e21cf7f5-6593-4e4b-a3dd-95d8af3aef72-00-2pg19pw1e1krr.kirk.replit.dev/api/webhooks/customers/update"
+
+[[webhooks.subscriptions]]
+topics = ["metaobjects/create"]
+uri = "https://e21cf7f5-6593-4e4b-a3dd-95d8af3aef72-00-2pg19pw1e1krr.kirk.replit.dev/api/webhooks/metaobjects/create"
+filter = "type:wholesale_account"
+
+[[webhooks.subscriptions]]
+topics = ["metaobjects/update"]
+uri = "https://e21cf7f5-6593-4e4b-a3dd-95d8af3aef72-00-2pg19pw1e1krr.kirk.replit.dev/api/webhooks/metaobjects/update"
+filter = "type:wholesale_account"
+
+[[webhooks.subscriptions]]
+topics = ["metafield_definitions/create"]
+uri = "https://e21cf7f5-6593-4e4b-a3dd-95d8af3aef72-00-2pg19pw1e1krr.kirk.replit.dev/api/webhooks/metafield_definitions/create"
+
+[[webhooks.subscriptions]]
+topics = ["metafield_definitions/update"]
+uri = "https://e21cf7f5-6593-4e4b-a3dd-95d8af3aef72-00-2pg19pw1e1krr.kirk.replit.dev/api/webhooks/metafield_definitions/update"
+
+[[webhooks.subscriptions]]
+topics = ["app/uninstalled"]
+uri = "https://e21cf7f5-6593-4e4b-a3dd-95d8af3aef72-00-2pg19pw1e1krr.kirk.replit.dev/api/webhooks/app/uninstalled"
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = "customer_read_companies,customer_read_customers,customer_read_draft_orders,customer_read_markets,customer_read_orders,customer_read_store_credit_account_transactions,customer_read_store_credit_accounts,customer_write_companies,customer_write_customers,customer_write_orders,read_all_cart_transforms,read_analytics,read_app_proxy,read_cart_transforms,read_checkout_branding_settings,read_checkouts,read_content,read_custom_pixels,read_customer_events,read_customers,read_discounts,read_discounts_allocator_functions,read_discovery,read_draft_orders,read_files,read_metaobject_definitions,read_metaobjects,read_online_store_navigation,read_online_store_pages,read_order_edits,read_orders,read_packing_slip_templates,read_pixels,read_price_rules,read_product_listings,read_products,read_purchase_options,read_script_tags,read_themes,unauthenticated_read_bulk_operations,unauthenticated_read_bundles,unauthenticated_read_checkouts,unauthenticated_read_content,unauthenticated_read_customer_tags,unauthenticated_read_customers,unauthenticated_read_metaobjects,unauthenticated_read_product_inventory,unauthenticated_read_product_listings,unauthenticated_read_product_tags,unauthenticated_read_selling_plans,unauthenticated_read_shop_pay_installments_pricing,unauthenticated_write_bulk_operations,unauthenticated_write_checkouts,unauthenticated_write_customers,write_app_proxy,write_cart_transforms,write_checkout_branding_settings,write_checkouts,write_content,write_custom_pixels,write_customers,write_discounts,write_discounts_allocator_functions,write_discovery,write_draft_orders,write_files,write_metaobject_definitions,write_metaobjects,write_online_store_navigation,write_online_store_pages,write_order_edits,write_orders,write_packing_slip_templates,write_pixels,write_price_rules,write_product_listings,write_products,write_purchase_options,write_script_tags,write_theme_code,write_themes"
+optional_scopes = [ ]
+use_legacy_install_flow = false
+
+[auth]
+redirect_urls = [
+"https://localhost:5000/auth/callback",
+"https://underitall-tools.replit.app",
+"https://underitall-tools.replit.app/auth/callback",
+"https://join.itsunderitall.com/auth/callback",
+"https://e21cf7f5-6593-4e4b-a3dd-95d8af3aef72-00-2pg19pw1e1krr.kirk.replit.dev/auth/callback"
+]
+
+[app_proxy]
+url = "https://join.itsunderitall.com"
+subpath = "join"
+prefix = "apps"
+
+[app_preferences]
+url = "https://join.itsunderitall.com/settings"
