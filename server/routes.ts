@@ -91,6 +91,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
             health.shopify.entryCount = result.count || 0;
           } else {
             health.shopify.error = result.message;
+            health.shopify.deploymentRequired = result.message.includes('not found');
+            if (health.shopify.deploymentRequired) {
+              health.shopify.deploymentHint = "Run 'npx shopify app deploy' to sync TOML metaobject definitions to Shopify Admin";
+            }
           }
         } catch (error) {
           console.error("❌ Metaobject check exception:", error);
