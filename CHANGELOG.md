@@ -67,6 +67,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `replit.md`
 - Reason: Complete wholesale account management integration between UnderItAll app, Shopify (metaobjects + customers), and Clarity CRM per ONBOARD_FLOW.md
 
+### Added - 2025-01-22 - [Agenticunt W.H.O.R.E.]
+- **Metaobject Definition Scaffolding** — Backend now ensures `wholesale_account` metaobject definition exists before registration submission
+  - Auto-creates definition with all required fields (company, email, phone, address, tax_exempt, clarity_id, owner, etc.)
+  - Supports Storefront API public read access for customer account extensions
+  - Enables publishable and online store capabilities
+- **Full-Page Customer Account Extension** — Converted `customer-account.profile.block.render` to `customer-account.page.render`
+  - Dedicated wholesale account management page in customer accounts
+  - Uses `Page` and `Card` components for native Shopify UI
+  - Fetches metaobject via customer metafield reference (no metaobject ID required in URL)
+  - Edit mode with save/cancel actions, success/error banners
+  - Displays all metaobject fields: company, email, phone, website, instagram, address, city, state, zip, tax info, account type, sample set, CRM ID
+
 ### Fixed - 2025-01-22 - [Replit Agent]
 - Fixed LSP TypeScript errors across codebase
   - Removed invalid `contactName` property from registration submission

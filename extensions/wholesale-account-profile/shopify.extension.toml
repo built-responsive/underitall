@@ -8,7 +8,7 @@ handle = "wholesale-account-profile"
 
 [[extensions.targeting]]
 module = "./src/ProfileBlock.jsx"
-target = "customer-account.profile.block.render"
+target = "customer-account.page.render"
 
 [extensions.capabilities]
 api_access = true

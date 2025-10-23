@@ -309,9 +309,139 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Ensure wholesale_account metaobject definition exists (helper function)
+  async function ensureWholesaleMetaobjectDefinition() {
+    const shopDomain = process.env.SHOPIFY_SHOP_DOMAIN;
+    const adminToken = process.env.SHOPIFY_ADMIN_ACCESS_TOKEN;
+
+    if (!shopDomain || !adminToken) {
+      console.log("⚠️ Shopify credentials not configured, skipping metaobject definition check");
+      return null;
+    }
+
+    try {
+      // Check if definition exists
+      const checkQuery = `
+        query {
+          metaobjectDefinitions(first: 50) {
+            nodes {
+              id
+              type
+            }
+          }
+        }
+      `;
+
+      const checkResponse = await fetch(
+        `https://${shopDomain}/admin/api/2025-01/graphql.json`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Shopify-Access-Token": adminToken,
+          },
+          body: JSON.stringify({ query: checkQuery }),
+        }
+      );
+
+      const checkData = await checkResponse.json();
+      const existingDef = checkData.data?.metaobjectDefinitions?.nodes?.find(
+        (def: any) => def.type === "wholesale_account"
+      );
+
+      if (existingDef) {
+        console.log("✅ Metaobject definition 'wholesale_account' already exists:", existingDef.id);
+        return existingDef.id;
+      }
+
+      // Create definition if it doesn't exist
+      console.log("🔨 Creating 'wholesale_account' metaobject definition...");
+      const createMutation = `
+        mutation CreateMetaobjectDefinition($definition: MetaobjectDefinitionCreateInput!) {
+          metaobjectDefinitionCreate(definition: $definition) {
+            metaobjectDefinition {
+              id
+              type
+            }
+            userErrors {
+              field
+              message
+            }
+          }
+        }
+      `;
+
+      const definitionInput = {
+        type: "wholesale_account",
+        name: "Wholesale Account",
+        fieldDefinitions: [
+          { key: "company", name: "Company Name", type: "single_line_text_field", required: true },
+          { key: "email", name: "Email", type: "single_line_text_field", required: true },
+          { key: "phone", name: "Phone", type: "single_line_text_field" },
+          { key: "website", name: "Website", type: "single_line_text_field" },
+          { key: "instagram", name: "Instagram Handle", type: "single_line_text_field" },
+          { key: "address", name: "Business Address", type: "single_line_text_field" },
+          { key: "address2", name: "Address Line 2", type: "single_line_text_field" },
+          { key: "city", name: "City", type: "single_line_text_field" },
+          { key: "state", name: "State", type: "single_line_text_field" },
+          { key: "zip", name: "ZIP Code", type: "single_line_text_field" },
+          { key: "source", name: "How Did You Hear About Us", type: "multi_line_text_field" },
+          { key: "message", name: "Admin Notes", type: "multi_line_text_field" },
+          { key: "account_type", name: "Account Type", type: "list.single_line_text_field" },
+          { key: "sample_set", name: "Sample Set Received", type: "boolean" },
+          { key: "tax_exempt", name: "Tax Exempt", type: "boolean" },
+          { key: "vat_tax_id", name: "VAT/Tax ID", type: "single_line_text_field" },
+          { key: "tax_proof", name: "Tax Proof Document", type: "file_reference" },
+          { key: "clarity_id", name: "Clarity CRM Account ID", type: "single_line_text_field" },
+          { key: "owner", name: "Linked Customers", type: "list.metaobject_reference", validations: [{ name: "metaobject_definition_id", value: "gid://shopify/MetaobjectDefinition/customer" }] }
+        ],
+        access: {
+          admin: "MERCHANT_READ_WRITE",
+          storefront: "PUBLIC_READ"
+        },
+        capabilities: {
+          publishable: { enabled: true },
+          online_store: { enabled: true }
+        }
+      };
+
+      const createResponse = await fetch(
+        `https://${shopDomain}/admin/api/2025-01/graphql.json`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Shopify-Access-Token": adminToken,
+          },
+          body: JSON.stringify({
+            query: createMutation,
+            variables: { definition: definitionInput }
+          }),
+        }
+      );
+
+      const createData = await createResponse.json();
+
+      if (createData.errors || createData.data?.metaobjectDefinitionCreate?.userErrors?.length > 0) {
+        console.error("❌ Failed to create metaobject definition:", createData);
+        return null;
+      }
+
+      const newDefId = createData.data.metaobjectDefinitionCreate.metaobjectDefinition.id;
+      console.log("✅ Created metaobject definition:", newDefId);
+      return newDefId;
+    } catch (error) {
+      console.error("❌ Error ensuring metaobject definition:", error);
+      return null;
+    }
+  }
+
   // Submit wholesale registration
   app.post("/api/wholesale-registration", async (req, res) => {
     try {
+      // Ensure metaobject definition exists
+      await ensureWholesaleMetaobjectDefinition();
+
       // Extract geo-location from Cloudflare headers
       const geoCity = (req.headers["cf-ipcity"] as string) || null;
       const geoState = (req.headers["cf-region"] as string) || null;

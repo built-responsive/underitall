@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import {
   reactExtension,
@@ -11,16 +12,17 @@ import {
   TextField,
   useApi,
   useCustomer,
-  View,
+  Page,
+  Card,
   Spinner,
 } from '@shopify/ui-extensions-react/customer-account';
 
 export default reactExtension(
-  'customer-account.profile.block.render',
-  () => <WholesaleAccountProfile />
+  'customer-account.page.render',
+  () => <WholesaleAccountPage />
 );
 
-function WholesaleAccountProfile() {
+function WholesaleAccountPage() {
   const { query, sessionToken } = useApi();
   const customer = useCustomer();
   
@@ -51,7 +53,17 @@ function WholesaleAccountProfile() {
         query getCustomerMetafield($customerId: ID!) {
           customer(id: $customerId) {
             metafield(namespace: "custom", key: "wholesale_account") {
-              value
+              reference {
+                ... on Metaobject {
+                  id
+                  handle
+                  displayName
+                  fields {
+                    key
+                    value
+                  }
+                }
+              }
             }
           }
         }
@@ -61,52 +73,27 @@ function WholesaleAccountProfile() {
         variables: { customerId: customer.id }
       });
 
-      const metaobjectId = customerResult?.data?.customer?.metafield?.value;
+      const metaobject = customerResult?.data?.customer?.metafield?.reference;
 
-      if (!metaobjectId) {
-        // No wholesale account linked
+      if (!metaobject) {
         setLoading(false);
         return;
       }
 
-      // Fetch metaobject details
-      const metaobjectQuery = `
-        query getMetaobject($id: ID!) {
-          metaobject(id: $id) {
-            id
-            handle
-            displayName
-            fields {
-              key
-              value
-            }
-          }
-        }
-      `;
-
-      const metaobjectResult = await query(metaobjectQuery, {
-        variables: { id: metaobjectId }
+      // Convert fields array to object
+      const fieldsObj = {};
+      metaobject.fields.forEach(field => {
+        fieldsObj[field.key] = field.value;
+      });
+      
+      setWholesaleAccount({
+        id: metaobject.id,
+        handle: metaobject.handle,
+        displayName: metaobject.displayName,
+        ...fieldsObj
       });
 
-      const metaobject = metaobjectResult?.data?.metaobject;
-      
-      if (metaobject) {
-        // Convert fields array to object
-        const fieldsObj = {};
-        metaobject.fields.forEach(field => {
-          fieldsObj[field.key] = field.value;
-        });
-        
-        setWholesaleAccount({
-          id: metaobject.id,
-          handle: metaobject.handle,
-          displayName: metaobject.displayName,
-          ...fieldsObj
-        });
-
-        setFormData(fieldsObj);
-      }
-
+      setFormData(fieldsObj);
       setLoading(false);
     } catch (err) {
       console.error('Error fetching wholesale account:', err);
@@ -120,13 +107,9 @@ function WholesaleAccountProfile() {
       setSaving(true);
       setError(null);
 
-      // Get session token for backend API authentication
       const token = await sessionToken.get();
-
-      // Use production URL for API calls
       const appUrl = 'https://its-under-it-all.replit.app';
 
-      // Call backend API to update metaobject
       const response = await fetch(`${appUrl}/api/wholesale-account/${wholesaleAccount.id.split('/').pop()}`, {
         method: 'PATCH',
         headers: {
@@ -143,12 +126,9 @@ function WholesaleAccountProfile() {
       setSuccess(true);
       setEditing(false);
       
-      // Refresh data
       await fetchWholesaleAccount();
 
-      // Auto-hide success message after 5 seconds
       setTimeout(() => setSuccess(false), 5000);
-
       setSaving(false);
     } catch (err) {
       console.error('Error saving:', err);
@@ -166,214 +146,210 @@ function WholesaleAccountProfile() {
 
   if (loading) {
     return (
-      <View padding="base">
-        <InlineStack spacing="tight" inlineAlignment="center">
-          <Spinner size="small" />
-          <Text>Loading wholesale account...</Text>
-        </InlineStack>
-      </View>
+      <Page title="Wholesale Account">
+        <Card>
+          <InlineStack spacing="tight" inlineAlignment="center">
+            <Spinner size="small" />
+            <Text>Loading wholesale account...</Text>
+          </InlineStack>
+        </Card>
+      </Page>
     );
   }
 
   if (!wholesaleAccount) {
-    return null; // Don't show anything if no wholesale account
+    return (
+      <Page title="Wholesale Account">
+        <Card>
+          <BlockStack spacing="base">
+            <Heading level={2}>No Wholesale Account Found</Heading>
+            <Text>You do not have an active wholesale account. Please contact support to apply.</Text>
+          </BlockStack>
+        </Card>
+      </Page>
+    );
   }
 
   return (
-    <View padding="base" border="base" borderRadius="base">
-      <BlockStack spacing="base">
-        <Heading level={2}>Wholesale Account Information</Heading>
-        
-        {success && (
-          <Banner status="success">
-            Wholesale account updated successfully!
-          </Banner>
-        )}
+    <Page title="Wholesale Account">
+      <Card>
+        <BlockStack spacing="base">
+          {success && (
+            <Banner status="success">
+              Wholesale account updated successfully!
+            </Banner>
+          )}
 
-        {error && (
-          <Banner status="critical">
-            Error: {error}
-          </Banner>
-        )}
+          {error && (
+            <Banner status="critical">
+              Error: {error}
+            </Banner>
+          )}
 
-        <Divider />
+          <Divider />
 
-        {/* Business Information */}
-        <BlockStack spacing="tight">
-          <Heading level={3}>Business Information</Heading>
-          <TextField
-            label="Company Name"
-            value={formData.company || ''}
-            onChange={(value) => handleFieldChange('company', value)}
-            disabled={!editing}
-          />
-          <TextField
-            label="Email"
-            value={formData.email || ''}
-            onChange={(value) => handleFieldChange('email', value)}
-            disabled={!editing}
-          />
-          <TextField
-            label="Phone"
-            value={formData.phone || ''}
-            onChange={(value) => handleFieldChange('phone', value)}
-            disabled={!editing}
-          />
-          <TextField
-            label="Website"
-            value={formData.website || ''}
-            onChange={(value) => handleFieldChange('website', value)}
-            disabled={!editing}
-          />
-          <TextField
-            label="Instagram"
-            value={formData.instagram || ''}
-            onChange={(value) => handleFieldChange('instagram', value)}
-            disabled={!editing}
-          />
-        </BlockStack>
+          {/* Business Information */}
+          <BlockStack spacing="tight">
+            <Heading level={3}>Business Information</Heading>
+            <TextField
+              label="Company Name"
+              value={formData.company || ''}
+              onChange={(value) => handleFieldChange('company', value)}
+              disabled={!editing}
+            />
+            <TextField
+              label="Email"
+              value={formData.email || ''}
+              onChange={(value) => handleFieldChange('email', value)}
+              disabled={!editing}
+            />
+            <TextField
+              label="Phone"
+              value={formData.phone || ''}
+              onChange={(value) => handleFieldChange('phone', value)}
+              disabled={!editing}
+            />
+            <TextField
+              label="Website"
+              value={formData.website || ''}
+              onChange={(value) => handleFieldChange('website', value)}
+              disabled={!editing}
+            />
+            <TextField
+              label="Instagram"
+              value={formData.instagram || ''}
+              onChange={(value) => handleFieldChange('instagram', value)}
+              disabled={!editing}
+            />
+          </BlockStack>
 
-        <Divider />
+          <Divider />
 
-        {/* Address */}
-        <BlockStack spacing="tight">
-          <Heading level={3}>Business Address</Heading>
-          <TextField
-            label="Address Line 1"
-            value={formData.address || ''}
-            onChange={(value) => handleFieldChange('address', value)}
-            disabled={!editing}
-          />
-          <TextField
-            label="Address Line 2"
-            value={formData.address2 || ''}
-            onChange={(value) => handleFieldChange('address2', value)}
-            disabled={!editing}
-          />
-          <InlineStack spacing="tight">
-            <View inlineSize={50}>
+          {/* Address */}
+          <BlockStack spacing="tight">
+            <Heading level={3}>Business Address</Heading>
+            <TextField
+              label="Address Line 1"
+              value={formData.address || ''}
+              onChange={(value) => handleFieldChange('address', value)}
+              disabled={!editing}
+            />
+            <TextField
+              label="Address Line 2"
+              value={formData.address2 || ''}
+              onChange={(value) => handleFieldChange('address2', value)}
+              disabled={!editing}
+            />
+            <InlineStack spacing="tight">
               <TextField
                 label="City"
                 value={formData.city || ''}
                 onChange={(value) => handleFieldChange('city', value)}
                 disabled={!editing}
               />
-            </View>
-            <View inlineSize={25}>
               <TextField
                 label="State"
                 value={formData.state || ''}
                 onChange={(value) => handleFieldChange('state', value)}
                 disabled={!editing}
               />
-            </View>
-            <View inlineSize={25}>
               <TextField
                 label="ZIP"
                 value={formData.zip || ''}
                 onChange={(value) => handleFieldChange('zip', value)}
                 disabled={!editing}
               />
-            </View>
-          </InlineStack>
-        </BlockStack>
-
-        <Divider />
-
-        {/* Tax Information */}
-        <BlockStack spacing="tight">
-          <Heading level={3}>Tax Information</Heading>
-          <TextField
-            label="VAT/Tax ID"
-            value={formData.vat_tax_id || ''}
-            onChange={(value) => handleFieldChange('vat_tax_id', value)}
-            disabled={!editing}
-          />
-          <InlineStack spacing="tight">
-            <Text>Tax Exempt:</Text>
-            <Text emphasis="bold">{formData.tax_exempt === 'true' ? 'Yes' : 'No'}</Text>
-          </InlineStack>
-        </BlockStack>
-
-        <Divider />
-
-        {/* Account Information */}
-        <BlockStack spacing="tight">
-          <Heading level={3}>Account Information</Heading>
-          <TextField
-            label="Account Type"
-            value={formData.account_type || ''}
-            onChange={(value) => handleFieldChange('account_type', value)}
-            disabled={!editing}
-          />
-          <TextField
-            label="How Did You Hear About Us"
-            value={formData.source || ''}
-            onChange={(value) => handleFieldChange('source', value)}
-            disabled={!editing}
-          />
-          <InlineStack spacing="tight">
-            <Text>Sample Set Received:</Text>
-            <Text emphasis="bold">{formData.sample_set === 'true' ? 'Yes' : 'No'}</Text>
-          </InlineStack>
-          {formData.clarity_id && (
-            <InlineStack spacing="tight">
-              <Text>CRM Account ID:</Text>
-              <Text>{formData.clarity_id}</Text>
             </InlineStack>
-          )}
-        </BlockStack>
+          </BlockStack>
 
-        <Divider />
+          <Divider />
 
-        {/* Additional Notes */}
-        {formData.message && (
-          <>
-            <BlockStack spacing="tight">
-              <Heading level={3}>Account Notes</Heading>
-              <TextField
-                label="Notes"
-                value={formData.message || ''}
-                onChange={(value) => handleFieldChange('message', value)}
-                disabled={!editing}
-                multiline={3}
-              />
-            </BlockStack>
-            <Divider />
-          </>
-        )}
+          {/* Tax Information */}
+          <BlockStack spacing="tight">
+            <Heading level={3}>Tax Information</Heading>
+            <TextField
+              label="VAT/Tax ID"
+              value={formData.vat_tax_id || ''}
+              onChange={(value) => handleFieldChange('vat_tax_id', value)}
+              disabled={!editing}
+            />
+            <InlineStack spacing="tight">
+              <Text>Tax Exempt:</Text>
+              <Text emphasis="bold">{formData.tax_exempt === 'true' ? 'Yes' : 'No'}</Text>
+            </InlineStack>
+          </BlockStack>
 
-        <Divider />
+          <Divider />
 
-        {/* Action Buttons */}
-        <InlineStack spacing="tight">
-          {!editing ? (
-            <Button
-              onPress={() => setEditing(true)}
-            >
-              Edit Information
-            </Button>
-          ) : (
+          {/* Account Information */}
+          <BlockStack spacing="tight">
+            <Heading level={3}>Account Information</Heading>
+            <TextField
+              label="Account Type"
+              value={formData.account_type || ''}
+              disabled
+            />
+            <TextField
+              label="How Did You Hear About Us"
+              value={formData.source || ''}
+              onChange={(value) => handleFieldChange('source', value)}
+              disabled={!editing}
+            />
+            <InlineStack spacing="tight">
+              <Text>Sample Set Received:</Text>
+              <Text emphasis="bold">{formData.sample_set === 'true' ? 'Yes' : 'No'}</Text>
+            </InlineStack>
+            {formData.clarity_id && (
+              <InlineStack spacing="tight">
+                <Text>CRM Account ID:</Text>
+                <Text>{formData.clarity_id}</Text>
+              </InlineStack>
+            )}
+          </BlockStack>
+
+          <Divider />
+
+          {/* Additional Notes */}
+          {formData.message && (
             <>
-              <Button
-                onPress={handleSave}
-                loading={saving}
-              >
-                Save Changes
-              </Button>
-              <Button
-                onPress={() => {
-                  setEditing(false);
-                  setFormData(wholesaleAccount); // Reset form
-                }}
-                disabled={saving}
-              >
-                Cancel
-              </Button>
+              <BlockStack spacing="tight">
+                <Heading level={3}>Account Notes</Heading>
+                <TextField
+                  label="Notes"
+                  value={formData.message || ''}
+                  disabled
+                  multiline={3}
+                />
+              </BlockStack>
+              <Divider />
             </>
           )}
-        </InlineStack>
-      </BlockStack>
-    </View>
+
+          {/* Action Buttons */}
+          <InlineStack spacing="tight">
+            {!editing ? (
+              <Button onPress={() => setEditing(true)}>
+                Edit Information
+              </Button>
+            ) : (
+              <>
+                <Button onPress={handleSave} loading={saving}>
+                  Save Changes
+                </Button>
+                <Button
+                  onPress={() => {
+                    setEditing(false);
+                    setFormData(wholesaleAccount);
+                  }}
+                  disabled={saving}
+                >
+                  Cancel
+                </Button>
+              </>
+            )}
+          </InlineStack>
+        </BlockStack>
+      </Card>
+    </Page>
   );
 }
