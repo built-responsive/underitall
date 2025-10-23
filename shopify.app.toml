@@ -2,7 +2,7 @@
 
 client_id = "78a602699150bda4e49a40861707d500"
 name = "its-under-it-all"
-application_url = "https://its-under-it-all.replit.app"
+application_url = "https://its-under-it-all.replit.app/dashboard"
 embedded = true
 
 [build]
