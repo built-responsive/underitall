@@ -230,6 +230,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const data = await response.json();
 
       console.log("📦 CRM Test Response:", JSON.stringify(data, null, 2));
+      console.log("📊 CRM Response Status:", data.Status);
+      console.log("📊 CRM Response Message:", data.Message);
 
       if (data.Status === "Success" || response.ok) {
         return res.json({
@@ -239,6 +241,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
+      console.log("❌ CRM Test Failed - Full Details:", JSON.stringify(data, null, 2));
       res.json({
         success: false,
         message: `CRM Error: ${data.Message || "Unknown error"}`,
