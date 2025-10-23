@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,9 +19,25 @@ export function ChatBubble() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
-  const [conversationId, setConversationId] = useState<string | null>(null);
-  const [sessionId] = useState(() => `session_${Date.now()}_${Math.random()}`);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const [conversationId, setConversationId] = useState<string | null>(
+    localStorage.getItem("chatConversationId")
+  );
+  const [sessionId] = useState(() => {
+    let id = localStorage.getItem("chatSessionId");
+    if (!id) {
+      id = crypto.randomUUID();
+      localStorage.setItem("chatSessionId", id);
+    }
+    return id;
+  });
+
+  // Fetch existing conversation
+  const { data: conversations } = useQuery<any[]>({
+    queryKey: ["/api/chat/conversation/session", sessionId],
+    enabled: !!sessionId,
+  });
+
+  const conversation = conversations?.[0] || null;
 
   const sendMessageMutation = useMutation({
     mutationFn: async (content: string) => {
@@ -93,6 +109,13 @@ export function ChatBubble() {
   };
 
   useEffect(() => {
+    if (conversation?.id) {
+      setConversationId(conversation.id);
+      localStorage.setItem("chatConversationId", conversation.id);
+    }
+  }, [conversation]);
+
+  useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
@@ -147,6 +170,7 @@ export function ChatBubble() {
                   setIsOpen(false);
                   setMessages([]);
                   setConversationId(null);
+                  localStorage.removeItem("chatConversationId");
                 }}
                 data-testid="button-close-chat"
               >
