@@ -1,7 +1,6 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useState } from "react";
-import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -407,12 +406,11 @@ export default function Settings() {
                             const isShopify = webhookSource === 'shopify' || webhookType.includes('shopify');
                             const isCRM = webhookSource === 'crm' || webhookType.includes('clarity');
                             const isExpanded = expandedWebhooks.has(index);
-                            // Use log.id if available (from database), fallback to stable composite key
-                            const logKey = log.id || `log-${index}-${log.timestamp}`;
+                            const uniqueKey = `${log.id || index}-${log.timestamp}`;
 
                             return (
-                              <React.Fragment key={logKey}>
-                                <TableRow onClick={() => toggleExpandWebhook(index)} className="cursor-pointer hover:bg-secondary/10">
+                              <>
+                                <TableRow key={uniqueKey} onClick={() => toggleExpandWebhook(index)} className="cursor-pointer hover:bg-secondary/10">
                                   <TableCell className="font-['Vazirmatn'] text-[#696A6D]">
                                     {format(new Date(log.timestamp), "MMM d, yyyy HH:mm:ss")}
                                   </TableCell>
@@ -433,7 +431,7 @@ export default function Settings() {
                                   </TableCell>
                                 </TableRow>
                                 {isExpanded && (
-                                  <TableRow>
+                                  <TableRow key={`${uniqueKey}-expanded`}>
                                     <TableCell colSpan={4} className="p-4 bg-secondary/20">
                                       <pre className="text-xs font-mono whitespace-pre-wrap break-words">
                                         {JSON.stringify(log.payload, null, 2)}
@@ -441,7 +439,7 @@ export default function Settings() {
                                     </TableCell>
                                   </TableRow>
                                 )}
-                              </React.Fragment>
+                              </>
                             );
                           })}
                         </TableBody>
