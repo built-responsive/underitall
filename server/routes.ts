@@ -50,25 +50,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // System health check
   app.get("/api/health", async (req, res) => {
     const timestamp = new Date().toISOString();
-    process.stdout.write(`\n\n🏥 ===== /api/health ENDPOINT HIT =====\n`);
-    process.stdout.write(`⏰ Timestamp: ${timestamp}\n`);
-    
+    console.log(`\n\n🏥 ===== /api/health ENDPOINT HIT =====`);
+    console.log(`⏰ Timestamp: ${timestamp}`);
+
     try {
       const shopDomain = process.env.SHOPIFY_SHOP_DOMAIN;
       const adminToken = process.env.SHOPIFY_ADMIN_ACCESS_TOKEN;
-      const appClientId = process.env.SHOPIFY_CLIENT_ID || "78a602699150bda4e49a40861707d500";
-      const appClientSecret = process.env.SHOPIFY_CLIENT_SECRET;
       const crmBaseUrl = process.env.CRM_BASE_URL;
       const crmApiKey = process.env.CRM_API_KEY;
 
-      process.stdout.write("🔐 Environment check:\n");
-      process.stdout.write(`  - SHOPIFY_SHOP_DOMAIN: ${shopDomain ? "✅ Set" : "❌ Missing"}\n`);
-      process.stdout.write(`  - SHOPIFY_ADMIN_ACCESS_TOKEN: ${adminToken ? `✅ Set (${adminToken.length} chars)` : "❌ Missing"}\n`);
-      process.stdout.write(`  - SHOPIFY_CLIENT_ID: ${appClientId ? "✅ Set" : "❌ Missing"}\n`);
-      process.stdout.write(`  - SHOPIFY_CLIENT_SECRET: ${appClientSecret ? `✅ Set (${appClientSecret?.length} chars)` : "❌ Missing"}\n`);
-      process.stdout.write(`  - CRM_BASE_URL: ${crmBaseUrl ? "✅ Set" : "❌ Missing"}\n`);
-      process.stdout.write(`  - CRM_API_KEY: ${crmApiKey ? "✅ Set" : "❌ Missing"}\n`);
-      process.stdout.write(`  ⚠️ NOTE: App-owned metaobjects require OAuth app credentials, not custom app tokens\n`);
+      console.log("🔐 Environment check:");
+      console.log(`  - SHOPIFY_SHOP_DOMAIN: ${shopDomain ? "✅ Set" : "❌ Missing"}`);
+      console.log(`  - SHOPIFY_ADMIN_ACCESS_TOKEN: ${adminToken ? `✅ Set (${adminToken.length} chars)` : "❌ Missing"}`);
+      console.log(`  - CRM_BASE_URL: ${crmBaseUrl ? "✅ Set" : "❌ Missing"}`);
+      console.log(`  - CRM_API_KEY: ${crmApiKey ? "✅ Set" : "❌ Missing"}`);
 
       const health: any = {
         timestamp: new Date().toISOString(),
@@ -84,10 +79,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Check if wholesale_account metaobject definition exists
       if (shopDomain && adminToken) {
-        process.stdout.write("🔍 Calling checkWholesaleMetaobjectDefinition()...\n");
+        console.log("🔍 Calling checkWholesaleMetaobjectDefinition()...");
         try {
           const result = await checkWholesaleMetaobjectDefinition();
-          process.stdout.write("📊 Metaobject check result:\n" + JSON.stringify(result, null, 2) + "\n");
+          console.log("📊 Metaobject check result:", JSON.stringify(result, null, 2));
 
           health.shopify.metaobjectDefinition = result.success;
           if (result.success) {
@@ -102,11 +97,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           health.shopify.error = error instanceof Error ? error.message : "Unknown error";
         }
       } else {
-        process.stdout.write("⏭️ Skipping metaobject check (credentials not configured)\n");
+        console.log("⏭️ Skipping metaobject check (credentials not configured)");
       }
 
-      process.stdout.write("✅ Health check response:\n" + JSON.stringify(health, null, 2) + "\n");
-      process.stdout.write("===== /api/health COMPLETE =====\n\n");
+      console.log("✅ Health check response:", JSON.stringify(health, null, 2));
+      console.log("===== /api/health COMPLETE =====\n");
       res.json(health);
     } catch (error) {
       console.error("❌ Health check error:", error);
@@ -146,7 +141,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             "X-Shopify-Access-Token": adminToken,
           },
           body: JSON.stringify({ query: testQuery }),
-        }
+        },
       );
 
       const data = await response.json();
@@ -579,22 +574,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Check if wholesale_account metaobject definition exists (managed by shopify.app.toml)
   async function checkWholesaleMetaobjectDefinition() {
-    process.stdout.write("\n🔍 ===== checkWholesaleMetaobjectDefinition() CALLED =====\n");
+    console.log("\n🔍 ===== checkWholesaleMetaobjectDefinition() CALLED =====\n");
 
     const shopDomain = process.env.SHOPIFY_SHOP_DOMAIN;
     const adminToken = process.env.SHOPIFY_ADMIN_ACCESS_TOKEN;
+    const appClientId = process.env.SHOPIFY_CLIENT_ID || "78a602699150bda4e49a40861707d500";
 
-    process.stdout.write("Environment check:\n");
-    process.stdout.write(`  - shopDomain: ${shopDomain ? "✅ Set" : "❌ Missing"}\n`);
-    process.stdout.write(`  - adminToken: ${adminToken ? `✅ Set (${adminToken.length} chars)` : "❌ Missing"}\n`);
+    console.log("Environment check:");
+    console.log(`  - shopDomain: ${shopDomain ? "✅ Set" : "❌ Missing"}`);
+    console.log(`  - adminToken: ${adminToken ? `✅ Set (${adminToken.length} chars)` : "❌ Missing"}`);
+    console.log(`  - appClientId: ${appClientId ? "✅ Set" : "❌ Missing"}`);
+    console.log(`  ⚠️ NOTE: App-owned metaobjects require OAuth app credentials, not custom app tokens`);
 
     if (!shopDomain || !adminToken) {
-      process.stdout.write("⚠️ Shopify credentials not configured\n");
+      console.log("⚠️ Shopify credentials not configured");
       return { success: false, message: "Shopify credentials not configured" };
     }
 
     try {
-      process.stdout.write("📡 Fetching metaobject definitions from Shopify...\n");
+      console.log("📡 Fetching metaobject definitions from Shopify...");
       // First, try to find the definition by searching all definitions
       // since the exact type string includes the client_id: app--{client_id}--wholesale_account
       const listQuery = `
@@ -619,32 +617,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
             "X-Shopify-Access-Token": adminToken,
           },
           body: JSON.stringify({ query: listQuery }),
-        }
+        },
       );
 
       const listData = await listResponse.json();
 
-      process.stdout.write("🔍 Searching for wholesale_account metaobject definition...\n");
+      console.log("🔍 Searching for wholesale_account metaobject definition...\n");
 
       if (listData.errors) {
-        process.stderr.write("❌ GraphQL errors:\n" + JSON.stringify(listData.errors, null, 2) + "\n");
+        console.error("❌ GraphQL errors:\n" + JSON.stringify(listData.errors, null, 2) + "\n");
         return { success: false, message: listData.errors[0]?.message || "GraphQL query failed" };
       }
 
       const definitions = listData.data?.metaobjectDefinitions?.nodes || [];
-      process.stdout.write(`📋 Found ${definitions.length} total metaobject definitions\n`);
+      console.log(`📋 Found ${definitions.length} total metaobject definitions\n`);
 
       // Find definition by searching for the wholesale_account handle in the type
+      // The actual type for app-owned metaobjects is app--{client_id}--{handle}
+      const appOwnedType = `app--${appClientId}--wholesale_account`;
       const existingDef = definitions.find((def: any) =>
-        def.type.includes("wholesale_account") || def.name === "Wholesale Account"
+        def.type === appOwnedType
       );
 
       if (existingDef) {
-        process.stdout.write("✅ Metaobject definition FOUND:\n");
-        process.stdout.write(`   - Type: ${existingDef.type}\n`);
-        process.stdout.write(`   - Name: ${existingDef.name}\n`);
-        process.stdout.write(`   - ID: ${existingDef.id}\n`);
-        process.stdout.write(`   - Entry Count: ${existingDef.metaobjectsCount}\n`);
+        console.log("✅ Metaobject definition FOUND:\n");
+        console.log(`   - Type: ${existingDef.type}\n`);
+        console.log(`   - Name: ${existingDef.name}\n`);
+        console.log(`   - ID: ${existingDef.id}\n`);
+        console.log(`   - Entry Count: ${existingDef.metaobjectsCount}\n`);
         return {
           success: true,
           id: existingDef.id,
@@ -654,10 +654,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         };
       }
 
-      process.stdout.write("⚠️ Metaobject definition NOT FOUND\n");
-      process.stdout.write("Available definitions:\n");
+      console.log("⚠️ Metaobject definition NOT FOUND\n");
+      console.log("Available definitions:\n");
       definitions.forEach((d: any) => {
-        process.stdout.write(`  - ${d.type} (${d.name})\n`);
+        console.log(`  - ${d.type} (${d.name})\n`);
       });
       return { success: false, message: "Metaobject definition not found. Run 'shopify app deploy' to sync shopify.app.toml configuration." };
     } catch (error) {
@@ -1456,19 +1456,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const widthIn = Math.round((widthNum - widthFt) * 12);
       const lengthFt = Math.floor(lengthNum);
       const lengthIn = Math.round((lengthNum - lengthFt) * 12);
-
-      let dimensionsDisplay = "";
-      if (quote.shape === "round") {
-        // For round, show radius
-        const radiusNum = widthNum / 2;
-        const radiusFt = Math.floor(radiusNum);
-        const radiusIn = Math.round((radiusNum - radiusFt) * 12);
-        dimensionsDisplay = `${radiusFt}'${radiusIn}" radius`;
-      } else if (quote.shape === "square") {
-        dimensionsDisplay = `${widthFt}'${widthIn}" × ${widthFt}'${widthIn}"`;
-      } else {
-        dimensionsDisplay = `${widthFt}'${widthIn}" × ${lengthFt}'${lengthIn}"`;
-      }
 
       const productTitle = `Luxe ${quote.thickness === "thin" ? '⅛"' : '¼"'} - ${quote.shape.charAt(0).toUpperCase() + quote.shape.slice(1)}`;
 
