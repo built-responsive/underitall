@@ -5,16 +5,22 @@
 
 {{ 'chat-block.css' | asset_url | stylesheet_tag }}
 
+{% if block.settings.enabled %}
 <div id="underitall-chat-root" 
      data-api-url="{{ block.settings.api_url }}"
-     data-position="{{ block.settings.position }}"
-     data-enabled="{{ block.settings.enabled }}">
+     data-position="{{ block.settings.position }}">
   <script>
-    window.UNDERITALL_CHAT_API_URL = "{{ block.settings.api_url }}";
+    // Global config for chat bundle
+    window.UNDERITALL_CHAT_CONFIG = {
+      apiUrl: "{{ block.settings.api_url }}",
+      position: "{{ block.settings.position }}",
+      enabled: {{ block.settings.enabled }}
+    };
   </script>
 </div>
 
 <script src="{{ 'chat-block.js' | asset_url }}" defer></script>
+{% endif %}
 
 {% schema %}
 {

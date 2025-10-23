@@ -10,10 +10,24 @@
   data-block-id="{{ block.id }}"
   data-api-url="{{ block.settings.api_url }}"
 >
+  {% if block.settings.show_description %}
+    <div class="calculator-header">
+      <h2>{{ block.settings.heading }}</h2>
+      <p>{{ block.settings.description }}</p>
+    </div>
+  {% else %}
+    <h2>{{ block.settings.heading }}</h2>
+  {% endif %}
+  
   <div id="underitall-calculator-root"></div>
+  
   <script>
-    window.UNDERITALL_CALCULATOR_API_URL = "{{ block.settings.api_url }}";
-    window.UNDERITALL_BRAND_ASSETS_URL = "{{ block.settings.api_url }}/brand";
+    // Global config for calculator bundle
+    window.UNDERITALL_CALCULATOR_CONFIG = {
+      apiUrl: "{{ block.settings.api_url }}",
+      brandAssetsUrl: "{{ block.settings.api_url }}/brand",
+      blockId: "{{ block.id }}"
+    };
   </script>
 </div>
 
