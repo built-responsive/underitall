@@ -259,6 +259,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Initialize wholesale_account metaobject definition
+  app.post("/api/admin/initialize-metaobject", async (req, res) => {
+    try {
+      const defId = await ensureWholesaleMetaobjectDefinition();
+      
+      if (defId) {
+        res.json({
+          success: true,
+          message: "Metaobject definition created successfully",
+          metaobjectDefinitionId: defId,
+        });
+      } else {
+        res.json({
+          success: false,
+          message: "Failed to create metaobject definition. Check server logs for details.",
+        });
+      }
+    } catch (error) {
+      console.error("Metaobject initialization error:", error);
+      res.json({
+        success: false,
+        message: error instanceof Error ? error.message : "Initialization failed",
+      });
+    }
+  });
+
   // ============= PRICE MATRIX ROUTES =============
 
   // Fetch CSV and update price matrices
