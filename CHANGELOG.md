@@ -1,4 +1,3 @@
-
 ### Added - 2025-01-23 - [Replit Agent]
 - **System Health Monitoring Dashboard**
   - Added `/api/health` endpoint to check Shopify and CRM connectivity

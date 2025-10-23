@@ -70,7 +70,7 @@ redirect_urls = [
 "https://localhost:5000/auth/callback",
 "https://its-under-it-all.replit.app",
 "https://its-under-it-all.replit.app/auth/callback",
-"https://join.itsunderitall.com/auth/callback",
+"https://its-under-it-all.replit.app/auth/callback",
 "https://2d8f7c0c-938e-4f87-b0ca-9f262520d64e-00-2o84gg8qrj25w.spock.replit.dev/auth/callback"
 ]
 
@@ -80,4 +80,4 @@ subpath = "join"
 prefix = "apps"
 
 [app_preferences]
-url = "https://join.itsunderitall.com/settings"
+url = "https://its-under-it-all.replit.app/settings"
