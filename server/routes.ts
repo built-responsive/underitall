@@ -318,6 +318,101 @@ export function registerRoutes(app: Express) {
     }
   });
 
+  // Metaobject debug endpoint - Test metaobject queries
+  app.get("/api/debug-metaobject", async (req, res) => {
+    try {
+      const shopDomain = process.env.SHOPIFY_SHOP_DOMAIN;
+      const adminToken = process.env.SHOPIFY_ADMIN_ACCESS_TOKEN;
+
+      if (!shopDomain || !adminToken) {
+        return res.status(500).json({
+          error: "Missing Shopify credentials",
+          shopDomain: !!shopDomain,
+          adminToken: !!adminToken
+        });
+      }
+
+      // Query metaobject definition
+      const definitionQuery = `
+        query {
+          metaobjectDefinitionByType(type: "$app:wholesale_account") {
+            id
+            name
+            type
+            displayNameKey
+            fieldDefinitions {
+              key
+              name
+              type {
+                name
+              }
+            }
+          }
+        }
+      `;
+
+      const defResponse = await fetch(
+        `https://${shopDomain}/admin/api/2025-01/graphql.json`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Shopify-Access-Token": adminToken,
+          },
+          body: JSON.stringify({ query: definitionQuery }),
+        }
+      );
+
+      const defData = await defResponse.json();
+
+      // Query metaobjects
+      const objectsQuery = `
+        query {
+          metaobjects(type: "$app:wholesale_account", first: 5) {
+            nodes {
+              id
+              handle
+              displayName
+              fields {
+                key
+                value
+              }
+            }
+          }
+        }
+      `;
+
+      const objResponse = await fetch(
+        `https://${shopDomain}/admin/api/2025-01/graphql.json`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Shopify-Access-Token": adminToken,
+          },
+          body: JSON.stringify({ query: objectsQuery }),
+        }
+      );
+
+      const objData = await objResponse.json();
+
+      res.json({
+        success: true,
+        definition: defData.data?.metaobjectDefinitionByType,
+        metaobjects: objData.data?.metaobjects?.nodes || [],
+        errors: {
+          definition: defData.errors,
+          metaobjects: objData.errors
+        }
+      });
+    } catch (error) {
+      console.error("❌ Debug metaobject error:", error);
+      res.status(500).json({
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
   // Health check
   app.get("/api/health", (req, res) => {
     res.json({ status: "ok", timestamp: new Date().toISOString() });
