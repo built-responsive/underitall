@@ -17,6 +17,7 @@ args = "Server"
 [[workflows.workflow]]
 name = "Server"
 author = "agent"
+mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
