@@ -280,7 +280,11 @@ export default function Settings() {
                             The wholesale_account metaobject definition does not exist. Run 'shopify app deploy' to sync shopify.app.toml.
                           </p>
                           <Button
-                            onClick={() => refetchHealth()}
+                            onClick={() => {
+                              console.log("🔄 Re-check Status button clicked");
+                              queryClient.invalidateQueries({ queryKey: ["/api/health"] });
+                              refetchHealth();
+                            }}
                             variant="outline"
                             className="rounded-[11px] font-['Vazirmatn']"
                           >

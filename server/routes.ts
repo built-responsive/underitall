@@ -71,7 +71,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (shopDomain && adminToken) {
         try {
           const result = await checkWholesaleMetaobjectDefinition();
-          
+
           health.shopify.metaobjectDefinition = result.success;
           if (result.success) {
             health.shopify.metaobjectId = result.id;
@@ -166,7 +166,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/admin/test-crm", async (req, res) => {
     try {
       console.log("\n🔍 ===== CRM TEST STARTED =====");
-      
+
       const crmBaseUrl = process.env.CRM_BASE_URL;
       const crmApiKey = process.env.CRM_API_KEY;
 
@@ -244,7 +244,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log("❌ CRM test failed");
       console.log("Failure reason:", data.Message || "Unknown");
-      
+
       res.json({
         success: false,
         message: `CRM Error: ${data.Message || "Unknown error"}`,
@@ -256,7 +256,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error("Error message:", error instanceof Error ? error.message : String(error));
       console.error("Stack trace:", error instanceof Error ? error.stack : "N/A");
       console.error("================================\n");
-      
+
       res.json({
         success: false,
         message: error instanceof Error ? error.message : "Connection test failed",
@@ -264,11 +264,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Check wholesale_account metaobject definition (managed declaratively in shopify.app.toml)
+  // Test wholesale metaobject definition existence
   app.post("/api/admin/initialize-metaobject", async (req, res) => {
     try {
       const result = await checkWholesaleMetaobjectDefinition();
-      
+
       if (result.success) {
         res.json({
           success: true,
@@ -558,8 +558,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Check if wholesale_account metaobject definition exists (managed by shopify.app.toml)
   async function checkWholesaleMetaobjectDefinition() {
+    console.log("\n🔍 ===== checkWholesaleMetaobjectDefinition() CALLED =====");
+
     const shopDomain = process.env.SHOPIFY_SHOP_DOMAIN;
     const adminToken = process.env.SHOPIFY_ADMIN_ACCESS_TOKEN;
+
+    console.log("Environment check:");
+    console.log("  - shopDomain:", shopDomain ? "✅ Set" : "❌ Missing");
+    console.log("  - adminToken:", adminToken ? "✅ Set (length: " + (adminToken?.length || 0) + ")" : "❌ Missing");
 
     if (!shopDomain || !adminToken) {
       console.log("⚠️ Shopify credentials not configured, skipping metaobject definition check");
@@ -567,6 +573,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
+      console.log("📡 Fetching metaobject definitions from Shopify...");
       // First, try to find the definition by searching all definitions
       // since the exact type string includes the client_id: app--{client_id}--wholesale_account
       const listQuery = `
@@ -595,18 +602,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       );
 
       const listData = await listResponse.json();
-      
+
       console.log("🔍 Searching for wholesale_account metaobject definition...");
-      
+
       if (listData.errors) {
         console.error("❌ GraphQL errors:", JSON.stringify(listData.errors, null, 2));
         return { success: false, message: listData.errors[0]?.message || "GraphQL query failed" };
       }
 
       const definitions = listData.data?.metaobjectDefinitions?.nodes || [];
-      
+
       // Find definition by searching for the wholesale_account handle in the type
-      const existingDef = definitions.find((def: any) => 
+      const existingDef = definitions.find((def: any) =>
         def.type.includes("wholesale_account") || def.name === "Wholesale Account"
       );
 
@@ -767,7 +774,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const sessionToken = authHeader.substring(7);
-      
+
       // In production, verify the session token with Shopify
       // For now, we'll trust tokens from the customer account UI extension
       // TODO: Implement full JWT verification against Shopify's public key
@@ -1569,27 +1576,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Build the metaobject update fields array
       const fields = [];
-      
+
       // Business Information
       if (updateData.company !== undefined) fields.push({ key: "company", value: updateData.company });
       if (updateData.email !== undefined) fields.push({ key: "email", value: updateData.email });
       if (updateData.phone !== undefined) fields.push({ key: "phone", value: updateData.phone });
       if (updateData.website !== undefined) fields.push({ key: "website", value: updateData.website });
       if (updateData.instagram !== undefined) fields.push({ key: "instagram", value: updateData.instagram });
-      
+
       // Address Information
       if (updateData.address !== undefined) fields.push({ key: "address", value: updateData.address });
       if (updateData.address2 !== undefined) fields.push({ key: "address2", value: updateData.address2 });
       if (updateData.city !== undefined) fields.push({ key: "city", value: updateData.city });
       if (updateData.state !== undefined) fields.push({ key: "state", value: updateData.state });
       if (updateData.zip !== undefined) fields.push({ key: "zip", value: updateData.zip });
-      
+
       // Tax Information
       if (updateData.vat_tax_id !== undefined) fields.push({ key: "vat_tax_id", value: updateData.vat_tax_id });
       if (updateData.tax_exempt !== undefined) {
         fields.push({ key: "tax_exempt", value: String(updateData.tax_exempt) });
       }
-      
+
       // Other Information
       if (updateData.source !== undefined) fields.push({ key: "source", value: updateData.source });
       if (updateData.message !== undefined) fields.push({ key: "message", value: updateData.message });
