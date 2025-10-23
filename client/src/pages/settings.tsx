@@ -399,10 +399,11 @@ export default function Settings() {
                             const isShopify = webhookSource === 'shopify' || webhookType.includes('shopify');
                             const isCRM = webhookSource === 'crm' || webhookType.includes('clarity');
                             const isExpanded = expandedWebhooks.has(index);
+                            const uniqueKey = `${log.id || index}-${log.timestamp}`;
 
                             return (
                               <>
-                                <TableRow key={index} onClick={() => toggleExpandWebhook(index)} className="cursor-pointer hover:bg-secondary/10">
+                                <TableRow key={uniqueKey} onClick={() => toggleExpandWebhook(index)} className="cursor-pointer hover:bg-secondary/10">
                                   <TableCell className="font-['Vazirmatn'] text-[#696A6D]">
                                     {format(new Date(log.timestamp), "MMM d, yyyy HH:mm:ss")}
                                   </TableCell>
@@ -423,7 +424,7 @@ export default function Settings() {
                                   </TableCell>
                                 </TableRow>
                                 {isExpanded && (
-                                  <TableRow key={`${index}-expanded`}>
+                                  <TableRow key={`${uniqueKey}-expanded`}>
                                     <TableCell colSpan={4} className="p-4 bg-secondary/20">
                                       <pre className="text-xs font-mono whitespace-pre-wrap break-words">
                                         {JSON.stringify(log.payload, null, 2)}

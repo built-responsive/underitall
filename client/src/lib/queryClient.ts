@@ -21,15 +21,14 @@ export async function apiRequest(
     "Content-Type": "application/json",
   };
 
-  // Use absolute URL when embedded in Shopify Admin iframe
-  const isEmbedded = window !== window.parent || new URLSearchParams(window.location.search).has('shop');
-  const baseUrl = isEmbedded ? 'https://its-under-it-all.replit.app' : '';
+  // Always use absolute URLs to work in both standalone and embedded contexts
+  const baseUrl = 'https://its-under-it-all.replit.app';
   const fullPath = path.startsWith('/') ? `${baseUrl}${path}` : `${baseUrl}/${path}`;
 
   const options: RequestInit = {
     method,
     headers,
-    credentials: 'include', // Include cookies for session auth
+    credentials: 'include',
   };
 
   if (body) {
@@ -45,7 +44,11 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
-    const res = await fetch(queryKey.join("/") as string, {
+    const baseUrl = 'https://its-under-it-all.replit.app';
+    const path = queryKey.join("/");
+    const fullUrl = path.startsWith('http') ? path : `${baseUrl}${path.startsWith('/') ? path : `/${path}`}`;
+    
+    const res = await fetch(fullUrl, {
       credentials: "include",
     });
 
