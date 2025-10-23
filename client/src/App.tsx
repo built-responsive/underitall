@@ -17,30 +17,51 @@ import { useEffect, useState } from "react";
 function ShopifyAppBridge({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
   const [isEmbedded, setIsEmbedded] = useState(false);
+  const [appBridgeLoaded, setAppBridgeLoaded] = useState(false);
 
   useEffect(() => {
     // Check if running inside Shopify admin iframe
     const embedded = window !== window.parent || new URLSearchParams(window.location.search).has('shop');
     setIsEmbedded(embedded);
 
-    // Load App Bridge if embedded
-    if (embedded && typeof window !== 'undefined') {
+    // Load App Bridge if embedded and not already loaded
+    if (embedded && !appBridgeLoaded && !(window as any).ShopifyApp) {
+      const existingScript = document.querySelector('script[src*="app-bridge.js"]');
+      
+      // Prevent duplicate script tags
+      if (existingScript) {
+        setAppBridgeLoaded(true);
+        return;
+      }
+
       const script = document.createElement('script');
       script.src = 'https://cdn.shopify.com/shopifycloud/app-bridge.js';
-      script.async = true;
+      script.async = false; // Synchronous loading to prevent race conditions
       script.onload = () => {
+        setAppBridgeLoaded(true);
         initializeAppBridge();
       };
+      script.onerror = () => {
+        console.error('Failed to load App Bridge script');
+      };
       document.head.appendChild(script);
+    } else if (embedded && (window as any).ShopifyApp) {
+      // App Bridge already available
+      initializeAppBridge();
     }
 
     function initializeAppBridge() {
       try {
+        if (!(window as any).ShopifyApp) {
+          console.warn('App Bridge not available');
+          return;
+        }
+
         const urlParams = new URLSearchParams(window.location.search);
         const shopOrigin = urlParams.get('shop');
         const host = urlParams.get('host');
 
-        if (!shopOrigin || !host || !(window as any).ShopifyApp) {
+        if (!shopOrigin || !host) {
           return;
         }
 
@@ -50,13 +71,11 @@ function ShopifyAppBridge({ children }: { children: React.ReactNode }) {
           forceRedirect: true
         });
 
-        // Navigation via History API (updates browser URL without reload)
         const History = (window as any).ShopifyApp.History;
         const history = History.create(app);
 
-        // Set up TitleBar with navigation actions
         const TitleBar = (window as any).ShopifyApp.TitleBar;
-        const titleBar = TitleBar.create(app, {
+        TitleBar.create(app, {
           title: 'UnderItAll Tools',
           buttons: {
             primary: undefined,
@@ -92,7 +111,7 @@ function ShopifyAppBridge({ children }: { children: React.ReactNode }) {
         console.error('App Bridge initialization error:', error);
       }
     }
-  }, [location]);
+  }, [location, appBridgeLoaded]);
 
   return <>{children}</>;
 }
