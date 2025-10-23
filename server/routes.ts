@@ -95,7 +95,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
           const checkData = await checkResponse.json();
           const existingDef = checkData.data?.metaobjectDefinitions?.nodes?.find(
-            (def: any) => def.type === "wholesale_account"
+            (def: any) => def.type === "$app:wholesale_account"
           );
 
           health.shopify.metaobjectDefinition = !!existingDef;
@@ -285,54 +285,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Initialize wholesale_account metaobject definition
+  // Check wholesale_account metaobject definition (managed declaratively in shopify.app.toml)
   app.post("/api/admin/initialize-metaobject", async (req, res) => {
     try {
-      const defId = await ensureWholesaleMetaobjectDefinition();
+      const defId = await checkWholesaleMetaobjectDefinition();
       
       if (defId) {
         res.json({
           success: true,
-          message: "Metaobject definition created successfully",
+          message: "Metaobject definition exists and is ready",
           metaobjectDefinitionId: defId,
         });
       } else {
         res.json({
           success: false,
-          message: "Failed to create metaobject definition. Check server logs for details.",
+          message: "Metaobject definition not found. Run 'shopify app deploy' to sync shopify.app.toml configuration.",
         });
       }
     } catch (error) {
-      console.error("Metaobject initialization error:", error);
+      console.error("Metaobject check error:", error);
       res.json({
         success: false,
-        message: error instanceof Error ? error.message : "Initialization failed",
-      });
-    }
-  });
-
-  // Initialize wholesale_account metaobject definition
-  app.post("/api/admin/initialize-metaobject", async (req, res) => {
-    try {
-      const defId = await ensureWholesaleMetaobjectDefinition();
-      
-      if (defId) {
-        res.json({
-          success: true,
-          message: "Metaobject definition created successfully",
-          metaobjectDefinitionId: defId,
-        });
-      } else {
-        res.json({
-          success: false,
-          message: "Failed to create metaobject definition. Check server logs for details.",
-        });
-      }
-    } catch (error) {
-      console.error("Metaobject initialization error:", error);
-      res.json({
-        success: false,
-        message: error instanceof Error ? error.message : "Initialization failed",
+        message: error instanceof Error ? error.message : "Check failed",
       });
     }
   });
@@ -601,8 +575,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Ensure wholesale_account metaobject definition exists (helper function)
-  async function ensureWholesaleMetaobjectDefinition() {
+  // Check if wholesale_account metaobject definition exists (managed by shopify.app.toml)
+  async function checkWholesaleMetaobjectDefinition() {
     const shopDomain = process.env.SHOPIFY_SHOP_DOMAIN;
     const adminToken = process.env.SHOPIFY_ADMIN_ACCESS_TOKEN;
 
@@ -612,7 +586,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
-      // Check if definition exists
       const checkQuery = `
         query {
           metaobjectDefinitions(first: 50) {
@@ -638,101 +611,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const checkData = await checkResponse.json();
       const existingDef = checkData.data?.metaobjectDefinitions?.nodes?.find(
-        (def: any) => def.type === "wholesale_account"
+        (def: any) => def.type === "$app:wholesale_account"
       );
 
       if (existingDef) {
-        console.log("✅ Metaobject definition 'wholesale_account' already exists:", existingDef.id);
+        console.log("✅ Metaobject definition '$app:wholesale_account' exists:", existingDef.id);
         return existingDef.id;
       }
 
-      // Create definition if it doesn't exist
-      console.log("🔨 Creating 'wholesale_account' metaobject definition...");
-      const createMutation = `
-        mutation CreateMetaobjectDefinition($definition: MetaobjectDefinitionCreateInput!) {
-          metaobjectDefinitionCreate(definition: $definition) {
-            metaobjectDefinition {
-              id
-              type
-            }
-            userErrors {
-              field
-              message
-            }
-          }
-        }
-      `;
-
-      const definitionInput = {
-        type: "wholesale_account",
-        name: "Wholesale Account",
-        fieldDefinitions: [
-          { key: "company", name: "Company Name", type: "single_line_text_field", required: true },
-          { key: "email", name: "Email", type: "single_line_text_field", required: true },
-          { key: "phone", name: "Phone", type: "single_line_text_field" },
-          { key: "website", name: "Website", type: "single_line_text_field" },
-          { key: "instagram", name: "Instagram Handle", type: "single_line_text_field" },
-          { key: "address", name: "Business Address", type: "single_line_text_field" },
-          { key: "address2", name: "Address Line 2", type: "single_line_text_field" },
-          { key: "city", name: "City", type: "single_line_text_field" },
-          { key: "state", name: "State", type: "single_line_text_field" },
-          { key: "zip", name: "ZIP Code", type: "single_line_text_field" },
-          { key: "source", name: "How Did You Hear About Us", type: "multi_line_text_field" },
-          { key: "message", name: "Admin Notes", type: "multi_line_text_field" },
-          { key: "account_type", name: "Account Type", type: "list.single_line_text_field" },
-          { key: "sample_set", name: "Sample Set Received", type: "boolean" },
-          { key: "tax_exempt", name: "Tax Exempt", type: "boolean" },
-          { key: "vat_tax_id", name: "VAT/Tax ID", type: "single_line_text_field" },
-          { key: "tax_proof", name: "Tax Proof Document", type: "file_reference" },
-          { key: "clarity_id", name: "Clarity CRM Account ID", type: "single_line_text_field" },
-          { key: "owner", name: "Linked Customers", type: "list.product_reference" }
-        ],
-        access: {
-          admin: "MERCHANT_READ_WRITE",
-          storefront: "PUBLIC_READ"
-        },
-        capabilities: {
-          publishable: {
-            enabled: true
-          },
-          renderable: {
-            enabled: false
-          }
-        }
-      };
-
-      const createResponse = await fetch(
-        `https://${shopDomain}/admin/api/2025-01/graphql.json`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-Shopify-Access-Token": adminToken,
-          },
-          body: JSON.stringify({
-            query: createMutation,
-            variables: { definition: definitionInput }
-          }),
-        }
-      );
-
-      const createData = await createResponse.json();
-
-      console.log("📦 Metaobject Create Response:", JSON.stringify(createData, null, 2));
-
-      if (createData.errors || createData.data?.metaobjectDefinitionCreate?.userErrors?.length > 0) {
-        const errors = createData.errors || createData.data?.metaobjectDefinitionCreate?.userErrors;
-        console.error("❌ Failed to create metaobject definition:");
-        console.error("Full response:", JSON.stringify(createData, null, 2));
-        console.error("User errors:", JSON.stringify(errors, null, 2));
-        return null;
-      }
-
-      const newDefId = createData.data.metaobjectDefinitionCreate.metaobjectDefinition.id;
-      console.log("✅ Created metaobject definition:", newDefId);
-      return newDefId;
+      console.log("⚠️ Metaobject definition '$app:wholesale_account' not found. Run 'shopify app deploy' to create it from shopify.app.toml");
+      return null;
     } catch (error) {
-      console.error("❌ Error ensuring metaobject definition:", error);
+      console.error("❌ Error checking metaobject definition:", error);
       return null;
     }
   }
