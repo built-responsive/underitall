@@ -1,7 +1,6 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { useState } from "react";
-import React from "react";
+import { useState, Fragment } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -411,7 +410,7 @@ export default function Settings() {
                             const logKey = log.id || `log-${index}-${log.timestamp}`;
 
                             return (
-                              <React.Fragment key={logKey}>
+                              <Fragment key={logKey}>
                                 <TableRow onClick={() => toggleExpandWebhook(index)} className="cursor-pointer hover:bg-secondary/10">
                                   <TableCell className="font-['Vazirmatn'] text-[#696A6D]">
                                     {format(new Date(log.timestamp), "MMM d, yyyy HH:mm:ss")}
@@ -441,7 +440,7 @@ export default function Settings() {
                                     </TableCell>
                                   </TableRow>
                                 )}
-                              </React.Fragment>
+                              </Fragment>
                             );
                           })}
                         </TableBody>
