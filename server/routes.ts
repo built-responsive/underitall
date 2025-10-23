@@ -614,8 +614,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           storefront: "PUBLIC_READ"
         },
         capabilities: {
-          publishable: { enabled: true },
-          online_store: { enabled: true }
+          publishable: { enabled: true }
         }
       };
 
