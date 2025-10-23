@@ -49,11 +49,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // System health check
   app.get("/api/health", async (req, res) => {
+    console.log("\n🏥 ===== /api/health ENDPOINT HIT =====");
+    console.log("Timestamp:", new Date().toISOString());
+    
     try {
       const shopDomain = process.env.SHOPIFY_SHOP_DOMAIN;
       const adminToken = process.env.SHOPIFY_ADMIN_ACCESS_TOKEN;
       const crmBaseUrl = process.env.CRM_BASE_URL;
       const crmApiKey = process.env.CRM_API_KEY;
+
+      console.log("🔐 Environment check:");
+      console.log("  - SHOPIFY_SHOP_DOMAIN:", shopDomain ? "✅ Set" : "❌ Missing");
+      console.log("  - SHOPIFY_ADMIN_ACCESS_TOKEN:", adminToken ? "✅ Set (length: " + (adminToken?.length || 0) + ")" : "❌ Missing");
+      console.log("  - CRM_BASE_URL:", crmBaseUrl ? "✅ Set" : "❌ Missing");
+      console.log("  - CRM_API_KEY:", crmApiKey ? "✅ Set" : "❌ Missing");
 
       const health: any = {
         timestamp: new Date().toISOString(),
@@ -69,8 +78,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Check if wholesale_account metaobject definition exists
       if (shopDomain && adminToken) {
+        console.log("🔍 Calling checkWholesaleMetaobjectDefinition()...");
         try {
           const result = await checkWholesaleMetaobjectDefinition();
+          console.log("📊 Metaobject check result:", JSON.stringify(result, null, 2));
 
           health.shopify.metaobjectDefinition = result.success;
           if (result.success) {
@@ -81,14 +92,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
             health.shopify.error = result.message;
           }
         } catch (error) {
-          console.error("❌ Metaobject check error:", error);
+          console.error("❌ Metaobject check exception:", error);
           health.shopify.error = error instanceof Error ? error.message : "Unknown error";
         }
+      } else {
+        console.log("⏭️ Skipping metaobject check (credentials not configured)");
       }
 
+      console.log("✅ Health check response:", JSON.stringify(health, null, 2));
+      console.log("===== /api/health COMPLETE =====\n");
       res.json(health);
     } catch (error) {
-      console.error("Health check error:", error);
+      console.error("❌ Health check error:", error);
       res.status(500).json({ error: "Health check failed" });
     }
   });
