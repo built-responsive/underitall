@@ -578,13 +578,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     const shopDomain = process.env.SHOPIFY_SHOP_DOMAIN;
     const adminToken = process.env.SHOPIFY_ADMIN_ACCESS_TOKEN;
-    const appClientId = process.env.SHOPIFY_CLIENT_ID || "78a602699150bda4e49a40861707d500";
+    const appGid = "290419769345"; // App GID from Shopify (its-under-it-all)
 
     console.log("Environment check:");
     console.log(`  - shopDomain: ${shopDomain ? "✅ Set" : "❌ Missing"}`);
     console.log(`  - adminToken: ${adminToken ? `✅ Set (${adminToken.length} chars)` : "❌ Missing"}`);
-    console.log(`  - appClientId: ${appClientId ? "✅ Set" : "❌ Missing"}`);
-    console.log(`  ⚠️ NOTE: App-owned metaobjects require OAuth app credentials, not custom app tokens`);
+    console.log(`  - appGid: ${appGid}`);
 
     if (!shopDomain || !adminToken) {
       console.log("⚠️ Shopify credentials not configured");
@@ -594,7 +593,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       console.log("📡 Fetching metaobject definitions from Shopify...");
       // First, try to find the definition by searching all definitions
-      // since the exact type string includes the client_id: app--{client_id}--wholesale_account
+      // since the actual type string includes the client_id: app--{client_id}--wholesale_account
       const listQuery = `
         query {
           metaobjectDefinitions(first: 50) {
@@ -634,7 +633,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Find definition by searching for the wholesale_account handle in the type
       // The actual type for app-owned metaobjects is app--{client_id}--{handle}
-      const appOwnedType = `app--${appClientId}--wholesale_account`;
+      const appOwnedType = `app--${appGid}--wholesale_account`;
       const existingDef = definitions.find((def: any) =>
         def.type === appOwnedType
       );
@@ -1458,6 +1457,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const lengthIn = Math.round((lengthNum - lengthFt) * 12);
 
       const productTitle = `Luxe ${quote.thickness === "thin" ? '⅛"' : '¼"'} - ${quote.shape.charAt(0).toUpperCase() + quote.shape.slice(1)}`;
+      const dimensionsDisplay = `${widthFt}'${widthIn}" × ${lengthFt}'${lengthIn}"`;
 
       const lineItems = [
         {
