@@ -689,7 +689,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log("📦 Metaobject Create Response:", JSON.stringify(createData, null, 2));
 
       if (createData.errors || createData.data?.metaobjectDefinitionCreate?.userErrors?.length > 0) {
-        console.error("❌ Failed to create metaobject definition:", createData);
+        const errors = createData.errors || createData.data?.metaobjectDefinitionCreate?.userErrors;
+        console.error("❌ Failed to create metaobject definition:");
+        console.error("Full response:", JSON.stringify(createData, null, 2));
+        console.error("User errors:", JSON.stringify(errors, null, 2));
         return null;
       }
 
