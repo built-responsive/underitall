@@ -70,64 +70,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check if wholesale_account metaobject definition exists
       if (shopDomain && adminToken) {
         try {
-          const checkQuery = `
-            query {
-              metaobjectDefinitions(first: 50) {
-                nodes {
-                  id
-                  type
-                  metaobjectsCount
-                }
-              }
-            }
-          `;
-
-          const checkResponse = await fetch(
-            `https://${shopDomain}/admin/api/2025-01/graphql.json`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                "X-Shopify-Access-Token": adminToken,
-              },
-              body: JSON.stringify({ query: checkQuery }),
-            }
-          );
-
-          const checkData = await checkResponse.json();
+          const result = await checkWholesaleMetaobjectDefinition();
           
-          console.log("🔍 All metaobject definitions:", JSON.stringify(checkData.data?.metaobjectDefinitions?.nodes || [], null, 2));
-          
-          // App-owned metaobject definitions appear as "app--{client_id}--{handle}" in GraphQL responses
-          // Match any of: $app:wholesale_account, wholesale_account, or app--*--wholesale_account
-          const existingDef = checkData.data?.metaobjectDefinitions?.nodes?.find(
-            (def: any) => {
-              const type = def.type || "";
-              const isMatch = 
-                type === "$app:wholesale_account" || 
-                type === "wholesale_account" ||
-                type.endsWith("--wholesale_account") ||
-                type.includes("wholesale_account");
-              
-              if (isMatch) {
-                console.log("✅ Found matching metaobject definition:", type);
-              }
-              return isMatch;
-            }
-          );
-
-          health.shopify.metaobjectDefinition = !!existingDef;
-          health.shopify.metaobjectType = existingDef?.type || null;
-          if (existingDef) {
-            health.shopify.metaobjectId = existingDef.id;
-            health.shopify.entryCount = existingDef.metaobjectsCount || 0;
-            console.log("✅ Metaobject health status:", {
-              id: existingDef.id,
-              type: existingDef.type,
-              count: existingDef.metaobjectsCount
-            });
+          health.shopify.metaobjectDefinition = result.success;
+          if (result.success) {
+            health.shopify.metaobjectId = result.id;
+            health.shopify.metaobjectType = result.type;
+            health.shopify.entryCount = result.count || 0;
           } else {
-            console.warn("⚠️ No wholesale_account metaobject definition found");
+            health.shopify.error = result.message;
           }
         } catch (error) {
           console.error("❌ Metaobject check error:", error);
@@ -316,18 +267,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Check wholesale_account metaobject definition (managed declaratively in shopify.app.toml)
   app.post("/api/admin/initialize-metaobject", async (req, res) => {
     try {
-      const defId = await checkWholesaleMetaobjectDefinition();
+      const result = await checkWholesaleMetaobjectDefinition();
       
-      if (defId) {
+      if (result.success) {
         res.json({
           success: true,
           message: "Metaobject definition exists and is ready",
-          metaobjectDefinitionId: defId,
+          metaobjectDefinitionId: result.id,
+          metaobjectType: result.type,
+          metaobjectsCount: result.count,
         });
       } else {
         res.json({
           success: false,
-          message: "Metaobject definition not found. Run 'shopify app deploy' to sync shopify.app.toml configuration.",
+          message: result.message || "Metaobject definition not found. Run 'shopify app deploy' to sync shopify.app.toml configuration.",
         });
       }
     } catch (error) {
@@ -610,18 +563,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     if (!shopDomain || !adminToken) {
       console.log("⚠️ Shopify credentials not configured, skipping metaobject definition check");
-      return null;
+      return { success: false, message: "Shopify credentials not configured" };
     }
 
     try {
+      // Query for the exact metaobject definition by type
+      // Shopify uses the full prefixed type: app--{client_id}--{handle}
       const checkQuery = `
         query {
-          metaobjectDefinitions(first: 50) {
-            nodes {
-              id
-              type
-              metaobjectsCount
-            }
+          metaobjectDefinitionByType(type: "$app:wholesale_account") {
+            id
+            type
+            name
+            metaobjectsCount
           }
         }
       `;
@@ -640,37 +594,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const checkData = await checkResponse.json();
       
-      console.log("🔍 Checking metaobject definitions...");
-      console.log("Available types:", checkData.data?.metaobjectDefinitions?.nodes?.map((d: any) => d.type).join(", ") || "none");
+      console.log("🔍 Checking wholesale_account metaobject definition...");
       
-      // App-owned metaobject definitions appear as "app--{client_id}--{handle}" in GraphQL responses
-      // Match any of: $app:wholesale_account, wholesale_account, or app--*--wholesale_account
-      const existingDef = checkData.data?.metaobjectDefinitions?.nodes?.find(
-        (def: any) => {
-          const type = def.type || "";
-          return (
-            type === "$app:wholesale_account" || 
-            type === "wholesale_account" ||
-            type.endsWith("--wholesale_account") ||
-            type.includes("wholesale_account")
-          );
-        }
-      );
+      if (checkData.errors) {
+        console.error("❌ GraphQL errors:", JSON.stringify(checkData.errors, null, 2));
+        return { success: false, message: checkData.errors[0]?.message || "GraphQL query failed" };
+      }
+
+      const existingDef = checkData.data?.metaobjectDefinitionByType;
 
       if (existingDef) {
         console.log("✅ Metaobject definition found:", {
           type: existingDef.type,
+          name: existingDef.name,
           id: existingDef.id,
           count: existingDef.metaobjectsCount
         });
-        return existingDef.id;
+        return {
+          success: true,
+          id: existingDef.id,
+          type: existingDef.type,
+          name: existingDef.name,
+          count: existingDef.metaobjectsCount
+        };
       }
 
       console.log("⚠️ Metaobject definition not found. Run 'shopify app deploy' to sync shopify.app.toml");
-      return null;
+      return { success: false, message: "Metaobject definition not found. Run 'shopify app deploy' to sync shopify.app.toml configuration." };
     } catch (error) {
       console.error("❌ Error checking metaobject definition:", error);
-      return null;
+      return { success: false, message: error instanceof Error ? error.message : "Unknown error" };
     }
   }
 
