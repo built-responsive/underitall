@@ -30,6 +30,7 @@ export function ChatBubble() {
     }
     return id;
   });
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   // Fetch existing conversation
   const { data: conversations } = useQuery<any[]>({
