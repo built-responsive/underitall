@@ -28,7 +28,7 @@ export default defineConfig({
   },
   root: path.resolve(import.meta.dirname, "client"),
   base: process.env.NODE_ENV === "production" 
-    ? "https://join.itsunderitall.com/" 
+    ? "https://its-under-it-all.replit.app/" 
     : "",
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),

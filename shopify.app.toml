@@ -11,29 +11,25 @@ automatically_update_urls_on_dev = true
 [webhooks]
 api_version = "2026-01"
 
-# Customer webhooks require protected data approval
-# Uncomment these after completing the protected customer data approval process
-# See: https://shopify.dev/docs/apps/launch/protected-customer-data
+  [[webhooks.subscriptions]]
+  topics = [ "customers/create" ]
+  uri = "/api/webhooks/customers/create"
 
-# [[webhooks.subscriptions]]
-# topics = ["customers/create"]
-# uri = "/api/webhooks/customers/create"
+  [[webhooks.subscriptions]]
+  topics = [ "metaobjects/update" ]
+  uri = "/api/webhooks/metaobjects/update"
+  filter = "type:wholesale_account"
 
-# [[webhooks.subscriptions]]
-# topics = ["customers/update"]
-# uri = "/api/webhooks/customers/update"
-
-[[webhooks.subscriptions]]
-topics = ["metaobjects/update"]
-uri = "/api/webhooks/metaobjects/update"
-filter = "type:wholesale_account"
+  [[webhooks.subscriptions]]
+  topics = [ "customers/update" ]
+  uri = "/api/webhooks/customers/update"
 
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
-scopes = "read_analytics,read_customer_events,read_checkout_branding_settings,write_checkout_branding_settings,write_custom_pixels,read_custom_pixels,write_customers,read_customers,write_draft_orders,read_draft_orders,write_files,read_files,write_metaobjects,read_metaobjects,write_metaobject_definitions,read_metaobject_definitions,write_online_store_navigation,read_online_store_navigation,write_online_store_pages,read_online_store_pages,write_orders,read_orders,write_packing_slip_templates,read_packing_slip_templates,write_pixels,read_pixels,write_price_rules,read_price_rules,write_product_feeds,read_product_feeds,write_product_listings,read_product_listings,write_products,read_products,write_purchase_options,read_purchase_options,write_channels,read_channels,write_script_tags,read_script_tags,write_content,read_content,write_themes,read_themes,read_all_cart_transforms,write_app_proxy,read_app_proxy,write_customer_data_erasure,read_customer_data_erasure,write_customer_merge,read_customer_merge,write_theme_code,write_validations,read_validations,write_discovery,read_discovery,write_discounts,read_discounts,write_assigned_fulfillment_orders,read_assigned_fulfillment_orders,unauthenticated_write_checkouts,unauthenticated_read_checkouts,unauthenticated_read_content,unauthenticated_write_customers,unauthenticated_read_customers,unauthenticated_read_customer_tags,unauthenticated_read_metaobjects,unauthenticated_read_product_listings,unauthenticated_read_product_inventory,unauthenticated_read_product_pickup_locations,unauthenticated_read_product_tags,unauthenticated_read_selling_plans,unauthenticated_write_bulk_operations,unauthenticated_read_bulk_operations,unauthenticated_read_bundles,unauthenticated_read_shop_pay_installments_pricing"
+scopes = "read_all_cart_transforms,read_analytics,read_app_proxy,read_assigned_fulfillment_orders,read_channels,read_checkout_branding_settings,read_content,read_custom_pixels,read_customer_data_erasure,read_customer_events,read_customer_merge,read_customers,read_discounts,read_discovery,read_draft_orders,read_files,read_metaobject_definitions,read_metaobjects,read_online_store_navigation,read_online_store_pages,read_orders,read_packing_slip_templates,read_pixels,read_price_rules,read_product_feeds,read_product_listings,read_products,read_purchase_options,read_script_tags,read_themes,read_validations,unauthenticated_read_bulk_operations,unauthenticated_read_bundles,unauthenticated_read_checkouts,unauthenticated_read_content,unauthenticated_read_customer_tags,unauthenticated_read_customers,unauthenticated_read_metaobjects,unauthenticated_read_product_inventory,unauthenticated_read_product_listings,unauthenticated_read_product_pickup_locations,unauthenticated_read_product_tags,unauthenticated_read_selling_plans,unauthenticated_read_shop_pay_installments_pricing,unauthenticated_write_bulk_operations,unauthenticated_write_checkouts,unauthenticated_write_customers,write_app_proxy,write_assigned_fulfillment_orders,write_channels,write_checkout_branding_settings,write_content,write_custom_pixels,write_customer_data_erasure,write_customer_merge,write_customers,write_discounts,write_discovery,write_draft_orders,write_files,write_metaobject_definitions,write_metaobjects,write_online_store_navigation,write_online_store_pages,write_orders,write_packing_slip_templates,write_pixels,write_price_rules,write_product_feeds,write_product_listings,write_products,write_purchase_options,write_script_tags,write_theme_code,write_themes,write_validations"
 
 [auth]
-redirect_urls = [ 
+redirect_urls = [
   "https://its-under-it-all.replit.app/api/auth",
   "https://its-under-it-all.replit.app/auth/callback"
 ]
@@ -41,8 +37,10 @@ redirect_urls = [
 [metaobjects.app.wholesale_account]
 name = "Wholesale Account"
 display_name_field = "company"
-access.admin = "merchant_read_write"
-access.storefront = "public_read"
+
+  [metaobjects.app.wholesale_account.access]
+  admin = "merchant_read_write"
+  storefront = "public_read"
 
 [metaobjects.app.wholesale_account.fields.company]
 name = "Company Name"
@@ -118,10 +116,11 @@ type = "file_reference"
 name = "Clarity CRM Account ID"
 type = "single_line_text_field"
 
-# Customer metafield to link back to wholesale account
 [customer.metafields.app.wholesale_account]
 type = "metaobject_reference<$app:wholesale_account>"
 name = "Wholesale Account"
 description = "Link to customer's wholesale account metaobject"
-access.customer_account = "read_write"
-access.admin = "merchant_read_write"
+
+  [customer.metafields.app.wholesale_account.access]
+  customer_account = "read_write"
+  admin = "merchant_read_write"

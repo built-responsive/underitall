@@ -9,7 +9,7 @@ async function throwIfResNotOk(res: Response) {
 
 // Use absolute URL for production, relative for dev
 const API_BASE_URL = import.meta.env.PROD
-  ? "https://join.itsunderitall.com"
+  ? "https://its-under-it-all.replit.app/"
   : "";
 
 export async function apiRequest(

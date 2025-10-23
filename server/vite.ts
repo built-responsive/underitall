@@ -45,7 +45,7 @@ export async function setupVite(app: Express, server: Server) {
     const url = req.originalUrl;
 
     // Skip static asset paths - let them be handled by static middleware
-    if (url.startsWith('/brand/') || url.startsWith('/assets/') || url.startsWith('https://its-under-it-all.myshopify.com/brand/') || url.startsWith('https://its-under-it-all.myshopify.com/assets/')) {
+    if (url.startsWith('/brand/') || url.startsWith('/assets/') || url.startsWith('https://its-under-it-all.replit.app/brand/') || url.startsWith('https://its-under-it-all.myshopify.com/assets/')) {
       return next();
     }
 
