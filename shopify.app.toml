@@ -2,15 +2,16 @@
 
 client_id = "78a602699150bda4e49a40861707d500"
 name = "its-under-it-all"
-application_url = "https://its-under-it-all.replit.app/dashboard"
+application_url = "https://its-under-it-all.replit.app"
 embedded = true
+handle = "its-under-it-all"
 
 
 [build]
 automatically_update_urls_on_dev = true
 
 [app_preferences]
-url = "/settings"
+url = "https://its-under-it-all.replit.app/settings"
 
 [webhooks]
 api_version = "2026-01"
