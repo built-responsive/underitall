@@ -44,6 +44,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed - 2025-01-23 - [Replit Assistant]
+- **Metaobject Definition Management**
+  - Migrated to declarative metaobject definitions in `shopify.app.toml`
+  - Added bidirectional customer ↔ wholesale_account linking via metafield reference
+  - Removed programmatic metaobject creation in favor of automatic deployment-time creation
+  - Added `customer.metafields.app.wholesale_account` for customer account UI extension read/write access
+
 ### Fixed - 2025-01-23 - [Agenticunt]
 - **Metaobject Definition Creation**
   - Fixed capabilities structure: using `publishable.enabled` and `renderable.enabled` instead of invalid `online_store` capability
