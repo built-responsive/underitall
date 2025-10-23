@@ -607,14 +607,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
           { key: "vat_tax_id", name: "VAT/Tax ID", type: "single_line_text_field" },
           { key: "tax_proof", name: "Tax Proof Document", type: "file_reference" },
           { key: "clarity_id", name: "Clarity CRM Account ID", type: "single_line_text_field" },
-          { key: "owner", name: "Linked Customers", type: "list.metaobject_reference", validations: [{ name: "metaobject_definition_id", value: "gid://shopify/MetaobjectDefinition/customer" }] }
+          { key: "owner", name: "Linked Customers", type: "list.product_reference" }
         ],
         access: {
           admin: "MERCHANT_READ_WRITE",
           storefront: "PUBLIC_READ"
         },
         capabilities: {
-          publishable: { enabled: true }
+          publishable: {
+            enabled: true
+          },
+          renderable: {
+            enabled: false
+          }
         }
       };
 

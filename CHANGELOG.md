@@ -44,7 +44,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added - 2025-01-22 - [Replit Agent]
+### Fixed - 2025-01-23 - [Agenticunt]
+- **Metaobject Definition Creation**
+  - Fixed capabilities structure: using `publishable.enabled` and `renderable.enabled` instead of invalid `online_store` capability
+  - Changed `owner` field type from `list.metaobject_reference` to `list.product_reference` (correct Shopify API type for customer references)
+  - Metaobject definition now creates successfully via Admin GraphQL API
+
+### Added - 2025-01-23 - [Replit Agent]
 - Created Shopify Customer Account UI Extension at `underitall/extensions/wholesale-account-profile/`
   - ProfileBlock.jsx component targeting `customer-account.profile.block.render`
   - Displays wholesale account metaobject data on customer profile page
