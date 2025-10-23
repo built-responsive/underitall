@@ -1,0 +1,478 @@
+5204-21e72384595f8fe5.js:1 [Violation] 'message' handler took 340ms
+Unrecognized feature: 'ambient-light-sensor'.
+Unrecognized feature: 'ambient-light-sensor'.
+Unrecognized feature: 'ambient-light-sensor'.
+Unrecognized feature: 'ambient-light-sensor'.
+Unrecognized feature: 'ambient-light-sensor'.
+Unrecognized feature: 'battery'.
+Unrecognized feature: 'battery'.
+Unrecognized feature: 'battery'.
+Unrecognized feature: 'battery'.
+Unrecognized feature: 'battery'.
+Unrecognized feature: 'execution-while-not-rendered'.
+Unrecognized feature: 'execution-while-not-rendered'.
+Unrecognized feature: 'execution-while-not-rendered'.
+Unrecognized feature: 'execution-while-not-rendered'.
+Unrecognized feature: 'execution-while-not-rendered'.
+Unrecognized feature: 'execution-while-out-of-viewport'.
+Unrecognized feature: 'execution-while-out-of-viewport'.
+Unrecognized feature: 'execution-while-out-of-viewport'.
+Unrecognized feature: 'execution-while-out-of-viewport'.
+Unrecognized feature: 'execution-while-out-of-viewport'.
+Unrecognized feature: 'layout-animations'.
+Unrecognized feature: 'layout-animations'.
+Unrecognized feature: 'layout-animations'.
+Unrecognized feature: 'layout-animations'.
+Unrecognized feature: 'layout-animations'.
+Unrecognized feature: 'legacy-image-formats'.
+Unrecognized feature: 'legacy-image-formats'.
+Unrecognized feature: 'legacy-image-formats'.
+Unrecognized feature: 'legacy-image-formats'.
+Unrecognized feature: 'legacy-image-formats'.
+Unrecognized feature: 'navigation-override'.
+Unrecognized feature: 'navigation-override'.
+Unrecognized feature: 'navigation-override'.
+Unrecognized feature: 'navigation-override'.
+Unrecognized feature: 'navigation-override'.
+Unrecognized feature: 'oversized-images'.
+Unrecognized feature: 'oversized-images'.
+Unrecognized feature: 'oversized-images'.
+Unrecognized feature: 'oversized-images'.
+Unrecognized feature: 'oversized-images'.
+Unrecognized feature: 'publickey-credentials'.
+Unrecognized feature: 'publickey-credentials'.
+Unrecognized feature: 'publickey-credentials'.
+Unrecognized feature: 'publickey-credentials'.
+Unrecognized feature: 'publickey-credentials'.
+Unrecognized feature: 'speaker-selection'.
+Unrecognized feature: 'speaker-selection'.
+Unrecognized feature: 'speaker-selection'.
+Unrecognized feature: 'speaker-selection'.
+Unrecognized feature: 'speaker-selection'.
+Unrecognized feature: 'unoptimized-images'.
+Unrecognized feature: 'unoptimized-images'.
+Unrecognized feature: 'unoptimized-images'.
+Unrecognized feature: 'unoptimized-images'.
+Unrecognized feature: 'unoptimized-images'.
+Unrecognized feature: 'unsized-media'.
+Unrecognized feature: 'unsized-media'.
+Unrecognized feature: 'unsized-media'.
+Unrecognized feature: 'unsized-media'.
+Unrecognized feature: 'unsized-media'.
+7142-57e08193c01ab3ff.js:1 Unrecognized feature: 'pointer-lock'.
+(anonymous) @ 7142-57e08193c01ab3ff.js:1
+(anonymous) @ main-07906857a47db065.js:1
+n @ main-07906857a47db065.js:1
+u @ main-07906857a47db065.js:1
+(anonymous) @ main-07906857a47db065.js:1
+(anonymous) @ main-07906857a47db065.js:1
+(anonymous) @ 7142-57e08193c01ab3ff.js:1
+(anonymous) @ 7142-57e08193c01ab3ff.js:1
+(anonymous) @ main-07906857a47db065.js:1
+n @ main-07906857a47db065.js:1
+u @ main-07906857a47db065.js:1
+(anonymous) @ main-07906857a47db065.js:1
+(anonymous) @ main-07906857a47db065.js:1
+(anonymous) @ 7142-57e08193c01ab3ff.js:1
+navigateTo @ 7142-57e08193c01ab3ff.js:1
+refresh @ 7142-57e08193c01ab3ff.js:1
+(anonymous) @ 7142-57e08193c01ab3ff.js:1
+(anonymous) @ _app-2f108d62ce64cc71.js:4
+(anonymous) @ _app-2f108d62ce64cc71.js:4
+onClick @ _app-2f108d62ce64cc71.js:4
+(anonymous) @ _app-2f108d62ce64cc71.js:4
+eB @ framework-c4fe1819ba504197.js:1
+eH @ framework-c4fe1819ba504197.js:1
+(anonymous) @ framework-c4fe1819ba504197.js:1
+re @ framework-c4fe1819ba504197.js:1
+rt @ framework-c4fe1819ba504197.js:1
+(anonymous) @ framework-c4fe1819ba504197.js:1
+uT @ framework-c4fe1819ba504197.js:1
+eM @ framework-c4fe1819ba504197.js:1
+ru @ framework-c4fe1819ba504197.js:1
+tB @ framework-c4fe1819ba504197.js:1
+tD @ framework-c4fe1819ba504197.js:1
+n @ _app-2f108d62ce64cc71.js:28
+Allow attribute will take precedence over 'allowfullscreen'.
+Allow attribute will take precedence over 'allowfullscreen'.
+Allow attribute will take precedence over 'allowfullscreen'.
+Allow attribute will take precedence over 'allowfullscreen'.
+Allow attribute will take precedence over 'allowfullscreen'.
+Allow attribute will take precedence over 'allowpaymentrequest'.
+Allow attribute will take precedence over 'allowpaymentrequest'.
+Allow attribute will take precedence over 'allowpaymentrequest'.
+Allow attribute will take precedence over 'allowpaymentrequest'.
+Allow attribute will take precedence over 'allowpaymentrequest'.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+workspace_iframe.html?initialPath=%2Fsettings&id=%3Ar693%3A:32 Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+2d8f7c0c-938e-4f87-b0ca-9f262520d64e-00-2o84gg8qrj25w.spock.replit.dev/__replco/workspace_iframe.html?initialPath=%2Fsettings&id=%3Ar693%3A:32 Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+workspace_iframe.html?initialPath=%2Fdashboard&id=%3Ar693%3A:32 Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+2d8f7c0c-938e-4f87-b0ca-9f262520d64e-00-2o84gg8qrj25w.spock.replit.dev/__replco/workspace_iframe.html?initialPath=%2Fsettings&id=%3Ar693%3A:32 Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+2d8f7c0c-938e-4f87-b0ca-9f262520d64e-00-2o84gg8qrj25w.spock.replit.dev/__replco/workspace_iframe.html?initialPath=%2Fdashboard&id=%3Ar693%3A:32 Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+2d8f7c0c-938e-4f87-b0ca-9f262520d64e-00-2o84gg8qrj25w.spock.replit.dev/__replco/workspace_iframe.html?initialPath=%2Fdashboard&id=%3Ar693%3A:32 Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+2d8f7c0c-938e-4f87-b0ca-9f262520d64e-00-2o84gg8qrj25w.spock.replit.dev/__replco/workspace_iframe.html?initialPath=%2Fsettings&id=%3Ar693%3A:32 Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+2d8f7c0c-938e-4f87-b0ca-9f262520d64e-00-2o84gg8qrj25w.spock.replit.dev/__replco/workspace_iframe.html?initialPath=%2Fdashboard&id=%3Ar693%3A:32 Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+2d8f7c0c-938e-4f87-b0ca-9f262520d64e-00-2o84gg8qrj25w.spock.replit.dev/__replco/workspace_iframe.html?initialPath=%2Fdashboard&id=%3Ar693%3A:32 Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+workspace_iframe.html?initialPath=%2Fdashboard%3Fshop%3Dits-under-it-all&id=%3Ar693%3A:32 Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+injected.js:27 The script tag loading App Bridge should be the first script tag in the document. Loading other blocking scripts first can cause unexpected behavior.
+(anonymous) @ injected.js:27
+(anonymous) @ app-bridge.js:1
+(anonymous) @ app-bridge.js:1
+(anonymous) @ app-bridge.js:1
+(anonymous) @ app-bridge.js:1
+app-bridge.js:1 Uncaught Error: App Bridge Next: missing required configuration fields: shop
+(anonymous) @ app-bridge.js:1
+(anonymous) @ app-bridge.js:1
+(anonymous) @ app-bridge.js:1
+(anonymous) @ app-bridge.js:1
+(anonymous) @ app-bridge.js:1
+injected.js:27 [vite] connecting...
+injected.js:27 [vite] connected.
+settings.tsx:413 Uncaught ReferenceError: React is not defined
+    at settings.tsx:413:32
+    at Array.map (<anonymous>)
+    at Settings (settings.tsx:403:33)
+    at renderWithHooks (chunk-RPCDYKBN.js?v=bd5715dc:11548:26)
+    at updateFunctionComponent (chunk-RPCDYKBN.js?v=bd5715dc:14582:28)
+    at beginWork (chunk-RPCDYKBN.js?v=bd5715dc:15924:22)
+    at HTMLUnknownElement.callCallback2 (chunk-RPCDYKBN.js?v=bd5715dc:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-RPCDYKBN.js?v=bd5715dc:3699:24)
+    at invokeGuardedCallback (chunk-RPCDYKBN.js?v=bd5715dc:3733:39)
+    at beginWork$1 (chunk-RPCDYKBN.js?v=bd5715dc:19765:15)
+(anonymous) @ settings.tsx:413
+Settings @ settings.tsx:403
+renderWithHooks @ chunk-RPCDYKBN.js?v=bd5715dc:11548
+updateFunctionComponent @ chunk-RPCDYKBN.js?v=bd5715dc:14582
+beginWork @ chunk-RPCDYKBN.js?v=bd5715dc:15924
+callCallback2 @ chunk-RPCDYKBN.js?v=bd5715dc:3674
+invokeGuardedCallbackDev @ chunk-RPCDYKBN.js?v=bd5715dc:3699
+invokeGuardedCallback @ chunk-RPCDYKBN.js?v=bd5715dc:3733
+beginWork$1 @ chunk-RPCDYKBN.js?v=bd5715dc:19765
+performUnitOfWork @ chunk-RPCDYKBN.js?v=bd5715dc:19198
+workLoopSync @ chunk-RPCDYKBN.js?v=bd5715dc:19137
+renderRootSync @ chunk-RPCDYKBN.js?v=bd5715dc:19116
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=bd5715dc:18874
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=bd5715dc:9119
+(anonymous) @ chunk-RPCDYKBN.js?v=bd5715dc:18627
+setTimeout
+scheduleFn @ @tanstack_react-query.js?v=bd5715dc:555
+flush @ @tanstack_react-query.js?v=bd5715dc:569
+batch @ @tanstack_react-query.js?v=bd5715dc:587
+dispatch_fn @ @tanstack_react-query.js?v=bd5715dc:996
+setData @ @tanstack_react-query.js?v=bd5715dc:696
+onSuccess @ @tanstack_react-query.js?v=bd5715dc:897
+resolve @ @tanstack_react-query.js?v=bd5715dc:456
+Promise.then
+run @ @tanstack_react-query.js?v=bd5715dc:498
+start @ @tanstack_react-query.js?v=bd5715dc:536
+fetch @ @tanstack_react-query.js?v=bd5715dc:926
+executeFetch_fn @ @tanstack_react-query.js?v=bd5715dc:2211
+onSubscribe @ @tanstack_react-query.js?v=bd5715dc:1898
+subscribe @ @tanstack_react-query.js?v=bd5715dc:24
+(anonymous) @ @tanstack_react-query.js?v=bd5715dc:3022
+subscribeToStore @ chunk-RPCDYKBN.js?v=bd5715dc:11984
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=bd5715dc:16915
+commitPassiveMountOnFiber @ chunk-RPCDYKBN.js?v=bd5715dc:18156
+commitPassiveMountEffects_complete @ chunk-RPCDYKBN.js?v=bd5715dc:18129
+commitPassiveMountEffects_begin @ chunk-RPCDYKBN.js?v=bd5715dc:18119
+commitPassiveMountEffects @ chunk-RPCDYKBN.js?v=bd5715dc:18109
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=bd5715dc:19490
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=bd5715dc:19447
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=bd5715dc:18868
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=bd5715dc:9119
+commitRootImpl @ chunk-RPCDYKBN.js?v=bd5715dc:19432
+commitRoot @ chunk-RPCDYKBN.js?v=bd5715dc:19277
+finishConcurrentRender @ chunk-RPCDYKBN.js?v=bd5715dc:18805
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=bd5715dc:18718
+workLoop @ chunk-RPCDYKBN.js?v=bd5715dc:197
+flushWork @ chunk-RPCDYKBN.js?v=bd5715dc:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=bd5715dc:384
+settings.tsx:413 Uncaught ReferenceError: React is not defined
+    at settings.tsx:413:32
+    at Array.map (<anonymous>)
+    at Settings (settings.tsx:403:33)
+    at renderWithHooks (chunk-RPCDYKBN.js?v=bd5715dc:11548:26)
+    at updateFunctionComponent (chunk-RPCDYKBN.js?v=bd5715dc:14582:28)
+    at beginWork (chunk-RPCDYKBN.js?v=bd5715dc:15924:22)
+    at HTMLUnknownElement.callCallback2 (chunk-RPCDYKBN.js?v=bd5715dc:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-RPCDYKBN.js?v=bd5715dc:3699:24)
+    at invokeGuardedCallback (chunk-RPCDYKBN.js?v=bd5715dc:3733:39)
+    at beginWork$1 (chunk-RPCDYKBN.js?v=bd5715dc:19765:15)
+(anonymous) @ settings.tsx:413
+Settings @ settings.tsx:403
+renderWithHooks @ chunk-RPCDYKBN.js?v=bd5715dc:11548
+updateFunctionComponent @ chunk-RPCDYKBN.js?v=bd5715dc:14582
+beginWork @ chunk-RPCDYKBN.js?v=bd5715dc:15924
+callCallback2 @ chunk-RPCDYKBN.js?v=bd5715dc:3674
+invokeGuardedCallbackDev @ chunk-RPCDYKBN.js?v=bd5715dc:3699
+invokeGuardedCallback @ chunk-RPCDYKBN.js?v=bd5715dc:3733
+beginWork$1 @ chunk-RPCDYKBN.js?v=bd5715dc:19765
+performUnitOfWork @ chunk-RPCDYKBN.js?v=bd5715dc:19198
+workLoopSync @ chunk-RPCDYKBN.js?v=bd5715dc:19137
+renderRootSync @ chunk-RPCDYKBN.js?v=bd5715dc:19116
+recoverFromConcurrentError @ chunk-RPCDYKBN.js?v=bd5715dc:18736
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=bd5715dc:18879
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=bd5715dc:9119
+(anonymous) @ chunk-RPCDYKBN.js?v=bd5715dc:18627
+setTimeout
+scheduleFn @ @tanstack_react-query.js?v=bd5715dc:555
+flush @ @tanstack_react-query.js?v=bd5715dc:569
+batch @ @tanstack_react-query.js?v=bd5715dc:587
+dispatch_fn @ @tanstack_react-query.js?v=bd5715dc:996
+setData @ @tanstack_react-query.js?v=bd5715dc:696
+onSuccess @ @tanstack_react-query.js?v=bd5715dc:897
+resolve @ @tanstack_react-query.js?v=bd5715dc:456
+Promise.then
+run @ @tanstack_react-query.js?v=bd5715dc:498
+start @ @tanstack_react-query.js?v=bd5715dc:536
+fetch @ @tanstack_react-query.js?v=bd5715dc:926
+executeFetch_fn @ @tanstack_react-query.js?v=bd5715dc:2211
+onSubscribe @ @tanstack_react-query.js?v=bd5715dc:1898
+subscribe @ @tanstack_react-query.js?v=bd5715dc:24
+(anonymous) @ @tanstack_react-query.js?v=bd5715dc:3022
+subscribeToStore @ chunk-RPCDYKBN.js?v=bd5715dc:11984
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=bd5715dc:16915
+commitPassiveMountOnFiber @ chunk-RPCDYKBN.js?v=bd5715dc:18156
+commitPassiveMountEffects_complete @ chunk-RPCDYKBN.js?v=bd5715dc:18129
+commitPassiveMountEffects_begin @ chunk-RPCDYKBN.js?v=bd5715dc:18119
+commitPassiveMountEffects @ chunk-RPCDYKBN.js?v=bd5715dc:18109
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=bd5715dc:19490
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=bd5715dc:19447
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=bd5715dc:18868
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=bd5715dc:9119
+commitRootImpl @ chunk-RPCDYKBN.js?v=bd5715dc:19432
+commitRoot @ chunk-RPCDYKBN.js?v=bd5715dc:19277
+finishConcurrentRender @ chunk-RPCDYKBN.js?v=bd5715dc:18805
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=bd5715dc:18718
+workLoop @ chunk-RPCDYKBN.js?v=bd5715dc:197
+flushWork @ chunk-RPCDYKBN.js?v=bd5715dc:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=bd5715dc:384
+injected.js:27 The above error occurred in the <Settings> component:
+
+    at Settings (https://2d8f7c0c-938e-4f87-b0ca-9f262520d64e-00-2o84gg8qrj25w.spock.replit.dev/src/pages/settings.tsx?t=1761260634471:42:21)
+    at Route (https://2d8f7c0c-938e-4f87-b0ca-9f262520d64e-00-2o84gg8qrj25w.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=bd5715dc:323:16)
+    at Switch (https://2d8f7c0c-938e-4f87-b0ca-9f262520d64e-00-2o84gg8qrj25w.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=bd5715dc:379:17)
+    at Router (https://2d8f7c0c-938e-4f87-b0ca-9f262520d64e-00-2o84gg8qrj25w.spock.replit.dev/src/App.tsx?t=1761260634471&v=0Lqqf4YZ8EqKx3M-MWGxq:112:35)
+    at ShopifyAppBridge (https://2d8f7c0c-938e-4f87-b0ca-9f262520d64e-00-2o84gg8qrj25w.spock.replit.dev/src/App.tsx?t=1761260634471&v=0Lqqf4YZ8EqKx3M-MWGxq:32:29)
+    at Provider (https://2d8f7c0c-938e-4f87-b0ca-9f262520d64e-00-2o84gg8qrj25w.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-S34NKWM7.js?v=bd5715dc:48:15)
+    at TooltipProvider (https://2d8f7c0c-938e-4f87-b0ca-9f262520d64e-00-2o84gg8qrj25w.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=bd5715dc:61:5)
+    at QueryClientProvider (https://2d8f7c0c-938e-4f87-b0ca-9f262520d64e-00-2o84gg8qrj25w.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=bd5715dc:2805:3)
+    at App (https://2d8f7c0c-938e-4f87-b0ca-9f262520d64e-00-2o84gg8qrj25w.spock.replit.dev/src/App.tsx?t=1761260634471&v=0Lqqf4YZ8EqKx3M-MWGxq:188:22)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+(anonymous) @ injected.js:27
+(anonymous) @ injected.js:27
+(anonymous) @ injected.js:27
+(anonymous) @ injected.js:27
+(anonymous) @ injected.js:27
+(anonymous) @ injected.js:27
+(anonymous) @ injected.js:27
+(anonymous) @ injected.js:27
+(anonymous) @ injected.js:27
+(anonymous) @ injected.js:27
+logCapturedError @ chunk-RPCDYKBN.js?v=bd5715dc:14032
+update.callback @ chunk-RPCDYKBN.js?v=bd5715dc:14052
+callCallback @ chunk-RPCDYKBN.js?v=bd5715dc:11248
+commitUpdateQueue @ chunk-RPCDYKBN.js?v=bd5715dc:11265
+commitLayoutEffectOnFiber @ chunk-RPCDYKBN.js?v=bd5715dc:17093
+commitLayoutMountEffects_complete @ chunk-RPCDYKBN.js?v=bd5715dc:17980
+commitLayoutEffects_begin @ chunk-RPCDYKBN.js?v=bd5715dc:17969
+commitLayoutEffects @ chunk-RPCDYKBN.js?v=bd5715dc:17920
+commitRootImpl @ chunk-RPCDYKBN.js?v=bd5715dc:19353
+commitRoot @ chunk-RPCDYKBN.js?v=bd5715dc:19277
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=bd5715dc:18895
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=bd5715dc:9119
+(anonymous) @ chunk-RPCDYKBN.js?v=bd5715dc:18627
+setTimeout
+scheduleFn @ @tanstack_react-query.js?v=bd5715dc:555
+flush @ @tanstack_react-query.js?v=bd5715dc:569
+batch @ @tanstack_react-query.js?v=bd5715dc:587
+dispatch_fn @ @tanstack_react-query.js?v=bd5715dc:996
+setData @ @tanstack_react-query.js?v=bd5715dc:696
+onSuccess @ @tanstack_react-query.js?v=bd5715dc:897
+resolve @ @tanstack_react-query.js?v=bd5715dc:456
+Promise.then
+run @ @tanstack_react-query.js?v=bd5715dc:498
+start @ @tanstack_react-query.js?v=bd5715dc:536
+fetch @ @tanstack_react-query.js?v=bd5715dc:926
+executeFetch_fn @ @tanstack_react-query.js?v=bd5715dc:2211
+onSubscribe @ @tanstack_react-query.js?v=bd5715dc:1898
+subscribe @ @tanstack_react-query.js?v=bd5715dc:24
+(anonymous) @ @tanstack_react-query.js?v=bd5715dc:3022
+subscribeToStore @ chunk-RPCDYKBN.js?v=bd5715dc:11984
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=bd5715dc:16915
+commitPassiveMountOnFiber @ chunk-RPCDYKBN.js?v=bd5715dc:18156
+commitPassiveMountEffects_complete @ chunk-RPCDYKBN.js?v=bd5715dc:18129
+commitPassiveMountEffects_begin @ chunk-RPCDYKBN.js?v=bd5715dc:18119
+commitPassiveMountEffects @ chunk-RPCDYKBN.js?v=bd5715dc:18109
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=bd5715dc:19490
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=bd5715dc:19447
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=bd5715dc:18868
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=bd5715dc:9119
+commitRootImpl @ chunk-RPCDYKBN.js?v=bd5715dc:19432
+commitRoot @ chunk-RPCDYKBN.js?v=bd5715dc:19277
+finishConcurrentRender @ chunk-RPCDYKBN.js?v=bd5715dc:18805
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=bd5715dc:18718
+workLoop @ chunk-RPCDYKBN.js?v=bd5715dc:197
+flushWork @ chunk-RPCDYKBN.js?v=bd5715dc:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=bd5715dc:384
+chunk-RPCDYKBN.js?v=bd5715dc:9129 Uncaught ReferenceError: React is not defined
+    at settings.tsx:413:32
+    at Array.map (<anonymous>)
+    at Settings (settings.tsx:403:33)
+    at renderWithHooks (chunk-RPCDYKBN.js?v=bd5715dc:11548:26)
+    at updateFunctionComponent (chunk-RPCDYKBN.js?v=bd5715dc:14582:28)
+    at beginWork (chunk-RPCDYKBN.js?v=bd5715dc:15924:22)
+    at beginWork$1 (chunk-RPCDYKBN.js?v=bd5715dc:19753:22)
+    at performUnitOfWork (chunk-RPCDYKBN.js?v=bd5715dc:19198:20)
+    at workLoopSync (chunk-RPCDYKBN.js?v=bd5715dc:19137:13)
+    at renderRootSync (chunk-RPCDYKBN.js?v=bd5715dc:19116:15)
+(anonymous) @ settings.tsx:413
+Settings @ settings.tsx:403
+renderWithHooks @ chunk-RPCDYKBN.js?v=bd5715dc:11548
+updateFunctionComponent @ chunk-RPCDYKBN.js?v=bd5715dc:14582
+beginWork @ chunk-RPCDYKBN.js?v=bd5715dc:15924
+beginWork$1 @ chunk-RPCDYKBN.js?v=bd5715dc:19753
+performUnitOfWork @ chunk-RPCDYKBN.js?v=bd5715dc:19198
+workLoopSync @ chunk-RPCDYKBN.js?v=bd5715dc:19137
+renderRootSync @ chunk-RPCDYKBN.js?v=bd5715dc:19116
+recoverFromConcurrentError @ chunk-RPCDYKBN.js?v=bd5715dc:18736
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=bd5715dc:18879
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=bd5715dc:9119
+(anonymous) @ chunk-RPCDYKBN.js?v=bd5715dc:18627
+setTimeout
+scheduleFn @ @tanstack_react-query.js?v=bd5715dc:555
+flush @ @tanstack_react-query.js?v=bd5715dc:569
+batch @ @tanstack_react-query.js?v=bd5715dc:587
+dispatch_fn @ @tanstack_react-query.js?v=bd5715dc:996
+setData @ @tanstack_react-query.js?v=bd5715dc:696
+onSuccess @ @tanstack_react-query.js?v=bd5715dc:897
+resolve @ @tanstack_react-query.js?v=bd5715dc:456
+Promise.then
+run @ @tanstack_react-query.js?v=bd5715dc:498
+start @ @tanstack_react-query.js?v=bd5715dc:536
+fetch @ @tanstack_react-query.js?v=bd5715dc:926
+executeFetch_fn @ @tanstack_react-query.js?v=bd5715dc:2211
+onSubscribe @ @tanstack_react-query.js?v=bd5715dc:1898
+subscribe @ @tanstack_react-query.js?v=bd5715dc:24
+(anonymous) @ @tanstack_react-query.js?v=bd5715dc:3022
+subscribeToStore @ chunk-RPCDYKBN.js?v=bd5715dc:11984
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=bd5715dc:16915
+commitPassiveMountOnFiber @ chunk-RPCDYKBN.js?v=bd5715dc:18156
+commitPassiveMountEffects_complete @ chunk-RPCDYKBN.js?v=bd5715dc:18129
+commitPassiveMountEffects_begin @ chunk-RPCDYKBN.js?v=bd5715dc:18119
+commitPassiveMountEffects @ chunk-RPCDYKBN.js?v=bd5715dc:18109
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=bd5715dc:19490
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=bd5715dc:19447
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=bd5715dc:18868
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=bd5715dc:9119
+commitRootImpl @ chunk-RPCDYKBN.js?v=bd5715dc:19432
+commitRoot @ chunk-RPCDYKBN.js?v=bd5715dc:19277
+finishConcurrentRender @ chunk-RPCDYKBN.js?v=bd5715dc:18805
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=bd5715dc:18718
+workLoop @ chunk-RPCDYKBN.js?v=bd5715dc:197
+flushWork @ chunk-RPCDYKBN.js?v=bd5715dc:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=bd5715dc:384
+[Violation] 'requestAnimationFrame' handler took <N>ms
+[Violation] 'requestAnimationFrame' handler took <N>ms
+[Violation] 'requestAnimationFrame' handler took <N>ms
+[Violation] 'requestAnimationFrame' handler took <N>ms
+[Violation] 'requestAnimationFrame' handler took <N>ms
+[Violation] Forced reflow while executing JavaScript took <N>ms
+[Violation] Forced reflow while executing JavaScript took <N>ms
+[Violation] Forced reflow while executing JavaScript took <N>ms
+[Violation] Forced reflow while executing JavaScript took <N>ms
+[Violation] Forced reflow while executing JavaScript took <N>ms
+[Violation] Forced reflow while executing JavaScript took <N>ms
+[Violation] Forced reflow while executing JavaScript took <N>ms
+[Violation] Forced reflow while executing JavaScript took <N>ms
+[Violation] Forced reflow while executing JavaScript took <N>ms
+[Violation] Forced reflow while executing JavaScript took <N>ms
+faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://array.map&size=32:1  GET https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://array.map&size=32 404 (Not Found)
+faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://array.map/&size=32:1  GET https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://array.map/&size=32 404 (Not Found)
+Image
+oY @ framework-c4fe1819ba504197.js:1
+e @ framework-c4fe1819ba504197.js:1
+(anonymous) @ framework-c4fe1819ba504197.js:1
+uO @ framework-c4fe1819ba504197.js:1
+u_ @ framework-c4fe1819ba504197.js:1
+r6 @ framework-c4fe1819ba504197.js:1
+(anonymous) @ framework-c4fe1819ba504197.js:1
+_app-2f108d62ce64cc71.js:28 [Violation] Added non-passive event listener to a scroll-blocking 'touchstart' event. Consider marking event handler as 'passive' to make the page more responsive. See https://www.chromestatus.com/feature/5745543795965952
+(anonymous) @ _app-2f108d62ce64cc71.js:28
+(anonymous) @ _app-2f108d62ce64cc71.js:28
+e @ 7142-57e08193c01ab3ff.js:1
+(anonymous) @ 275e5802-e40e1c10ade24415.js:1
+update @ 275e5802-e40e1c10ade24415.js:1
+iw @ 275e5802-e40e1c10ade24415.js:1
+(anonymous) @ 7420-69c8e5c3c4ea3905.js:1
+oO @ framework-c4fe1819ba504197.js:1
+uB @ framework-c4fe1819ba504197.js:1
+(anonymous) @ framework-c4fe1819ba504197.js:1
+uO @ framework-c4fe1819ba504197.js:1
+u_ @ framework-c4fe1819ba504197.js:1
+r6 @ framework-c4fe1819ba504197.js:1
+(anonymous) @ framework-c4fe1819ba504197.js:1
+framework-c4fe1819ba504197.js:1 [Violation] 'click' handler took 235ms
+_app-2f108d62ce64cc71.js:28 [Violation] Added non-passive event listener to a scroll-blocking 'touchstart' event. Consider marking event handler as 'passive' to make the page more responsive. See https://www.chromestatus.com/feature/5745543795965952
+(anonymous) @ _app-2f108d62ce64cc71.js:28
+(anonymous) @ _app-2f108d62ce64cc71.js:28
+e @ 7142-57e08193c01ab3ff.js:1
+(anonymous) @ 275e5802-e40e1c10ade24415.js:1
+update @ 275e5802-e40e1c10ade24415.js:1
+iw @ 275e5802-e40e1c10ade24415.js:1
+(anonymous) @ 7420-69c8e5c3c4ea3905.js:1
+oO @ framework-c4fe1819ba504197.js:1
+uB @ framework-c4fe1819ba504197.js:1
+(anonymous) @ framework-c4fe1819ba504197.js:1
+uO @ framework-c4fe1819ba504197.js:1
+u_ @ framework-c4fe1819ba504197.js:1
+r6 @ framework-c4fe1819ba504197.js:1
+(anonymous) @ framework-c4fe1819ba504197.js:1
+_app-2f108d62ce64cc71.js:28 [Violation] 'setTimeout' handler took 98ms
+injected.js:27 The script tag loading App Bridge should be the first script tag in the document. Loading other blocking scripts first can cause unexpected behavior.
+(anonymous) @ injected.js:27
+(anonymous) @ app-bridge.js:1
+(anonymous) @ app-bridge.js:1
+(anonymous) @ app-bridge.js:1
+(anonymous) @ app-bridge.js:1
+app-bridge.js:1 Uncaught Error: App Bridge Next: missing required configuration fields: shop
+(anonymous) @ app-bridge.js:1
+(anonymous) @ app-bridge.js:1
+(anonymous) @ app-bridge.js:1
+(anonymous) @ app-bridge.js:1
+(anonymous) @ app-bridge.js:1
+injected.js:27 [vite] connecting...
+injected.js:27 [vite] connected.
+injected.js:27 The script tag loading App Bridge should be the first script tag in the document. Loading other blocking scripts first can cause unexpected behavior.
+(anonymous) @ injected.js:27
+(anonymous) @ app-bridge.js:1
+(anonymous) @ app-bridge.js:1
+(anonymous) @ app-bridge.js:1
+(anonymous) @ app-bridge.js:1
+app-bridge.js:1 Uncaught Error: App Bridge Next: missing required configuration fields: shop
+(anonymous) @ app-bridge.js:1
+(anonymous) @ app-bridge.js:1
+(anonymous) @ app-bridge.js:1
+(anonymous) @ app-bridge.js:1
+(anonymous) @ app-bridge.js:1
+injected.js:27 [vite] connecting...
+injected.js:27 [vite] connected.
+injected.js:27 The script tag loading App Bridge should be the first script tag in the document. Loading other blocking scripts first can cause unexpected behavior.
+(anonymous) @ injected.js:27
+(anonymous) @ app-bridge.js:1
+(anonymous) @ app-bridge.js:1
+(anonymous) @ app-bridge.js:1
+(anonymous) @ app-bridge.js:1
+injected.js:27 [vite] connecting...
+injected.js:27 [vite] connected.
