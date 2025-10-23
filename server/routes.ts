@@ -567,20 +567,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
-      // Query for the exact metaobject definition by type
-      // Shopify uses the full prefixed type: app--{client_id}--{handle}
-      const checkQuery = `
+      // First, try to find the definition by searching all definitions
+      // since the exact type string includes the client_id: app--{client_id}--wholesale_account
+      const listQuery = `
         query {
-          metaobjectDefinitionByType(type: "$app:wholesale_account") {
-            id
-            type
-            name
-            metaobjectsCount
+          metaobjectDefinitions(first: 50) {
+            nodes {
+              id
+              type
+              name
+              metaobjectsCount
+            }
           }
         }
       `;
 
-      const checkResponse = await fetch(
+      const listResponse = await fetch(
         `https://${shopDomain}/admin/api/2025-01/graphql.json`,
         {
           method: "POST",
@@ -588,20 +590,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
             "Content-Type": "application/json",
             "X-Shopify-Access-Token": adminToken,
           },
-          body: JSON.stringify({ query: checkQuery }),
+          body: JSON.stringify({ query: listQuery }),
         }
       );
 
-      const checkData = await checkResponse.json();
+      const listData = await listResponse.json();
       
-      console.log("🔍 Checking wholesale_account metaobject definition...");
+      console.log("🔍 Searching for wholesale_account metaobject definition...");
       
-      if (checkData.errors) {
-        console.error("❌ GraphQL errors:", JSON.stringify(checkData.errors, null, 2));
-        return { success: false, message: checkData.errors[0]?.message || "GraphQL query failed" };
+      if (listData.errors) {
+        console.error("❌ GraphQL errors:", JSON.stringify(listData.errors, null, 2));
+        return { success: false, message: listData.errors[0]?.message || "GraphQL query failed" };
       }
 
-      const existingDef = checkData.data?.metaobjectDefinitionByType;
+      const definitions = listData.data?.metaobjectDefinitions?.nodes || [];
+      
+      // Find definition by searching for the wholesale_account handle in the type
+      const existingDef = definitions.find((def: any) => 
+        def.type.includes("wholesale_account") || def.name === "Wholesale Account"
+      );
 
       if (existingDef) {
         console.log("✅ Metaobject definition found:", {
@@ -620,6 +627,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       console.log("⚠️ Metaobject definition not found. Run 'shopify app deploy' to sync shopify.app.toml");
+      console.log("Available definitions:", definitions.map((d: any) => ({ type: d.type, name: d.name })));
       return { success: false, message: "Metaobject definition not found. Run 'shopify app deploy' to sync shopify.app.toml configuration." };
     } catch (error) {
       console.error("❌ Error checking metaobject definition:", error);
