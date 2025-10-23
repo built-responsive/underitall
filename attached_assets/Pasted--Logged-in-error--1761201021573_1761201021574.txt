@@ -1,0 +1,44 @@
+✔ Logged in.
+╭─ error ──────────────────────────────────────────────────────╮
+│                                                              │
+│                                                              │
+│  The Partners GraphQL API responded unsuccessfully with the  │
+│   HTTP status 422 and errors:                                │
+│                                                              │
+│  [                                                           │
+│    {                                                         │
+│      "message": "CLI version 3.81.2 is no longer supported.  │
+│   Please upgrade to a version equal or greater than 3.84.1"  │
+│    }                                                         │
+│  ]                                                           │
+│                                                              │
+│  Request ID:                                                 │
+│  084bbe46-6575-491c-b685-645d6dfb1d01-1761200975             │
+│                                                              │
+│                                                              │
+│  To investigate the issue, examine this stack trace:         │
+│    at makeRequest (nix/store/2p0ipxx17vqi8wjcc1idv4vmkhzqv0  │
+│    gi-shopify-3.81.2/lib/node_modules/shopify/node_modules/  │
+│    @shopify/cli/dist/chunk-V7M7AO2M.js:27347)                │
+│    at processTicksAndRejections                              │
+│    (node:internal/process/task_queues:105)                   │
+│    at rawGraphQLRequest [as request]                         │
+│    (nix/store/2p0ipxx17vqi8wjcc1idv4vmkhzqv0gi-shopify-3.81  │
+│    .2/lib/node_modules/shopify/node_modules/@shopify/cli/di  │
+│    st/chunk-QWR45GZB.js:136561)                              │
+│    at async runRequestWithNetworkLevelRetry                  │
+│    (nix/store/2p0ipxx17vqi8wjcc1idv4vmkhzqv0gi-shopify-3.81  │
+│    .2/lib/node_modules/shopify/node_modules/@shopify/cli/di  │
+│    st/chunk-V7M7AO2M.js:27402)                               │
+│    at async makeVerboseRequest (nix/store/2p0ipxx17vqi8wjcc  │
+│    1idv4vmkhzqv0gi-shopify-3.81.2/lib/node_modules/shopify/  │
+│    node_modules/@shopify/cli/dist/chunk-V7M7AO2M.js:27413)   │
+│    at async retryAwareRequest (nix/store/2p0ipxx17vqi8wjcc1  │
+│    idv4vmkhzqv0gi-shopify-3.81.2/lib/node_modules/shopify/n  │
+│    ode_modules/@shopify/cli/dist/chunk-V7M7AO2M.js:27500)    │
+│    at (nix/store/2p0ipxx17vqi8wjcc1idv4vmkhzqv0gi-shopify-3  │
+│    .81.2/lib/node_modules/shopify/node_modules/@shopify/cli  │
+│    /dist/chunk-QWR45GZB.js:136579)                           │
+│    at (nix/store/2p0ipxx17vqi8wjcc1idv4vmkhzqv0gi-shopify-3  │
+│    .81.2/lib/node_modules/shopify/node_modules/@shopify/cli  │
+│    /dist/chunk-2KWYWUB3.js:29566)       
