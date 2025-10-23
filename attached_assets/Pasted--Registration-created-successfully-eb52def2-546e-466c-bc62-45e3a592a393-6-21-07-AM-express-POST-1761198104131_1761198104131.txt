@@ -1,0 +1,141 @@
+✅ Registration created successfully: eb52def2-546e-466c-bc62-45e3a592a393
+6:21:07 AM [express] POST /api/wholesale-registration 200 in 497ms :: {"id":"eb52def2-546e-466c-bc62…
+{
+    "operationName": "MetaobjectUpdate",
+    "variables": {
+        "id": "gid://shopify/Metaobject/138122166432",
+        "input": {
+            "handle": "responsify-dev",
+            "capabilities": {
+                "publishable": {
+                    "status": "ACTIVE"
+                },
+                "onlineStore": {
+                    "templateSuffix": ""
+                }
+            },
+            "fields": [
+                {
+                    "key": "company",
+                    "value": "Responsify Dev"
+                },
+                {
+                    "key": "email",
+                    "value": "dev@builtresponsive.com"
+                },
+                {
+                    "key": "phone",
+                    "value": "3862445990"
+                },
+                {
+                    "key": "website",
+                    "value": "https://responsify.app"
+                },
+                {
+                    "key": "instagram",
+                    "value": "responsify"
+                },
+                {
+                    "key": "account_type",
+                    "value": "[\"E-Comm\"]"
+                },
+                {
+                    "key": "source",
+                    "value": "Friend"
+                },
+                {
+                    "key": "message",
+                    "value": "Test"
+                },
+                {
+                    "key": "sample_set",
+                    "value": "true"
+                },
+                {
+                    "key": "tax_exempt",
+                    "value": "false"
+                },
+                {
+                    "key": "vat_tax_id",
+                    "value": "93-1805911"
+                },
+                {
+                    "key": "tax_proof",
+                    "value": "gid://shopify/GenericFile/38482657902752"
+                },
+                {
+                    "key": "address",
+                    "value": "300 East Street"
+                },
+                {
+                    "key": "address2",
+                    "value": "Suite 1"
+                },
+                {
+                    "key": "city",
+                    "value": "Saint Augustine"
+                },
+                {
+                    "key": "state",
+                    "value": "FL"
+                },
+                {
+                    "key": "zip",
+                    "value": "32080"
+                },
+                {
+                    "key": "clarity_id",
+                    "value": "99512ad0-c8ab-4769-ad30-f6e71687954f"
+                },
+                {
+                    "key": "owner",
+                    "value": "[\"gid://shopify/Customer/8523485118624\",\"gid://shopify/Customer/8537085968544\",\"gid://shopify/Customer/8536421859488\",\"gid://shopify/Customer/8534751346848\"]"
+                },
+                {
+                    "key": "page",
+                    "value": "gid://shopify/OnlineStorePage/111380725920"
+                }
+            ],
+            "redirectNewHandle": false
+        }
+    },
+    "extensions": {
+        "client_context": {
+            "page_view_token": "47c65130-e2cb-4a4c-b1ba-ce6598e7359a",
+            "client_route_handle": "customer:show",
+            "client_pathname": "/store/underitall-redeux/customers/8534751346848",
+            "client_normalized_pathname": "/store/:storeHandle/customers/:id",
+            "shopify_session_token": "705f23d6-a05a-4e1a-b575-a060667b9449",
+            "shopify_multitrack_token": "039c978a-7F26-4B4E-850A-ADE7D775CB90"
+        }
+    }
+}
+
+curl ^"https://admin.shopify.com/api/operations/9c29162d336b4dcdaf66ac43ff57a0bb4f242e659ddd60ebe9fba0359fe325e9/MetaobjectUpdate/shopify/underitall-redeux^" ^
+  -H ^"accept: application/json^" ^
+  -H ^"accept-language: en-US,en;q=0.9^" ^
+  -H ^"apollographql-client-name: core^" ^
+  -H ^"cache-control: no-cache,no-store,must-revalidate,max-age=0^" ^
+  -H ^"content-type: application/json^" ^
+  -b ^"_shopify_essential_=c33a6981-3a0e-44d7-b531-3c9c8c4c1a99; _shopify_y=039c978a-7F26-4B4E-850A-ADE7D775CB90; koa.sid=6lSE5qESc7WMgVYuvRCSlz82ENZfcwZL; koa.sid.sig=JzQ3u5YamS-XyA3EZdgKmX2ST1g; _shopify_s=705f23d6-a05a-4e1a-b575-a060667b9449; _merchant_essential=^%^3AAZoLf50AAAEAtz3Rb1wTU4PZghqloV8KqWkjvNK-gYdBzdbyu78TwXTrU_GxK0k1GbP6dbtwRLR5tC4LA0AIOixvAe7zPxbvjFTxZt3X8hIJFPJ__0Tmt7IVeX9GfQqsG1VI6M013V4qG-6fEDvLd3fAZvW6YJgGATSyJiFVV8XfZqCPxRpMpkHFM30m20yZGjm7KEQ6vKVusKcsksjlsJzbqeOhyfqOX2hmInwPMki7AN75iUY0M6NSeUqEdnwUGJyMNpM-uS8vngt1LON2jEHn6mz1G55B4Xto4-7eFT21DURx_-e21lUXPsUP-ECRBer9uih-AgGzv1ungB6sMd3ijecv5g4SxMWeGear18JBOMPajfxwzRv1yttNLuTCFQUYyAOsM9kGgjo3XnGWpGBRQjI6cN7UJ4W7wPQUxytF1e2bNzfBpSqKl4dfslFK5VlYjqeuft0V03TFeyYBnphGBx3P6Y-iNCCHkagSHgHlgr8OmXnHCd75661cEg7PNjRszUjHoXZaIDpqWTYaTxDXOywB3vXZmAjcGHti3d28626tGpD8mh3hvwQDupRvjYWztGwdXQslJCXx_jaf151YaBUUlPehc4dAggjZPO9rqNQ5flW8hG0AHP2e2uoCi6_8KF6nrrGoBP3STxyuLGT-6h_WKWU1LkbNGYXnjbLyfTDi8BY3pH6Pgt1ctdoWQJsDnTKyYPwRfTOx5ycmjIYYUR9-zCRWz0l2HwQkvNcEsrrAx4hdvKZCp3xJsHwMwp4R0krRP58PtfJwfWPphhK1duCtbpXIEv6xoyxh2wPg5OcN8AK3PwfiwA^%^3A^" ^
+  -H ^"origin: https://admin.shopify.com^" ^
+  -H ^"priority: u=1, i^" ^
+  -H ^"referer: https://admin.shopify.com/store/underitall-redeux/customers/8534751346848^" ^
+  -H ^"sec-ch-ua: ^\^"Google Chrome^\^";v=^\^"141^\^", ^\^"Not?A_Brand^\^";v=^\^"8^\^", ^\^"Chromium^\^";v=^\^"141^\^"^" ^
+  -H ^"sec-ch-ua-mobile: ?0^" ^
+  -H ^"sec-ch-ua-platform: ^\^"Windows^\^"^" ^
+  -H ^"sec-fetch-dest: empty^" ^
+  -H ^"sec-fetch-mode: cors^" ^
+  -H ^"sec-fetch-site: same-origin^" ^
+  -H ^"shopify-build-version: 8782.d4ee4db8bed39550e818451d220ed03482b6f822.0^" ^
+  -H ^"shopify-proxy-api-enable: true^" ^
+  -H ^"target-manifest-route-id: metaobject_entry:update^" ^
+  -H ^"target-pathname: /store/:storeHandle/content/metaobjects/entries/:type/:id^" ^
+  -H ^"target-slice: content-section^" ^
+  -H ^"traceparent: 00-9d0772131d0147ddd308ad3f42215814-7966ebf64035231f-01^" ^
+  -H ^"user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36^" ^
+  -H ^"x-cloud-trace-context: 9d0772131d0147ddd308ad3f42215814/8747938769085473567;o=1^" ^
+  -H ^"x-csrf-token: 2EYDQgTiB4-ZkWkmvhEQVye6Ygh5Yh3UYpRq3M^" ^
+  -H ^"x-shopify-trace-context: 9d0772131d0147ddd308ad3f42215814/8747938769085473567;o=1^" ^
+  -H ^"x-shopify-trace-hint: true^" ^
+  --data-raw ^"^{^\^"operationName^\^":^\^"MetaobjectUpdate^\^",^\^"variables^\^":^{^\^"id^\^":^\^"gid://shopify/Metaobject/138122166432^\^",^\^"input^\^":^{^\^"handle^\^":^\^"responsify-dev^\^",^\^"capabilities^\^":^{^\^"publishable^\^":^{^\^"status^\^":^\^"ACTIVE^\^"^},^\^"onlineStore^\^":^{^\^"templateSuffix^\^":^\^"^\^"^}^},^\^"fields^\^":^[^{^\^"key^\^":^\^"company^\^",^\^"value^\^":^\^"Responsify Dev^\^"^},^{^\^"key^\^":^\^"email^\^",^\^"value^\^":^\^"dev^@builtresponsive.com^\^"^},^{^\^"key^\^":^\^"phone^\^",^\^"value^\^":^\^"3862445990^\^"^},^{^\^"key^\^":^\^"website^\^",^\^"value^\^":^\^"https://responsify.app^\^"^},^{^\^"key^\^":^\^"instagram^\^",^\^"value^\^":^\^"responsify^\^"^},^{^\^"key^\^":^\^"account_type^\^",^\^"value^\^":^\^"^[^\^\^\^"E-Comm^\^\^\^"^]^\^"^},^{^\^"key^\^":^\^"source^\^",^\^"value^\^":^\^"Friend^\^"^},^{^\^"key^\^":^\^"message^\^",^\^"value^\^":^\^"Test^\^"^},^{^\^"key^\^":^\^"sample_set^\^",^\^"value^\^":^\^"true^\^"^},^{^\^"key^\^":^\^"tax_exempt^\^",^\^"value^\^":^\^"false^\^"^},^{^\^"key^\^":^\^"vat_tax_id^\^",^\^"value^\^":^\^"93-1805911^\^"^},^{^\^"key^\^":^\^"tax_proof^\^",^\^"value^\^":^\^"gid://shopify/GenericFile/38482657902752^\^"^},^{^\^"key^\^":^\^"address^\^",^\^"value^\^":^\^"300 East Street^\^"^},^{^\^"key^\^":^\^"address2^\^",^\^"value^\^":^\^"Suite 1^\^"^},^{^\^"key^\^":^\^"city^\^",^\^"value^\^":^\^"Saint Augustine^\^"^},^{^\^"key^\^":^\^"state^\^",^\^"value^\^":^\^"FL^\^"^},^{^\^"key^\^":^\^"zip^\^",^\^"value^\^":^\^"32080^\^"^},^{^\^"key^\^":^\^"clarity_id^\^",^\^"value^\^":^\^"99512ad0-c8ab-4769-ad30-f6e71687954f^\^"^},^{^\^"key^\^":^\^"owner^\^",^\^"value^\^":^\^"^[^\^\^\^"gid://shopify/Customer/8523485118624^\^\^\^",^\^\^\^"gid://shopify/Customer/8537085968544^\^\^\^",^\^\^\^"gid://shopify/Customer/8536421859488^\^\^\^",^\^\^\^"gid://shopify/Customer/8534751346848^\^\^\^"^]^\^"^},^{^\^"key^\^":^\^"page^\^",^\^"value^\^":^\^"gid://shopify/OnlineStorePage/111380725920^\^"^}^],^\^"redirectNewHandle^\^":false^}^},^\^"extensions^\^":^{^\^"client_context^\^":^{^\^"page_view_token^\^":^\^"47c65130-e2cb-4a4c-b1ba-ce6598e7359a^\^",^\^"client_route_handle^\^":^\^"customer:show^\^",^\^"client_pathname^\^":^\^"/store/underitall-redeux/customers/8534751346848^\^",^\^"client_normalized_pathname^\^":^\^"/store/:storeHandle/customers/:id^\^",^\^"shopify_session_token^\^":^\^"705f23d6-a05a-4e1a-b575-a060667b9449^\^",^\^"shopify_multitrack_token^\^":^\^"039c978a-7F26-4B4E-850A-ADE7D775CB90^\^"^}^}^}^"
