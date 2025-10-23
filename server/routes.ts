@@ -151,6 +151,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const data = await response.json();
 
+      console.log("📦 Shopify Test Response:", JSON.stringify(data, null, 2));
+
       if (data.errors) {
         return res.json({
           success: false,
@@ -173,7 +175,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         details: data,
       });
     } catch (error) {
-      console.error("Shopify test error:", error);
+      console.error("❌ Shopify test error:", error);
       res.json({
         success: false,
         message: error instanceof Error ? error.message : "Connection test failed",
@@ -227,6 +229,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const data = await response.json();
 
+      console.log("📦 CRM Test Response:", JSON.stringify(data, null, 2));
+
       if (data.Status === "Success" || response.ok) {
         return res.json({
           success: true,
@@ -241,7 +245,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         details: data,
       });
     } catch (error) {
-      console.error("CRM test error:", error);
+      console.error("❌ CRM test error:", error);
       res.json({
         success: false,
         message: error instanceof Error ? error.message : "Connection test failed",
@@ -681,6 +685,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       );
 
       const createData = await createResponse.json();
+
+      console.log("📦 Metaobject Create Response:", JSON.stringify(createData, null, 2));
 
       if (createData.errors || createData.data?.metaobjectDefinitionCreate?.userErrors?.length > 0) {
         console.error("❌ Failed to create metaobject definition:", createData);
