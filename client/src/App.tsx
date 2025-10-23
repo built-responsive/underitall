@@ -88,6 +88,26 @@ function ShopifyAppBridge({ children }: { children: React.ReactNode }) {
 }
 
 function Router() {
+  const [location, setLocation] = useLocation();
+  const [isEmbedded, setIsEmbedded] = useState(false);
+
+  useEffect(() => {
+    // Check if running inside Shopify admin iframe
+    const embedded = window !== window.parent || new URLSearchParams(window.location.search).has('shop');
+    setIsEmbedded(embedded);
+
+    // If embedded in admin and on root path, redirect to dashboard
+    if (embedded && location === '/') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const shopOrigin = urlParams.get('shop');
+      const host = urlParams.get('host');
+      
+      // Preserve query params for Shopify auth
+      const newPath = `/dashboard${shopOrigin && host ? `?shop=${shopOrigin}&host=${host}` : ''}`;
+      setLocation(newPath);
+    }
+  }, [location, setLocation]);
+
   return (
     <Switch>
       <Route path="/" component={WholesaleRegistration} />
