@@ -29,58 +29,68 @@ function ShopifyAppBridge({ children }: { children: React.ReactNode }) {
       script.src = 'https://cdn.shopify.com/shopifycloud/app-bridge.js';
       script.async = true;
       script.onload = () => {
+        initializeAppBridge();
+      };
+      document.head.appendChild(script);
+    }
+
+    function initializeAppBridge() {
+      try {
         const urlParams = new URLSearchParams(window.location.search);
         const shopOrigin = urlParams.get('shop');
         const host = urlParams.get('host');
 
-        if (shopOrigin && host && (window as any).ShopifyApp) {
-          const app = (window as any).ShopifyApp.createApp({
-            apiKey: '78a602699150bda4e49a40861707d500',
-            host: host,
-            forceRedirect: true
-          });
-
-          // Navigation via History API (updates browser URL without reload)
-          const History = (window as any).ShopifyApp.History;
-          const history = History.create(app);
-
-          // Set up TitleBar with navigation actions
-          const TitleBar = (window as any).ShopifyApp.TitleBar;
-          const titleBar = TitleBar.create(app, {
-            title: 'UnderItAll Tools',
-            buttons: {
-              primary: undefined,
-              secondary: [
-                {
-                  label: 'Dashboard',
-                  onClick: () => {
-                    history.dispatch(History.Action.PUSH, `/dashboard?shop=${shopOrigin}&host=${host}`);
-                  }
-                },
-                {
-                  label: 'Calculator',
-                  onClick: () => {
-                    history.dispatch(History.Action.PUSH, `/calculator?shop=${shopOrigin}&host=${host}`);
-                  }
-                },
-                {
-                  label: 'Registration',
-                  onClick: () => {
-                    history.dispatch(History.Action.PUSH, `/?shop=${shopOrigin}&host=${host}`);
-                  }
-                },
-                {
-                  label: 'Settings',
-                  onClick: () => {
-                    history.dispatch(History.Action.PUSH, `/settings?shop=${shopOrigin}&host=${host}`);
-                  }
-                }
-              ]
-            }
-          });
+        if (!shopOrigin || !host || !(window as any).ShopifyApp) {
+          return;
         }
-      };
-      document.head.appendChild(script);
+
+        const app = (window as any).ShopifyApp.createApp({
+          apiKey: '78a602699150bda4e49a40861707d500',
+          host: host,
+          forceRedirect: true
+        });
+
+        // Navigation via History API (updates browser URL without reload)
+        const History = (window as any).ShopifyApp.History;
+        const history = History.create(app);
+
+        // Set up TitleBar with navigation actions
+        const TitleBar = (window as any).ShopifyApp.TitleBar;
+        const titleBar = TitleBar.create(app, {
+          title: 'UnderItAll Tools',
+          buttons: {
+            primary: undefined,
+            secondary: [
+              {
+                label: 'Dashboard',
+                onClick: () => {
+                  history.dispatch(History.Action.PUSH, `/dashboard?shop=${shopOrigin}&host=${host}`);
+                }
+              },
+              {
+                label: 'Calculator',
+                onClick: () => {
+                  history.dispatch(History.Action.PUSH, `/calculator?shop=${shopOrigin}&host=${host}`);
+                }
+              },
+              {
+                label: 'Registration',
+                onClick: () => {
+                  history.dispatch(History.Action.PUSH, `/?shop=${shopOrigin}&host=${host}`);
+                }
+              },
+              {
+                label: 'Settings',
+                onClick: () => {
+                  history.dispatch(History.Action.PUSH, `/settings?shop=${shopOrigin}&host=${host}`);
+                }
+              }
+            ]
+          }
+        });
+      } catch (error) {
+        console.error('App Bridge initialization error:', error);
+      }
     }
   }, [location]);
 
@@ -101,7 +111,7 @@ function Router() {
       const urlParams = new URLSearchParams(window.location.search);
       const shopOrigin = urlParams.get('shop');
       const host = urlParams.get('host');
-      
+
       // Preserve query params for Shopify auth
       const newPath = `/dashboard${shopOrigin && host ? `?shop=${shopOrigin}&host=${host}` : ''}`;
       setLocation(newPath);
