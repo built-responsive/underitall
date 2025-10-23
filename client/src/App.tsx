@@ -11,6 +11,71 @@ import Admin from "@/pages/admin";
 import Settings from "@/pages/settings";
 import SyncArchitecture from "@/pages/sync-architecture";
 import NotFound from "@/pages/not-found";
+import { useEffect, useState } from "react";
+
+// Shopify App Bridge Provider
+function ShopifyAppBridge({ children }: { children: React.ReactNode }) {
+  const [location] = useLocation();
+  const [isEmbedded, setIsEmbedded] = useState(false);
+
+  useEffect(() => {
+    // Check if running inside Shopify admin iframe
+    const embedded = window !== window.parent || new URLSearchParams(window.location.search).has('shop');
+    setIsEmbedded(embedded);
+
+    // Load App Bridge if embedded
+    if (embedded && typeof window !== 'undefined') {
+      const script = document.createElement('script');
+      script.src = 'https://cdn.shopify.com/shopifycloud/app-bridge.js';
+      script.async = true;
+      script.onload = () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const shopOrigin = urlParams.get('shop');
+        const host = urlParams.get('host');
+
+        if (shopOrigin && host && (window as any).ShopifyApp) {
+          const app = (window as any).ShopifyApp.createApp({
+            apiKey: '78a602699150bda4e49a40861707d500', // Your client_id from shopify.app.toml
+            host: host,
+            forceRedirect: true
+          });
+
+          // Set up navigation with TitleBar
+          const TitleBar = (window as any).ShopifyApp.TitleBar;
+          TitleBar.create(app, {
+            title: 'UnderItAll Tools',
+            buttons: {
+              primary: undefined,
+              secondary: [
+                {
+                  label: 'Calculator',
+                  onClick: () => {
+                    window.location.href = `/calculator?shop=${shopOrigin}&host=${host}`;
+                  }
+                },
+                {
+                  label: 'Registration',
+                  onClick: () => {
+                    window.location.href = `/?shop=${shopOrigin}&host=${host}`;
+                  }
+                },
+                {
+                  label: 'Settings',
+                  onClick: () => {
+                    window.location.href = `/settings?shop=${shopOrigin}&host=${host}`;
+                  }
+                }
+              ]
+            }
+          });
+        }
+      };
+      document.head.appendChild(script);
+    }
+  }, [location]);
+
+  return <>{children}</>;
+}
 
 function Router() {
   return (
@@ -36,10 +101,12 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <Navigation />
-        <Toaster />
-        <Router />
-        {showChatBubble && <ChatBubble />}
+        <ShopifyAppBridge>
+          <Navigation />
+          <Toaster />
+          <Router />
+          {showChatBubble && <ChatBubble />}
+        </ShopifyAppBridge>
       </TooltipProvider>
     </QueryClientProvider>
   );
