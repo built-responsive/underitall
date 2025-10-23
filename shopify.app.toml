@@ -11,13 +11,17 @@ automatically_update_urls_on_dev = true
 [webhooks]
 api_version = "2026-01"
 
-[[webhooks.subscriptions]]
-topics = ["customers/create"]
-uri = "/api/webhooks/customers/create"
+# Customer webhooks require protected data approval
+# Uncomment these after completing the protected customer data approval process
+# See: https://shopify.dev/docs/apps/launch/protected-customer-data
 
-[[webhooks.subscriptions]]
-topics = ["customers/update"]
-uri = "/api/webhooks/customers/update"
+# [[webhooks.subscriptions]]
+# topics = ["customers/create"]
+# uri = "/api/webhooks/customers/create"
+
+# [[webhooks.subscriptions]]
+# topics = ["customers/update"]
+# uri = "/api/webhooks/customers/update"
 
 [[webhooks.subscriptions]]
 topics = ["metaobjects/update"]
@@ -119,5 +123,6 @@ type = "single_line_text_field"
 type = "metaobject_reference"
 name = "Wholesale Account"
 description = "Link to customer's wholesale account metaobject"
+metaobject_type = "app.wholesale_account"
 access.customer_account = "read_write"
 access.admin = "merchant_read_write"
