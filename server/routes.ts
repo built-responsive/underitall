@@ -473,7 +473,14 @@ export function registerRoutes(app: Express) {
       const crmApiKey = process.env.CRM_API_KEY;
 
       // Check Shopify metaobject
-      let shopifyData = {
+      let shopifyData: {
+        configured: boolean;
+        shop: string | null;
+        metaobjectDefinition: boolean;
+        metaobjectId: string | null;
+        entryCount: number;
+        error?: string;
+      } = {
         configured: !!shopDomain && !!adminToken,
         shop: shopDomain || null,
         metaobjectDefinition: false,
@@ -481,7 +488,7 @@ export function registerRoutes(app: Express) {
         entryCount: 0
       };
 
-      if (shopifyData.configured) {
+      if (shopifyData.configured && adminToken && shopDomain) {
         try {
           const definitionQuery = `
             query {
