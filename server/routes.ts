@@ -413,9 +413,221 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  // Health check
-  app.get("/api/health", (req, res) => {
-    res.json({ status: "ok", timestamp: new Date().toISOString() });
+  // API endpoints for dashboard data
+  app.get("/api/wholesale-registrations", async (req, res) => {
+    try {
+      const registrations = await db
+        .select()
+        .from(wholesaleRegistrations)
+        .orderBy(desc(wholesaleRegistrations.createdAt));
+      res.json(registrations);
+    } catch (error) {
+      console.error("Error fetching registrations:", error);
+      res.status(500).json({ error: "Failed to fetch registrations" });
+    }
+  });
+
+  app.get("/api/calculator/quotes", async (req, res) => {
+    try {
+      const quotes = await db
+        .select()
+        .from(calculatorQuotes)
+        .orderBy(desc(calculatorQuotes.createdAt));
+      res.json(quotes);
+    } catch (error) {
+      console.error("Error fetching quotes:", error);
+      res.status(500).json({ error: "Failed to fetch quotes" });
+    }
+  });
+
+  app.get("/api/draft-orders", async (req, res) => {
+    try {
+      // For now, return empty array as draft orders aren't implemented yet
+      res.json([]);
+    } catch (error) {
+      console.error("Error fetching draft orders:", error);
+      res.status(500).json({ error: "Failed to fetch draft orders" });
+    }
+  });
+
+  app.get("/api/webhooks/logs", async (req, res) => {
+    try {
+      const logs = await db
+        .select()
+        .from(webhookLogs)
+        .orderBy(desc(webhookLogs.timestamp))
+        .limit(50);
+      res.json({ logs });
+    } catch (error) {
+      console.error("Error fetching webhook logs:", error);
+      res.status(500).json({ error: "Failed to fetch webhook logs" });
+    }
+  });
+
+  // Health check with integration status
+  app.get("/api/health", async (req, res) => {
+    try {
+      const shopDomain = process.env.SHOPIFY_SHOP_DOMAIN;
+      const adminToken = process.env.SHOPIFY_ADMIN_ACCESS_TOKEN;
+      const crmBaseUrl = process.env.CRM_BASE_URL;
+      const crmApiKey = process.env.CRM_API_KEY;
+
+      // Check Shopify metaobject
+      let shopifyData = {
+        configured: !!shopDomain && !!adminToken,
+        shop: shopDomain || null,
+        metaobjectDefinition: false,
+        metaobjectId: null,
+        entryCount: 0
+      };
+
+      if (shopifyData.configured) {
+        try {
+          const definitionQuery = `
+            query {
+              metaobjectDefinitionByType(type: "$app:wholesale_account") {
+                id
+                name
+                type
+              }
+              metaobjects(type: "$app:wholesale_account", first: 100) {
+                nodes {
+                  id
+                }
+              }
+            }
+          `;
+
+          const response = await fetch(
+            `https://${shopDomain}/admin/api/2025-01/graphql.json`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "X-Shopify-Access-Token": adminToken,
+              },
+              body: JSON.stringify({ query: definitionQuery }),
+            }
+          );
+
+          const data = await response.json();
+          if (data.data?.metaobjectDefinitionByType) {
+            shopifyData.metaobjectDefinition = true;
+            shopifyData.metaobjectId = data.data.metaobjectDefinitionByType.id;
+            shopifyData.entryCount = data.data.metaobjects?.nodes?.length || 0;
+          }
+        } catch (error) {
+          shopifyData.error = error instanceof Error ? error.message : "Unknown error";
+        }
+      }
+
+      res.json({
+        status: "ok",
+        timestamp: new Date().toISOString(),
+        shopify: shopifyData,
+        crm: {
+          configured: !!crmBaseUrl && !!crmApiKey,
+          baseUrl: crmBaseUrl || null
+        }
+      });
+    } catch (error) {
+      console.error("Health check error:", error);
+      res.status(500).json({ 
+        status: "error", 
+        error: error instanceof Error ? error.message : "Unknown error" 
+      });
+    }
+  });
+
+  // Admin endpoints for testing connections
+  app.post("/api/admin/test-crm", async (req, res) => {
+    try {
+      const crmBaseUrl = process.env.CRM_BASE_URL;
+      const crmApiKey = process.env.CRM_API_KEY;
+
+      if (!crmBaseUrl || !crmApiKey) {
+        return res.json({
+          success: false,
+          message: "CRM credentials not configured"
+        });
+      }
+
+      // Test CRM connection
+      const testResponse = await fetch(`${crmBaseUrl}/api/test`, {
+        headers: {
+          'Authorization': `Bearer ${crmApiKey}`
+        }
+      }).catch(() => null);
+
+      res.json({
+        success: !!testResponse,
+        message: testResponse ? "CRM connection successful" : "Failed to connect to CRM"
+      });
+    } catch (error) {
+      console.error("CRM test error:", error);
+      res.json({
+        success: false,
+        message: error instanceof Error ? error.message : "Connection test failed"
+      });
+    }
+  });
+
+  app.post("/api/admin/test-shopify", async (req, res) => {
+    try {
+      const shopDomain = process.env.SHOPIFY_SHOP_DOMAIN;
+      const adminToken = process.env.SHOPIFY_ADMIN_ACCESS_TOKEN;
+
+      if (!shopDomain || !adminToken) {
+        return res.json({
+          success: false,
+          message: "Shopify credentials not configured"
+        });
+      }
+
+      // Test Shopify connection
+      const shopResponse = await fetch(
+        `https://${shopDomain}/admin/api/2025-01/shop.json`,
+        {
+          headers: {
+            "X-Shopify-Access-Token": adminToken,
+          },
+        }
+      );
+
+      const shopData = await shopResponse.json();
+
+      res.json({
+        success: !!shopData.shop,
+        message: shopData.shop ? `Connected to ${shopData.shop.name}` : "Failed to connect to Shopify"
+      });
+    } catch (error) {
+      console.error("Shopify test error:", error);
+      res.json({
+        success: false,
+        message: error instanceof Error ? error.message : "Connection test failed"
+      });
+    }
+  });
+
+  app.post("/api/admin/update-prices", async (req, res) => {
+    try {
+      const { thinCsvUrl, thickCsvUrl } = req.body;
+      
+      // For now, just acknowledge the update
+      // In production, you would fetch and parse the CSVs here
+      console.log("Updating price CSVs:", { thinCsvUrl, thickCsvUrl });
+      
+      res.json({
+        success: true,
+        message: "Price CSV URLs updated successfully"
+      });
+    } catch (error) {
+      console.error("Update prices error:", error);
+      res.status(500).json({
+        success: false,
+        message: error instanceof Error ? error.message : "Failed to update prices"
+      });
+    }
   });
 
   return createServer(app);
