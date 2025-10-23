@@ -21,9 +21,9 @@ export async function apiRequest(
     "Content-Type": "application/json",
   };
 
-  // Use relative URLs for development, absolute for production
-  const baseUrl = import.meta.env.PROD ? 'https://its-under-it-all.replit.app' : '';
-  const fullPath = baseUrl ? (path.startsWith('/') ? `${baseUrl}${path}` : `${baseUrl}/${path}`) : path;
+  // Always use absolute URLs to work in both standalone and embedded contexts
+  const baseUrl = 'https://its-under-it-all.replit.app';
+  const fullPath = path.startsWith('/') ? `${baseUrl}${path}` : `${baseUrl}/${path}`;
 
   const options: RequestInit = {
     method,
@@ -44,9 +44,9 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
-    const baseUrl = import.meta.env.PROD ? 'https://its-under-it-all.replit.app' : '';
+    const baseUrl = 'https://its-under-it-all.replit.app';
     const path = queryKey.join("/");
-    const fullUrl = path.startsWith('http') ? path : (baseUrl ? `${baseUrl}${path.startsWith('/') ? path : `/${path}`}` : path);
+    const fullUrl = path.startsWith('http') ? path : `${baseUrl}${path.startsWith('/') ? path : `/${path}`}`;
     
     const res = await fetch(fullUrl, {
       credentials: "include",

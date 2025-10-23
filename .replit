@@ -17,7 +17,6 @@ args = "Server"
 [[workflows.workflow]]
 name = "Server"
 author = "agent"
-mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
@@ -53,10 +52,6 @@ externalPort = 80
 localPort = 9293
 externalPort = 3003
 exposeLocalhost = true
-
-[[ports]]
-localPort = 46219
-externalPort = 4200
 
 [deployment]
 deploymentTarget = "vm"
