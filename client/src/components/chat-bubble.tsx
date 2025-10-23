@@ -30,26 +30,49 @@ export function ChatBubble() {
         conversationId,
         sessionId,
       });
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error || "Failed to send message");
+      }
       return await res.json();
     },
     onSuccess: (data: any) => {
-      if (!conversationId) {
+      // Check if response has the expected structure
+      if (!data || !data.userMessage || !data.assistantMessage) {
+        console.error("Invalid API response structure:", data);
+        return;
+      }
+
+      if (!conversationId && data.conversationId) {
         setConversationId(data.conversationId);
       }
 
       setMessages((prev) => [
         ...prev,
         {
-          id: data.userMessage.id,
+          id: data.userMessage.id || `user_${Date.now()}`,
           role: "user",
           content: data.userMessage.content,
           createdAt: data.userMessage.createdAt,
         },
         {
-          id: data.assistantMessage.id,
+          id: data.assistantMessage.id || `assistant_${Date.now()}`,
           role: "assistant",
           content: data.assistantMessage.content,
           createdAt: data.assistantMessage.createdAt,
+        },
+      ]);
+    },
+    onError: (error: Error) => {
+      console.error("Chat error:", error);
+      // Optionally show error message to user
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: `error_${Date.now()}`,
+          role: "assistant",
+          content: "Sorry, I encountered an error. Please try again.",
+          createdAt: new Date().toISOString(),
         },
       ]);
     },
