@@ -54,5 +54,5 @@ run = ["npm", "start"]
 build = ["npm", "run", "build"]
 
 [nix]
-packages = ["postgresql_10"]
+packages = ["postgresql_10", "shopify-cli"]
 channel = "stable-25_05"
