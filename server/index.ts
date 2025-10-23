@@ -40,15 +40,15 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-Shopify-Shop-Domain', 'X-Shopify-Access-Token'],
 }));
 
-// Capture raw body for webhook signature verification
-app.use(express.json({
-  verify: (req: any, res, buf, encoding) => {
-    if (req.originalUrl.startsWith('/api/webhooks/')) {
-      req.rawBody = buf.toString('utf8');
-    }
+// Capture raw body for webhook HMAC verification (before JSON parsing)
+app.use("/api/webhooks", express.json({
+  verify: (req: any, res, buf) => {
+    req.rawBody = buf.toString('utf8');
   }
 }));
 
+// Standard JSON/URL parsing for non-webhook routes
+app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 // Serve brand images from both locations
