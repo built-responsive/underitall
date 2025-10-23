@@ -26,24 +26,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## **AI AUTOMATION PROTOCOL**
-
-> **MANDATORY FOR ALL AI AGENTS, ASSISTANTS & AUTOMATIONS:**
-> 
-> Every code edit, file change, configuration update, or system modification MUST include a changelog entry using this format:
-> 
-> ```markdown
-> ## [Unreleased]
-> ### Changed/Added/Fixed - YYYY-MM-DD HH:MM - [Agent/Assistant Name]
-> - Specific description of what was modified
-> - File paths affected: `path/to/file.ts`
-> - Reason for change
-> ```
-
----
-
 ## [Unreleased]
 
+### Fixed
+- **Shopify CLI SSL Certificate Error**: Resolved `--use-localhost` mkcert certificate installation failure in Replit due to read-only `/usr/local/share/ca-certificates/`. Solution: Use default Shopify tunnel instead of localhost mode for seamless HTTPS and webhook access.
 ### Changed - 2025-01-23 - [Replit Assistant]
 - **Metaobject Definition Management**
   - Migrated to declarative metaobject definitions in `shopify.app.toml`
