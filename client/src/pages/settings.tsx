@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Settings as SettingsIcon, Link as LinkIcon, Webhook, RefreshCw } from "lucide-react";
+import { Settings as SettingsIcon, Link as LinkIcon, Webhook, RefreshCw, CheckCircle2, XCircle, AlertCircle, Database, Package } from "lucide-react";
 import { format } from "date-fns";
 import {
   Table,
@@ -18,6 +18,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const globalInputStyles = "border-[#7e8d76] font-['Lora_Italic'] placeholder:text-[#7e8d76]/70 focus:border-[#7e8d76] focus:ring-[#7e8d76]";
 
@@ -32,6 +33,57 @@ export default function Settings() {
     queryFn: async () => {
       const res = await apiRequest("GET", "/api/webhooks/logs");
       return await res.json();
+    },
+  });
+
+  const { data: healthCheck, isLoading: loadingHealth, refetch: refetchHealth } = useQuery({
+    queryKey: ["/api/health"],
+    queryFn: async () => {
+      const res = await apiRequest("GET", "/api/health");
+      return await res.json();
+    },
+  });
+
+  const testCrmMutation = useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest("POST", "/api/admin/test-crm");
+      return await res.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: data.success ? "CRM Connected" : "CRM Connection Failed",
+        description: data.message,
+        variant: data.success ? "default" : "destructive",
+      });
+    },
+  });
+
+  const testShopifyMutation = useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest("POST", "/api/admin/test-shopify");
+      return await res.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: data.success ? "Shopify Connected" : "Shopify Connection Failed",
+        description: data.message,
+        variant: data.success ? "default" : "destructive",
+      });
+    },
+  });
+
+  const initializeMetaobjectMutation = useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest("POST", "/api/admin/initialize-metaobject");
+      return await res.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: data.success ? "Metaobject Initialized" : "Initialization Failed",
+        description: data.message,
+        variant: data.success ? "default" : "destructive",
+      });
+      refetchHealth();
     },
   });
 
@@ -77,8 +129,12 @@ export default function Settings() {
           <p className="text-[#696A6D] font-['Vazirmatn']">Configure pricing matrices and monitor webhook activity</p>
         </div>
 
-        <Tabs defaultValue="pricing" className="space-y-6">
+        <Tabs defaultValue="health" className="space-y-6">
           <TabsList>
+            <TabsTrigger value="health" className="font-['Vazirmatn']">
+              <Database className="w-4 h-4 mr-2" />
+              System Health
+            </TabsTrigger>
             <TabsTrigger value="pricing" className="font-['Vazirmatn']">
               <LinkIcon className="w-4 h-4 mr-2" />
               Pricing CSVs
@@ -88,6 +144,132 @@ export default function Settings() {
               Webhook Logs
             </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="health">
+            <div className="space-y-6">
+              <Card className="rounded-[16px]">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="font-['Archivo'] text-[#212227]">Integration Health Status</CardTitle>
+                      <CardDescription className="font-['Vazirmatn'] text-[#696A6D]">
+                        Monitor Shopify, CRM, and system connectivity
+                      </CardDescription>
+                    </div>
+                    <Button
+                      onClick={() => refetchHealth()}
+                      variant="outline"
+                      size="sm"
+                      className="rounded-[11px] font-['Vazirmatn']"
+                    >
+                      <RefreshCw className="w-4 h-4 mr-2" />
+                      Refresh
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {loadingHealth ? (
+                    <div className="text-center py-8 font-['Vazirmatn'] text-[#696A6D]">Checking system health...</div>
+                  ) : healthCheck ? (
+                    <div className="space-y-4">
+                      <Alert className={healthCheck.shopify?.configured ? "border-green-500" : "border-yellow-500"}>
+                        <Package className="h-4 w-4" />
+                        <AlertTitle className="font-['Archivo']">Shopify Integration</AlertTitle>
+                        <AlertDescription className="font-['Vazirmatn'] space-y-2">
+                          <div className="flex items-center gap-2">
+                            {healthCheck.shopify?.configured ? (
+                              <CheckCircle2 className="w-4 h-4 text-green-600" />
+                            ) : (
+                              <XCircle className="w-4 h-4 text-red-600" />
+                            )}
+                            <span>Admin API: {healthCheck.shopify?.configured ? "Configured" : "Not Configured"}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {healthCheck.shopify?.metaobjectDefinition ? (
+                              <CheckCircle2 className="w-4 h-4 text-green-600" />
+                            ) : (
+                              <AlertCircle className="w-4 h-4 text-yellow-600" />
+                            )}
+                            <span>wholesale_account metaobject: {healthCheck.shopify?.metaobjectDefinition ? "Exists" : "Not Found"}</span>
+                          </div>
+                          {healthCheck.shopify?.shop && (
+                            <div className="text-sm text-[#696A6D]">Shop: {healthCheck.shopify.shop}</div>
+                          )}
+                          {healthCheck.shopify?.error && (
+                            <div className="text-sm text-red-600">{healthCheck.shopify.error}</div>
+                          )}
+                        </AlertDescription>
+                      </Alert>
+
+                      <Alert className={healthCheck.crm?.configured ? "border-green-500" : "border-yellow-500"}>
+                        <Database className="h-4 w-4" />
+                        <AlertTitle className="font-['Archivo']">Clarity CRM</AlertTitle>
+                        <AlertDescription className="font-['Vazirmatn'] space-y-2">
+                          <div className="flex items-center gap-2">
+                            {healthCheck.crm?.configured ? (
+                              <CheckCircle2 className="w-4 h-4 text-green-600" />
+                            ) : (
+                              <XCircle className="w-4 h-4 text-red-600" />
+                            )}
+                            <span>API: {healthCheck.crm?.configured ? "Configured" : "Not Configured"}</span>
+                          </div>
+                          {healthCheck.crm?.baseUrl && (
+                            <div className="text-sm text-[#696A6D]">Base URL: {healthCheck.crm.baseUrl}</div>
+                          )}
+                          {healthCheck.crm?.error && (
+                            <div className="text-sm text-red-600">{healthCheck.crm.error}</div>
+                          )}
+                        </AlertDescription>
+                      </Alert>
+                    </div>
+                  ) : null}
+                </CardContent>
+              </Card>
+
+              <Card className="rounded-[16px]">
+                <CardHeader>
+                  <CardTitle className="font-['Archivo'] text-[#212227]">Connection Tests</CardTitle>
+                  <CardDescription className="font-['Vazirmatn'] text-[#696A6D]">
+                    Test API connectivity and credentials
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Button
+                      onClick={() => testShopifyMutation.mutate()}
+                      disabled={testShopifyMutation.isPending}
+                      className="bg-[#96BF48] hover:bg-[#96BF48]/90 text-white rounded-[11px] font-['Vazirmatn']"
+                    >
+                      {testShopifyMutation.isPending ? "Testing..." : "Test Shopify Connection"}
+                    </Button>
+                    <Button
+                      onClick={() => testCrmMutation.mutate()}
+                      disabled={testCrmMutation.isPending}
+                      className="bg-[#5E8C61] hover:bg-[#5E8C61]/90 text-white rounded-[11px] font-['Vazirmatn']"
+                    >
+                      {testCrmMutation.isPending ? "Testing..." : "Test CRM Connection"}
+                    </Button>
+                  </div>
+
+                  {healthCheck?.shopify?.configured && !healthCheck?.shopify?.metaobjectDefinition && (
+                    <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-[11px]">
+                      <h4 className="font-['Archivo'] text-[#212227] mb-2">Metaobject Definition Missing</h4>
+                      <p className="text-sm font-['Vazirmatn'] text-[#696A6D] mb-3">
+                        The wholesale_account metaobject definition does not exist in Shopify. Click below to create it automatically.
+                      </p>
+                      <Button
+                        onClick={() => initializeMetaobjectMutation.mutate()}
+                        disabled={initializeMetaobjectMutation.isPending}
+                        className="bg-[#F2633A] hover:bg-[#F2633A]/90 text-white rounded-[11px] font-['Vazirmatn']"
+                      >
+                        {initializeMetaobjectMutation.isPending ? "Initializing..." : "Initialize Metaobject Definition"}
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
 
           <TabsContent value="pricing">
             <Card className="rounded-[16px]">

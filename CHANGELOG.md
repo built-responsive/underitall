@@ -1,4 +1,23 @@
 
+### Added - 2025-01-23 - [Replit Agent]
+- **System Health Monitoring Dashboard**
+  - Added `/api/health` endpoint to check Shopify and CRM connectivity
+  - Real-time status indicators for API credentials and metaobject definitions
+  - Integration testing buttons for Shopify and CRM connections
+  - Automatic metaobject definition initialization button
+- **Integration Testing Features**
+  - `POST /api/admin/test-shopify` - Test Shopify Admin API connection
+  - `POST /api/admin/test-crm` - Test Clarity CRM API connection
+  - `POST /api/admin/initialize-metaobject` - Create wholesale_account definition
+  - Visual health status indicators with error details
+- **Settings Page Enhancements**
+  - New "System Health" tab with comprehensive monitoring
+  - Color-coded alerts for integration status (green/yellow/red)
+  - Detailed error messages for troubleshooting
+  - One-click metaobject initialization for missing definitions
+
+
+
 # Changelog
 
 All notable changes to this project will be documented in this file.

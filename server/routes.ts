@@ -45,6 +45,220 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ============= WEBHOOK ROUTES =============
   // Register webhooks with raw body parsing for HMAC verification
   app.use("/api/webhooks", webhookRoutes);
+  // ============= HEALTH CHECK & INTEGRATION TESTING =============
+
+  // System health check
+  app.get("/api/health", async (req, res) => {
+    try {
+      const shopDomain = process.env.SHOPIFY_SHOP_DOMAIN;
+      const adminToken = process.env.SHOPIFY_ADMIN_ACCESS_TOKEN;
+      const crmBaseUrl = process.env.CRM_BASE_URL;
+      const crmApiKey = process.env.CRM_API_KEY;
+
+      const health: any = {
+        timestamp: new Date().toISOString(),
+        shopify: {
+          configured: !!(shopDomain && adminToken),
+          shop: shopDomain || null,
+        },
+        crm: {
+          configured: !!(crmBaseUrl && crmApiKey),
+          baseUrl: crmBaseUrl || null,
+        },
+      };
+
+      // Check if wholesale_account metaobject definition exists
+      if (shopDomain && adminToken) {
+        try {
+          const checkQuery = `
+            query {
+              metaobjectDefinitions(first: 50) {
+                nodes {
+                  id
+                  type
+                }
+              }
+            }
+          `;
+
+          const checkResponse = await fetch(
+            `https://${shopDomain}/admin/api/2025-01/graphql.json`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "X-Shopify-Access-Token": adminToken,
+              },
+              body: JSON.stringify({ query: checkQuery }),
+            }
+          );
+
+          const checkData = await checkResponse.json();
+          const existingDef = checkData.data?.metaobjectDefinitions?.nodes?.find(
+            (def: any) => def.type === "wholesale_account"
+          );
+
+          health.shopify.metaobjectDefinition = !!existingDef;
+          if (existingDef) {
+            health.shopify.metaobjectId = existingDef.id;
+          }
+        } catch (error) {
+          health.shopify.error = error instanceof Error ? error.message : "Unknown error";
+        }
+      }
+
+      res.json(health);
+    } catch (error) {
+      console.error("Health check error:", error);
+      res.status(500).json({ error: "Health check failed" });
+    }
+  });
+
+  // Test Shopify connection
+  app.post("/api/admin/test-shopify", async (req, res) => {
+    try {
+      const shopDomain = process.env.SHOPIFY_SHOP_DOMAIN;
+      const adminToken = process.env.SHOPIFY_ADMIN_ACCESS_TOKEN;
+
+      if (!shopDomain || !adminToken) {
+        return res.json({
+          success: false,
+          message: "Shopify credentials not configured in environment variables",
+        });
+      }
+
+      const testQuery = `
+        query {
+          shop {
+            name
+            email
+            currencyCode
+          }
+        }
+      `;
+
+      const response = await fetch(
+        `https://${shopDomain}/admin/api/2025-01/graphql.json`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Shopify-Access-Token": adminToken,
+          },
+          body: JSON.stringify({ query: testQuery }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.errors) {
+        return res.json({
+          success: false,
+          message: `GraphQL Error: ${data.errors[0]?.message || "Unknown error"}`,
+          details: data.errors,
+        });
+      }
+
+      if (data.data?.shop) {
+        return res.json({
+          success: true,
+          message: `Connected to ${data.data.shop.name} (${shopDomain})`,
+          shop: data.data.shop,
+        });
+      }
+
+      res.json({
+        success: false,
+        message: "Unexpected API response",
+        details: data,
+      });
+    } catch (error) {
+      console.error("Shopify test error:", error);
+      res.json({
+        success: false,
+        message: error instanceof Error ? error.message : "Connection test failed",
+      });
+    }
+  });
+
+  // Test CRM connection
+  app.post("/api/admin/test-crm", async (req, res) => {
+    try {
+      const crmBaseUrl = process.env.CRM_BASE_URL;
+      const crmApiKey = process.env.CRM_API_KEY;
+
+      if (!crmBaseUrl || !crmApiKey) {
+        return res.json({
+          success: false,
+          message: "CRM credentials not configured in environment variables",
+        });
+      }
+
+      const testPayload = {
+        APIKey: crmApiKey,
+        Resource: "Account",
+        Operation: "Read",
+        Data: {
+          // Test with a simple read operation
+        },
+      };
+
+      const response = await fetch(`${crmBaseUrl}/api/v1`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(testPayload),
+      });
+
+      const data = await response.json();
+
+      if (data.Status === "Success" || response.ok) {
+        return res.json({
+          success: true,
+          message: `Connected to Clarity CRM (${crmBaseUrl})`,
+          details: data,
+        });
+      }
+
+      res.json({
+        success: false,
+        message: `CRM Error: ${data.Message || "Unknown error"}`,
+        details: data,
+      });
+    } catch (error) {
+      console.error("CRM test error:", error);
+      res.json({
+        success: false,
+        message: error instanceof Error ? error.message : "Connection test failed",
+      });
+    }
+  });
+
+  // Initialize wholesale_account metaobject definition
+  app.post("/api/admin/initialize-metaobject", async (req, res) => {
+    try {
+      const defId = await ensureWholesaleMetaobjectDefinition();
+      
+      if (defId) {
+        res.json({
+          success: true,
+          message: "Metaobject definition created successfully",
+          metaobjectDefinitionId: defId,
+        });
+      } else {
+        res.json({
+          success: false,
+          message: "Failed to create metaobject definition. Check server logs for details.",
+        });
+      }
+    } catch (error) {
+      console.error("Metaobject initialization error:", error);
+      res.json({
+        success: false,
+        message: error instanceof Error ? error.message : "Initialization failed",
+      });
+    }
+  });
+
   // ============= PRICE MATRIX ROUTES =============
 
   // Fetch CSV and update price matrices
