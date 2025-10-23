@@ -35,9 +35,13 @@ async function buildCalculator() {
         formats: ['iife']
       },
       rollupOptions: {
-        external: [],
+        external: ['react', 'react-dom', 'react/jsx-runtime'],
         output: {
-          globals: {},
+          globals: {
+            react: 'React',
+            'react-dom': 'ReactDOM',
+            'react/jsx-runtime': 'React'
+          },
           assetFileNames: 'calculator-block.[ext]'
         }
       }
@@ -73,9 +77,13 @@ async function buildChat() {
         formats: ['iife']
       },
       rollupOptions: {
-        external: [],
+        external: ['react', 'react-dom', 'react/jsx-runtime'],
         output: {
-          globals: {},
+          globals: {
+            react: 'React',
+            'react-dom': 'ReactDOM',
+            'react/jsx-runtime': 'React'
+          },
           assetFileNames: 'chat-block.[ext]'
         }
       }
