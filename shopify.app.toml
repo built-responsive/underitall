@@ -37,10 +37,10 @@ redirect_urls = [
 [metaobjects.app.wholesale_account]
 name = "Wholesale Account"
 display_name_field = "company"
+access.admin = "merchant_read_write"
+access.storefront = "public_read"
+capabilities.translatable = true
 
-  [metaobjects.app.wholesale_account.access]
-  admin = "merchant_read_write"
-  storefront = "public_read"
 
 [metaobjects.app.wholesale_account.fields.company]
 name = "Company Name"
@@ -121,6 +121,7 @@ type = "metaobject_reference<$app:wholesale_account>"
 name = "Wholesale Account"
 description = "Link to customer's wholesale account metaobject"
 
-  [customer.metafields.app.wholesale_account.access]
-  customer_account = "read_write"
-  admin = "merchant_read_write"
+[customer.metafields.app.wholesale_account.access]
+customer_account = "read_write"
+admin = "merchant_read_write"
+storefront = "public_read"
