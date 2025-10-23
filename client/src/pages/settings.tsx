@@ -251,19 +251,44 @@ export default function Settings() {
                     </Button>
                   </div>
 
-                  {healthCheck?.shopify?.configured && !healthCheck?.shopify?.metaobjectDefinition && (
-                    <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-[11px]">
-                      <h4 className="font-['Archivo'] text-[#212227] mb-2">Metaobject Definition Missing</h4>
-                      <p className="text-sm font-['Vazirmatn'] text-[#696A6D] mb-3">
-                        The wholesale_account metaobject definition does not exist in Shopify. Click below to create it automatically.
-                      </p>
-                      <Button
-                        onClick={() => initializeMetaobjectMutation.mutate()}
-                        disabled={initializeMetaobjectMutation.isPending}
-                        className="bg-[#F2633A] hover:bg-[#F2633A]/90 text-white rounded-[11px] font-['Vazirmatn']"
-                      >
-                        {initializeMetaobjectMutation.isPending ? "Initializing..." : "Initialize Metaobject Definition"}
-                      </Button>
+                  {healthCheck?.shopify?.configured && (
+                    <div className={`mt-6 p-4 border rounded-[11px] ${healthCheck?.shopify?.metaobjectDefinition ? 'bg-green-50 border-green-200' : 'bg-yellow-50 border-yellow-200'}`}>
+                      <h4 className="font-['Archivo'] text-[#212227] mb-2">
+                        {healthCheck?.shopify?.metaobjectDefinition ? '✅ Metaobject Definition Active' : '⚠️ Metaobject Definition Missing'}
+                      </h4>
+                      {healthCheck?.shopify?.metaobjectDefinition ? (
+                        <div className="space-y-2">
+                          <p className="text-sm font-['Vazirmatn'] text-[#696A6D]">
+                            The wholesale_account metaobject definition is deployed and ready.
+                          </p>
+                          {healthCheck?.shopify?.metaobjectId && (
+                            <div className="text-xs font-mono text-[#696A6D] bg-white p-2 rounded border border-green-300">
+                              ID: {healthCheck.shopify.metaobjectId}
+                            </div>
+                          )}
+                          {healthCheck?.shopify?.entryCount !== undefined && (
+                            <div className="flex items-center gap-2 text-sm font-['Vazirmatn'] text-[#212227]">
+                              <Database className="w-4 h-4 text-[#96BF48]" />
+                              <span className="font-semibold">{healthCheck.shopify.entryCount}</span>
+                              <span className="text-[#696A6D]">wholesale account{healthCheck.shopify.entryCount !== 1 ? 's' : ''} created</span>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <>
+                          <p className="text-sm font-['Vazirmatn'] text-[#696A6D] mb-3">
+                            The wholesale_account metaobject definition does not exist. Run 'shopify app deploy' to sync shopify.app.toml.
+                          </p>
+                          <Button
+                            onClick={() => refetchHealth()}
+                            variant="outline"
+                            className="rounded-[11px] font-['Vazirmatn']"
+                          >
+                            <RefreshCw className="w-4 h-4 mr-2" />
+                            Re-check Status
+                          </Button>
+                        </>
+                      )}
                     </div>
                   )}
                 </CardContent>

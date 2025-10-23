@@ -76,6 +76,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 nodes {
                   id
                   type
+                  metaobjectsCount
                 }
               }
             }
@@ -94,13 +95,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
           );
 
           const checkData = await checkResponse.json();
+          
+          // App-owned metaobject definitions appear as "app--{client_id}--{handle}" in GraphQL responses
           const existingDef = checkData.data?.metaobjectDefinitions?.nodes?.find(
-            (def: any) => def.type === "$app:wholesale_account"
+            (def: any) => 
+              def.type === "$app:wholesale_account" || 
+              def.type === "wholesale_account" ||
+              def.type.includes("--wholesale_account")
           );
 
           health.shopify.metaobjectDefinition = !!existingDef;
           if (existingDef) {
             health.shopify.metaobjectId = existingDef.id;
+            health.shopify.entryCount = existingDef.metaobjectsCount || 0;
           }
         } catch (error) {
           health.shopify.error = error instanceof Error ? error.message : "Unknown error";
