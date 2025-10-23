@@ -18,6 +18,9 @@ const allowedOrigins = [
   'https://2d8f7c0c-938e-4f87-b0ca-9f262520d64e-00-2o84gg8qrj25w.spock.replit.dev',
   'http://localhost:5000',
   'http://0.0.0.0:5000',
+  // Shopify Admin origins for embedded app iframe
+  'https://admin.shopify.com',
+  'https://partners.shopify.com',
 ];
 
 app.use(cors({
@@ -25,7 +28,8 @@ app.use(cors({
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
 
-    if (allowedOrigins.includes(origin)) {
+    // Allow all Shopify admin subdomains (admin.shopify.com, partners.shopify.com, etc.)
+    if (origin && (origin.includes('.shopify.com') || allowedOrigins.includes(origin))) {
       callback(null, true);
     } else {
       callback(null, false);
@@ -33,7 +37,7 @@ app.use(cors({
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-Shopify-Shop-Domain', 'X-Shopify-Access-Token'],
 }));
 
 // Capture raw body for webhook signature verification

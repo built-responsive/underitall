@@ -14,25 +14,29 @@ const API_BASE_URL = import.meta.env.PROD
 
 export async function apiRequest(
   method: string,
-  url: string,
-  body?: any
+  path: string,
+  body?: any,
 ): Promise<Response> {
-  // If URL is already absolute, use it as-is
-  const fullUrl = url.startsWith("http") ? url : `${API_BASE_URL}${url}`;
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+
+  // Use absolute URL when embedded in Shopify Admin iframe
+  const isEmbedded = window !== window.parent || new URLSearchParams(window.location.search).has('shop');
+  const baseUrl = isEmbedded ? 'https://its-under-it-all.replit.app' : '';
+  const fullPath = path.startsWith('/') ? `${baseUrl}${path}` : `${baseUrl}/${path}`;
 
   const options: RequestInit = {
     method,
-    headers: {
-      "Content-Type": "application/json",
-    },
-    credentials: 'omit', // Omit credentials for cross-origin requests through Shopify proxy
+    headers,
+    credentials: 'include', // Include cookies for session auth
   };
 
   if (body) {
     options.body = JSON.stringify(body);
   }
 
-  return fetch(fullUrl, options);
+  return fetch(fullPath, options);
 }
 
 type UnauthorizedBehavior = "returnNull" | "throw";
