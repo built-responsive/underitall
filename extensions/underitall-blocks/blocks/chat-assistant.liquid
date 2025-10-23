@@ -6,7 +6,7 @@
 {{ 'chat-block.css' | asset_url | stylesheet_tag }}
 
 {% if block.settings.enabled %}
-<div id="underitall-chat-root" 
+<div id="underitall-chat-root"
      data-api-url="{{ block.settings.api_url }}"
      data-position="{{ block.settings.position }}">
   <script>
@@ -30,9 +30,9 @@
     {
       "type": "text",
       "id": "api_url",
-      "label": "API URL",
-      "default": "https://underitall-tools.replit.app",
-      "info": "The URL of your UnderItAll application backend"
+      "label": "API Base URL",
+      "default": "https://its-under-it-all.replit.app",
+      "info": "The base URL for the UnderItAll API"
     },
     {
       "type": "select",

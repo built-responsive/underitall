@@ -102,6 +102,7 @@ async function buildAll() {
     console.log('\n📦 Next steps:');
     console.log('1. Deploy your Shopify app using: shopify app deploy');
     console.log('2. Add the blocks to your theme in the Theme Customizer');
+    console.log('\n💡 Production API: https://its-under-it-all.replit.app');
     console.log('\n💡 Assets created:');
     console.log('   - extensions/underitall-blocks/assets/calculator-block.js');
     console.log('   - extensions/underitall-blocks/assets/calculator-block.css');
