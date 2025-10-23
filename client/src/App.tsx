@@ -41,6 +41,7 @@ function ShopifyAppBridge({ children }: { children: React.ReactNode }) {
         const host = urlParams.get('host');
 
         if (!shopOrigin || !host) {
+          console.warn('App Bridge: Missing shop or host parameter. Skipping initialization (not embedded).');
           return;
         }
 
