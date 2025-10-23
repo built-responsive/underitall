@@ -410,7 +410,7 @@ export default function Settings() {
                                     {webhookType}
                                   </TableCell>
                                   <TableCell>
-                                    <Badge 
+                                    <Badge
                                       variant={isShopify ? "default" : isCRM ? "secondary" : "outline"}
                                       className="font-['Vazirmatn']"
                                     >

@@ -24,29 +24,8 @@ function ShopifyAppBridge({ children }: { children: React.ReactNode }) {
     const embedded = window !== window.parent || new URLSearchParams(window.location.search).has('shop');
     setIsEmbedded(embedded);
 
-    // Load App Bridge if embedded and not already loaded
-    if (embedded && !appBridgeLoaded && !(window as any).ShopifyApp) {
-      const existingScript = document.querySelector('script[src*="app-bridge.js"]');
-      
-      // Prevent duplicate script tags
-      if (existingScript) {
-        setAppBridgeLoaded(true);
-        return;
-      }
-
-      const script = document.createElement('script');
-      script.src = 'https://cdn.shopify.com/shopifycloud/app-bridge.js';
-      script.async = false; // Synchronous loading to prevent race conditions
-      script.onload = () => {
-        setAppBridgeLoaded(true);
-        initializeAppBridge();
-      };
-      script.onerror = () => {
-        console.error('Failed to load App Bridge script');
-      };
-      document.head.appendChild(script);
-    } else if (embedded && (window as any).ShopifyApp) {
-      // App Bridge already available
+    // App Bridge is now loaded in index.html as first script
+    if (embedded && (window as any).ShopifyApp) {
       initializeAppBridge();
     }
 
