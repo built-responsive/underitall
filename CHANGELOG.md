@@ -28,8 +28,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Fixed
-- **Shopify CLI SSL Certificate Error**: Resolved `--use-localhost` mkcert certificate installation failure in Replit due to read-only `/usr/local/share/ca-certificates/`. Solution: Use default Shopify tunnel instead of localhost mode for seamless HTTPS and webhook access.
+### Fixed - 2025-01-23 - [Replit Assistant]
+- **Shopify CLI SSL Certificate Error**: Resolved `--use-localhost` mkcert certificate installation failure in Replit due to read-only `/usr/local/share/ca-certificates/`. Solution: Use `npx shopify` to bypass global install issues and default Shopify tunnel for seamless HTTPS and webhook access.
+- **Customer Metafield Validation**: Added `metaobject_type = "app.wholesale_account"` to customer metafield definition to fix deployment validation error.
+- **Protected Customer Data Webhooks**: Commented out `customers/create` and `customers/update` webhooks until app receives protected data approval from Shopify.
+
+### Deployed - 2025-01-23
+- **Metaobject Definitions**: `wholesale_account` type with all business fields (company, email, phone, address, tax_exempt, etc.)
+- **Customer Account Extension**: `wholesale-account-profile` deployed to `customer-account.profile.block.render` target
+- **Webhooks**: `metaobjects/update` webhook configured for CRM sync
 ### Changed - 2025-01-23 - [Replit Assistant]
 - **Metaobject Definition Management**
   - Migrated to declarative metaobject definitions in `shopify.app.toml`
