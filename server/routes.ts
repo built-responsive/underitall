@@ -56,14 +56,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const shopDomain = process.env.SHOPIFY_SHOP_DOMAIN;
       const adminToken = process.env.SHOPIFY_ADMIN_ACCESS_TOKEN;
+      const appClientId = process.env.SHOPIFY_CLIENT_ID || "78a602699150bda4e49a40861707d500";
+      const appClientSecret = process.env.SHOPIFY_CLIENT_SECRET;
       const crmBaseUrl = process.env.CRM_BASE_URL;
       const crmApiKey = process.env.CRM_API_KEY;
 
       process.stdout.write("🔐 Environment check:\n");
       process.stdout.write(`  - SHOPIFY_SHOP_DOMAIN: ${shopDomain ? "✅ Set" : "❌ Missing"}\n`);
       process.stdout.write(`  - SHOPIFY_ADMIN_ACCESS_TOKEN: ${adminToken ? `✅ Set (${adminToken.length} chars)` : "❌ Missing"}\n`);
+      process.stdout.write(`  - SHOPIFY_CLIENT_ID: ${appClientId ? "✅ Set" : "❌ Missing"}\n`);
+      process.stdout.write(`  - SHOPIFY_CLIENT_SECRET: ${appClientSecret ? `✅ Set (${appClientSecret?.length} chars)` : "❌ Missing"}\n`);
       process.stdout.write(`  - CRM_BASE_URL: ${crmBaseUrl ? "✅ Set" : "❌ Missing"}\n`);
       process.stdout.write(`  - CRM_API_KEY: ${crmApiKey ? "✅ Set" : "❌ Missing"}\n`);
+      process.stdout.write(`  ⚠️ NOTE: App-owned metaobjects require OAuth app credentials, not custom app tokens\n`);
 
       const health: any = {
         timestamp: new Date().toISOString(),
