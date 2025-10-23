@@ -610,16 +610,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       );
 
       const checkData = await checkResponse.json();
+      
+      // App-owned metaobject definitions can appear as either "$app:wholesale_account" or "wholesale_account"
       const existingDef = checkData.data?.metaobjectDefinitions?.nodes?.find(
-        (def: any) => def.type === "$app:wholesale_account"
+        (def: any) => def.type === "$app:wholesale_account" || def.type === "wholesale_account"
       );
 
       if (existingDef) {
-        console.log("✅ Metaobject definition '$app:wholesale_account' exists:", existingDef.id);
+        console.log("✅ Metaobject definition found:", existingDef.type, existingDef.id);
         return existingDef.id;
       }
 
-      console.log("⚠️ Metaobject definition '$app:wholesale_account' not found. Run 'shopify app deploy' to create it from shopify.app.toml");
+      console.log("⚠️ Metaobject definition not found in Shopify. Ensure 'shopify app deploy' has been run to sync shopify.app.toml");
+      console.log("Available definitions:", checkData.data?.metaobjectDefinitions?.nodes?.map((d: any) => d.type).join(", ") || "none");
       return null;
     } catch (error) {
       console.error("❌ Error checking metaobject definition:", error);
