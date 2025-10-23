@@ -2,8 +2,9 @@
 
 client_id = "78a602699150bda4e49a40861707d500"
 name = "its-under-it-all"
-application_url = "https://its-under-it-all.replit.app/dashboard"
+application_url = "https://its-under-it-all.replit.app"
 embedded = true
+
 
 [build]
 automatically_update_urls_on_dev = true
@@ -33,6 +34,7 @@ redirect_urls = [
   "https://its-under-it-all.replit.app/api/auth",
   "https://its-under-it-all.replit.app/auth/callback"
 ]
+
 
 [metaobjects.app.wholesale_account]
 name = "Wholesale Account"
