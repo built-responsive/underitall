@@ -657,8 +657,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Submit wholesale registration
   app.post("/api/wholesale-registration", async (req, res) => {
     try {
-      // Ensure metaobject definition exists
-      await ensureWholesaleMetaobjectDefinition();
+      // Metaobject definition is managed declaratively in shopify.app.toml
 
       // Extract geo-location from Cloudflare headers
       const geoCity = (req.headers["cf-ipcity"] as string) || null;

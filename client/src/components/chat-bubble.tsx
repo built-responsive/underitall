@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,26 +19,24 @@ export function ChatBubble() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
-  const [conversationId, setConversationId] = useState<string | null>(
-    localStorage.getItem("chatConversationId")
-  );
-  const [sessionId] = useState(() => {
-    let id = localStorage.getItem("chatSessionId");
-    if (!id) {
-      id = crypto.randomUUID();
-      localStorage.setItem("chatSessionId", id);
-    }
-    return id;
-  });
+  const [conversationId, setConversationId] = useState<string>("");
+  const [sessionId] = useState(() => `session_${Date.now()}_${Math.random()}`);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Fetch existing conversation
-  const { data: conversations } = useQuery<any[]>({
-    queryKey: ["/api/chat/conversation/session", sessionId],
-    enabled: !!sessionId,
-  });
+  // Dummy conversation object for demonstration purposes, replace with actual data fetching if needed
+  const conversation = undefined; // Replace with actual conversation data if available
 
-  const conversation = conversations?.[0] || null;
+  // Dummy fetchMessages function, replace with your actual API call
+  const fetchMessages = async (id: string) => {
+    console.log("Fetching messages for conversation:", id);
+    // Replace with your actual API call to fetch messages
+    // For example:
+    // const res = await apiRequest("GET", `/api/chat/conversation/${id}`);
+    // if (res.ok) {
+    //   const data = await res.json();
+    //   setMessages(data.messages);
+    // }
+  };
 
   const sendMessageMutation = useMutation({
     mutationFn: async (content: string) => {
@@ -112,7 +110,7 @@ export function ChatBubble() {
   useEffect(() => {
     if (conversation?.id) {
       setConversationId(conversation.id);
-      localStorage.setItem("chatConversationId", conversation.id);
+      fetchMessages(conversation.id);
     }
   }, [conversation]);
 
@@ -171,7 +169,6 @@ export function ChatBubble() {
                   setIsOpen(false);
                   setMessages([]);
                   setConversationId(null);
-                  localStorage.removeItem("chatConversationId");
                 }}
                 data-testid="button-close-chat"
               >
