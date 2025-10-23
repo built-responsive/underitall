@@ -611,9 +611,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const checkData = await checkResponse.json();
       
-      // App-owned metaobject definitions can appear as either "$app:wholesale_account" or "wholesale_account"
+      // App-owned metaobject definitions appear as "app--{client_id}--{handle}" in GraphQL responses
+      // e.g., "app--290419769345--wholesale_account"
       const existingDef = checkData.data?.metaobjectDefinitions?.nodes?.find(
-        (def: any) => def.type === "$app:wholesale_account" || def.type === "wholesale_account"
+        (def: any) => 
+          def.type === "$app:wholesale_account" || 
+          def.type === "wholesale_account" ||
+          def.type.includes("--wholesale_account") // Matches app--{client_id}--wholesale_account
       );
 
       if (existingDef) {
