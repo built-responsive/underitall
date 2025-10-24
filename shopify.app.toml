@@ -35,7 +35,7 @@ url = "https://its-under-it-all.replit.app/settings"
 
 [app_proxy]
 url = "https://its-under-it-all.replit.app"
-subpath = "apps/wholesale"
+subpath = "wholesale"
 prefix = "apps"
 
 # Single Wholesale Link - Clarity CRM Account ID
