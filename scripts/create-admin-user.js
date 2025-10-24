@@ -8,9 +8,12 @@
  *   node scripts/create-admin-user.js
  */
 
-import { Pool } from '@neondatabase/serverless';
+import { Pool, neonConfig } from '@neondatabase/serverless';
+import ws from 'ws';
 import readline from 'readline';
 import bcrypt from 'bcryptjs';
+
+neonConfig.webSocketConstructor = ws;
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
