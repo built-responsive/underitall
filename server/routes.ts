@@ -8,7 +8,7 @@ import { desc, eq } from "drizzle-orm";
 import { getShopifyConfig, executeShopifyGraphQL } from "./utils/shopifyConfig";
 
 export function registerRoutes(app: Express) {
-  // Customer Account Extension API - Fetch Wholesale Account Data
+  // Customer Account Extension API - Fetch Wholesale Account Data (from CRM)
   app.get("/api/customer/wholesale-account", async (req, res) => {
     try {
       // TODO: Add session token authentication here (from customer account extension)
@@ -67,40 +67,90 @@ export function registerRoutes(app: Express) {
         });
       }
 
-      // Fetch wholesale data from our DB
-      const [registration] = await db
-        .select()
-        .from(wholesaleRegistrations)
-        .where(eq(wholesaleRegistrations.clarityAccountId, clarityAccountId));
+      // Fetch CRM account data using AccountNumber (clarityAccountId is like "AC000931")
+      const crmBaseUrl = process.env.CRM_BASE_URL || "http://liveapi.claritysoftcrm.com";
+      const crmApiKey = process.env.CRM_API_KEY;
 
-      if (!registration) {
+      if (!crmApiKey) {
+        return res.status(500).json({ error: "CRM_API_KEY not configured" });
+      }
+
+      const { default: http } = await import("http");
+      const crmPayload = {
+        APIKey: crmApiKey,
+        Resource: "Account",
+        Operation: "Get",
+        SQLFilter: `AccountNumber = '${clarityAccountId}'`
+      };
+      const payloadString = JSON.stringify(crmPayload);
+
+      const options = {
+        hostname: "liveapi.claritysoftcrm.com",
+        port: 80,
+        path: "/api/v1",
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Content-Length": Buffer.byteLength(payloadString),
+          "Accept": "*/*",
+          "Accept-Encoding": "gzip, deflate",
+          "Connection": "keep-alive",
+          "User-Agent": "curl/7.68.0"
+        }
+      };
+
+      const crmData = await new Promise<any>((resolve, reject) => {
+        const req = http.request(options, (crmRes: any) => {
+          let data = "";
+          crmRes.on("data", (chunk: any) => (data += chunk));
+          crmRes.on("end", () => {
+            try {
+              resolve(JSON.parse(data));
+            } catch (error) {
+              reject(new Error(`Failed to parse CRM response: ${data}`));
+            }
+          });
+        });
+
+        req.on("error", reject);
+        req.write(payloadString);
+        req.end();
+      });
+
+      if (!crmData.Data || crmData.Data.length === 0) {
         return res.json({ 
           hasWholesaleAccount: false,
-          message: "Wholesale account not found in database"
+          message: "CRM account not found"
         });
       }
 
-      // Return full wholesale account data
+      const crmAccount = crmData.Data[0];
+
+      // Map CRM fields to frontend-friendly format
       res.json({
         hasWholesaleAccount: true,
         clarityAccountId,
         account: {
-          company: registration.firmName,
-          email: registration.email,
-          phone: registration.phone,
-          website: registration.website,
-          instagram: registration.instagramHandle,
-          address: registration.businessAddress,
-          address2: registration.businessAddress2,
-          city: registration.city,
-          state: registration.state,
-          zip: registration.zipCode,
-          taxExempt: registration.isTaxExempt,
-          taxId: registration.taxId,
-          accountType: registration.businessType,
-          sampleSetReceived: registration.receivedSampleSet,
-          source: registration.howDidYouHear,
-          status: registration.status
+          company: crmAccount.Account || crmAccount.AccountCoreName,
+          accountNumber: crmAccount.AccountNumber,
+          email: crmAccount.CompanyEmail || "",
+          phone: crmAccount.CompanyPhone || "",
+          website: crmAccount.Website || "",
+          instagram: crmAccount.Instagram || "",
+          address: crmAccount.Address1 || "",
+          address2: crmAccount.Address2 || "",
+          city: crmAccount.City || "",
+          state: crmAccount.State || "",
+          zip: crmAccount.ZipCode || "",
+          taxExempt: crmAccount["Tax Exempt"] === "Yes",
+          taxId: crmAccount.EIN || "",
+          accountType: crmAccount["Account Type"] || "",
+          sampleSet: crmAccount["Sample Set"] === "Yes",
+          source: crmAccount["Lead Source Specifics"] || "",
+          owner: crmAccount.Owner || "",
+          createdDate: crmAccount.CreationDate,
+          // Include ALL 50+ fields for debugging
+          _raw: crmAccount
         }
       });
     } catch (error) {
@@ -111,7 +161,7 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  // Customer Account Extension API - Update Wholesale Account Data
+  // Customer Account Extension API - Update Wholesale Account Data (sync to CRM)
   app.patch("/api/customer/wholesale-account", async (req, res) => {
     try {
       // TODO: Add session token authentication here
@@ -121,7 +171,70 @@ export function registerRoutes(app: Express) {
         return res.status(400).json({ error: "Missing customerId or clarityAccountId" });
       }
 
-      // Update in our database
+      // Update CRM Account via "Create Or Edit" operation
+      const crmBaseUrl = process.env.CRM_BASE_URL || "http://liveapi.claritysoftcrm.com";
+      const crmApiKey = process.env.CRM_API_KEY;
+
+      if (!crmApiKey) {
+        return res.status(500).json({ error: "CRM_API_KEY not configured" });
+      }
+
+      const { default: http } = await import("http");
+      const crmPayload = {
+        APIKey: crmApiKey,
+        Resource: "Account",
+        Operation: "Create Or Edit",
+        Data: {
+          AccountNumber: clarityAccountId, // Required for matching existing account
+          AccountName: updates.company,
+          CompanyPhone: updates.phone || "",
+          Website: updates.website || "",
+          Address1: updates.address,
+          Address2: updates.address2 || "",
+          City: updates.city,
+          State: updates.state,
+          ZipCode: updates.zip,
+          Instagram: updates.instagram || "",
+        }
+      };
+      const payloadString = JSON.stringify(crmPayload);
+
+      const options = {
+        hostname: "liveapi.claritysoftcrm.com",
+        port: 80,
+        path: "/api/v1",
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Content-Length": Buffer.byteLength(payloadString),
+          "Accept": "*/*",
+          "Accept-Encoding": "gzip, deflate",
+          "Connection": "keep-alive",
+          "User-Agent": "curl/7.68.0"
+        }
+      };
+
+      const crmData = await new Promise<any>((resolve, reject) => {
+        const req = http.request(options, (crmRes: any) => {
+          let data = "";
+          crmRes.on("data", (chunk: any) => (data += chunk));
+          crmRes.on("end", () => {
+            try {
+              resolve(JSON.parse(data));
+            } catch (error) {
+              reject(new Error(`Failed to parse CRM response: ${data}`));
+            }
+          });
+        });
+
+        req.on("error", reject);
+        req.write(payloadString);
+        req.end();
+      });
+
+      console.log("✅ CRM Account updated:", crmData);
+
+      // Also update local DB for caching/audit trail
       await db
         .update(wholesaleRegistrations)
         .set({
@@ -134,40 +247,10 @@ export function registerRoutes(app: Express) {
           city: updates.city,
           state: updates.state,
           zipCode: updates.zip,
-          taxId: updates.taxId,
         })
         .where(eq(wholesaleRegistrations.clarityAccountId, clarityAccountId));
 
-      // Optionally sync to CRM
-      const crmBaseUrl = process.env.CRM_BASE_URL;
-      const crmApiKey = process.env.CRM_API_KEY;
-
-      if (crmBaseUrl && crmApiKey) {
-        const crmPayload = {
-          APIKey: crmApiKey,
-          Resource: "Account",
-          Operation: "Create Or Edit",
-          Data: {
-            AccountId: clarityAccountId,
-            AccountName: updates.company,
-            Phone: updates.phone || "",
-            Website: updates.website || "",
-            Address1: updates.address,
-            Address2: updates.address2 || "",
-            City: updates.city,
-            State: updates.state,
-            ZipCode: updates.zip,
-          }
-        };
-
-        await fetch(`${crmBaseUrl}/api/v1`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(crmPayload),
-        });
-      }
-
-      res.json({ success: true, message: "Wholesale account updated" });
+      res.json({ success: true, message: "Wholesale account updated in CRM" });
     } catch (error) {
       console.error("❌ Error updating wholesale account:", error);
       res.status(500).json({ 

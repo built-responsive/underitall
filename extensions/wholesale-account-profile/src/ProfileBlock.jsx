@@ -41,52 +41,48 @@ function WholesaleAccountPage() {
       setLoading(true);
       setError(null);
 
-      // Query current customer's wholesale_account metafield reference
+      // Fetch customer ID from Shopify Customer Account API
       const customerQuery = `
         query {
           customer {
             id
             email
-            metafield(namespace: "custom", key: "wholesale_account") {
-              reference {
-                ... on Metaobject {
-                  id
-                  handle
-                  displayName
-                  fields {
-                    key
-                    value
-                  }
-                }
-              }
-            }
           }
         }
       `;
 
       const customerResult = await query(customerQuery);
+      const customerId = customerResult?.data?.customer?.id;
 
-      const metaobject = customerResult?.data?.customer?.metafield?.reference;
-
-      if (!metaobject) {
+      if (!customerId) {
         setLoading(false);
         return;
       }
 
-      // Convert fields array to object
-      const fieldsObj = {};
-      metaobject.fields.forEach(field => {
-        fieldsObj[field.key] = field.value;
-      });
+      // Fetch wholesale account from backend (which queries CRM)
+      const appUrl = 'https://2d8f7c0c-938e-4f87-b0ca-9f262520d64e-00-2o84gg8qrj25w.spock.replit.dev';
+      const response = await fetch(`${appUrl}/api/customer/wholesale-account?customerId=${encodeURIComponent(customerId)}`);
       
+      if (!response.ok) {
+        throw new Error('Failed to fetch wholesale account');
+      }
+
+      const data = await response.json();
+
+      if (!data.hasWholesaleAccount) {
+        setLoading(false);
+        return;
+      }
+
+      const account = data.account;
+
       setWholesaleAccount({
-        id: metaobject.id,
-        handle: metaobject.handle,
-        displayName: metaobject.displayName,
-        ...fieldsObj
+        id: data.clarityAccountId,
+        displayName: account.company,
+        ...account
       });
 
-      setFormData(fieldsObj);
+      setFormData(account);
       setLoading(false);
     } catch (err) {
       console.error('Error fetching wholesale account:', err);
@@ -100,17 +96,31 @@ function WholesaleAccountPage() {
       setSaving(true);
       setError(null);
 
-      // Update via backend API (requires session token for auth)
-      //const appUrl = 'https://its-under-it-all.replit.app';
-      const appUrl = 'https://2d8f7c0c-938e-4f87-b0ca-9f262520d64e-00-2o84gg8qrj25w.spock.replit.dev';
-      const metaobjectId = wholesaleAccount.id.split('/').pop();
+      // Fetch customer ID
+      const customerQuery = `
+        query {
+          customer {
+            id
+          }
+        }
+      `;
 
-      const response = await fetch(`${appUrl}/api/wholesale-account/${metaobjectId}`, {
+      const customerResult = await query(customerQuery);
+      const customerId = customerResult?.data?.customer?.id;
+
+      // Update via backend API (which syncs to CRM)
+      const appUrl = 'https://2d8f7c0c-938e-4f87-b0ca-9f262520d64e-00-2o84gg8qrj25w.spock.replit.dev';
+
+      const response = await fetch(`${appUrl}/api/customer/wholesale-account`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify({
+          customerId,
+          clarityAccountId: wholesaleAccount.id,
+          updates: formData
+        })
       });
 
       if (!response.ok) {
