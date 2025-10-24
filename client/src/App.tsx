@@ -11,28 +11,27 @@ import Admin from "@/pages/admin";
 import Settings from "@/pages/settings";
 import SyncArchitecture from "@/pages/sync-architecture";
 import NotFound from "@/pages/not-found";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 // Shopify App Bridge Provider
 function ShopifyAppBridge({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
-  const [isEmbedded, setIsEmbedded] = useState(false);
-  const [appBridgeLoaded, setAppBridgeLoaded] = useState(false);
+  const [isEmbedded] = useState(() => {
+    return (window as any).__SHOPIFY_EMBEDDED__ || false;
+  });
+  const appInitialized = useRef(false);
 
   useEffect(() => {
-    // Check if running inside Shopify admin iframe
-    const embedded = window !== window.parent || new URLSearchParams(window.location.search).has('shop');
-    setIsEmbedded(embedded);
-
-    // App Bridge is now loaded in index.html as first script
-    if (embedded && (window as any).ShopifyApp) {
-      initializeAppBridge();
+    // Only initialize once and only if embedded
+    if (!isEmbedded || appInitialized.current) {
+      return;
     }
 
-    function initializeAppBridge() {
+    // Wait for App Bridge to be fully loaded
+    const initBridge = () => {
       try {
         if (!(window as any).ShopifyApp) {
-          console.warn('App Bridge not available');
+          console.warn('⚠️ App Bridge not available yet');
           return;
         }
 
@@ -41,10 +40,12 @@ function ShopifyAppBridge({ children }: { children: React.ReactNode }) {
         const host = urlParams.get('host');
 
         if (!shopOrigin || !host) {
-          console.warn('App Bridge: Missing shop or host parameter. Skipping initialization (not embedded).');
+          console.warn('⚠️ Missing shop/host params - not initializing App Bridge');
           return;
         }
 
+        console.log('✅ Initializing App Bridge for', shopOrigin);
+        
         const app = (window as any).ShopifyApp.createApp({
           apiKey: '78a602699150bda4e49a40861707d500',
           host: host,
@@ -87,11 +88,29 @@ function ShopifyAppBridge({ children }: { children: React.ReactNode }) {
             ]
           }
         });
+
+        appInitialized.current = true;
       } catch (error) {
-        console.error('App Bridge initialization error:', error);
+        console.error('❌ App Bridge initialization error:', error);
       }
+    };
+
+    // Ensure App Bridge script is loaded
+    if ((window as any).ShopifyApp) {
+      initBridge();
+    } else {
+      // Wait for script to load
+      const checkInterval = setInterval(() => {
+        if ((window as any).ShopifyApp) {
+          clearInterval(checkInterval);
+          initBridge();
+        }
+      }, 100);
+
+      // Cleanup after 5 seconds
+      setTimeout(() => clearInterval(checkInterval), 5000);
     }
-  }, [location, appBridgeLoaded]);
+  }, [isEmbedded]);
 
   return <>{children}</>;
 }

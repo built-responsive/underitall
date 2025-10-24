@@ -4,8 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
     <meta name="shopify-api-key" content="78a602699150bda4e49a40861707d500" />
-    <!-- App Bridge MUST be first script for Shopify embedded apps -->
-    <script src="https://cdn.shopify.com/shopifycloud/app-bridge.js"></script>
+    <script type="text/javascript">
+      // Detect if running in Shopify iframe
+      window.__SHOPIFY_EMBEDDED__ = window !== window.parent || new URLSearchParams(window.location.search).has('shop');
+    </script>
+    <!-- App Bridge MUST be first script for Shopify embedded apps - blocking load -->
+    <script src="https://cdn.shopify.com/shopifycloud/app-bridge.js" type="text/javascript"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700&family=Lora:ital,wght@0,400;1,400&family=Vazirmatn:wght@400;500;600&display=swap" rel="stylesheet">
