@@ -11,10 +11,17 @@ const router = Router();
 function verifyShopifyWebhook(req: Request): boolean {
   const hmacHeader = req.get("X-Shopify-Hmac-Sha256");
   const webhookSecret = process.env.SHOPIFY_WEBHOOK_SECRET;
+  const isDevelopment = process.env.NODE_ENV === "development";
 
-  // If no webhook secret is configured, allow all webhooks (dev mode)
+  // Always allow webhooks in development mode (Shopify CLI dev uses different secrets)
+  if (isDevelopment) {
+    console.warn("⚠️ Development mode - skipping HMAC verification");
+    return true;
+  }
+
+  // If no webhook secret is configured in production, allow all webhooks (unsafe!)
   if (!webhookSecret) {
-    console.warn("⚠️ SHOPIFY_WEBHOOK_SECRET not configured - allowing unsigned webhooks (development mode)");
+    console.warn("⚠️ SHOPIFY_WEBHOOK_SECRET not configured - allowing unsigned webhooks (PRODUCTION UNSAFE!)");
     return true;
   }
 
