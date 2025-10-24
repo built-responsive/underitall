@@ -33,6 +33,11 @@ redirect_urls = [
 [app_preferences]
 url = "https://its-under-it-all.replit.app/settings"
 
+[app_proxy]
+url = "https://its-under-it-all.replit.app"
+subpath = "apps/wholesale"
+prefix = "apps"
+
 # Single Wholesale Link - Clarity CRM Account ID
 [customer.metafields.app.wholesale_clarity_id]
 type = "single_line_text_field"

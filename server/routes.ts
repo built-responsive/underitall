@@ -1,4 +1,3 @@
-
 import type { Express, Request, Response } from "express";
 import { createServer } from "http";
 import webhookRoutes from "./webhooks";
@@ -256,6 +255,90 @@ export function registerRoutes(app: Express) {
       res.status(500).json({ 
         error: error instanceof Error ? error.message : "Failed to update wholesale account" 
       });
+    }
+  });
+
+  // App Proxy Route - Serves wholesale profile within Shopify storefront
+  app.get("/apps/wholesale/*", async (req, res) => {
+    try {
+      // Shopify sends proxy params in query: shop, logged_in_customer_id, etc.
+      const { shop, logged_in_customer_id } = req.query;
+
+      console.log("📦 App Proxy request:", {
+        path: req.path,
+        shop,
+        customerId: logged_in_customer_id,
+      });
+
+      // Serve a simple HTML page (can be replaced with React UI later)
+      res.send(`
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Wholesale Profile</title>
+          <style>
+            body {
+              font-family: 'Vazirmatn', sans-serif;
+              max-width: 1200px;
+              margin: 0 auto;
+              padding: 32px;
+              background: #F3F1E9;
+            }
+            .profile-card {
+              background: white;
+              border-radius: 22px;
+              padding: 24px;
+              box-shadow: 0 4px 12px rgba(105, 106, 109, 0.08);
+            }
+            h1 {
+              font-family: 'Archivo', sans-serif;
+              font-weight: 700;
+              color: #212227;
+            }
+            .btn {
+              background: #F2633A;
+              color: white;
+              padding: 12px 24px;
+              border-radius: 16px;
+              border: none;
+              font-weight: 600;
+              cursor: pointer;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="profile-card">
+            <h1>Wholesale Profile</h1>
+            <p><strong>Shop:</strong> ${shop || 'Unknown'}</p>
+            <p><strong>Customer ID:</strong> ${logged_in_customer_id || 'Not logged in'}</p>
+            <button class="btn" onclick="fetchProfile()">Fetch CRM Data</button>
+            <div id="profile-data"></div>
+          </div>
+
+          <script>
+            async function fetchProfile() {
+              const customerId = '${logged_in_customer_id}';
+              if (!customerId) {
+                alert('Please log in to view your profile');
+                return;
+              }
+
+              // Call your backend API to fetch CRM data
+              const response = await fetch('/api/customer/wholesale-account?customerId=' + customerId); // Corrected API endpoint
+              const data = await response.json();
+
+              document.getElementById('profile-data').innerHTML = 
+                '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+            }
+          </script>
+        </body>
+        </html>
+      `);
+    } catch (error) {
+      console.error("❌ App proxy error:", error);
+      res.status(500).send("Error loading profile");
     }
   });
 
@@ -1368,7 +1451,7 @@ export function registerRoutes(app: Express) {
       `}
     </div>
 
-    <!-- Webhook Logs -->
+    <!-- Webhook Events -->
     <div class="section">
       <h2>🔔 Recent Webhook Events</h2>
       ${recentWebhooks.length === 0 ? '<p style="color: #9ca3af;">No webhooks logged</p>' : `
