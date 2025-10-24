@@ -139,6 +139,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={WholesaleRegistration} />
+      <Route path="/wholesale-registration" component={WholesaleRegistration} />
       <Route path="/apps/join" component={WholesaleRegistration} />
       <Route path="/apps/join/calculator" component={Calculator} />
       <Route path="/calculator" component={Calculator} />
