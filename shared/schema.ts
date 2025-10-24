@@ -47,13 +47,16 @@ export const wholesaleRegistrations = pgTable("wholesale_registrations", {
   // Tax Exemption
   isTaxExempt: boolean("is_tax_exempt").default(false),
   taxId: text("tax_id"), // EIN or VAT ID
-  taxIdProofUrl: text("tax_id_proof_url"), // URL to uploaded tax ID proof document
+  taxIdProofUrl: text("tax_id_proof_url"), // URL to uploaded tax ID document
 
   // Marketing & Samples
   howDidYouHear: text("how_did_you_hear"),
   receivedSampleSet: boolean("received_sample_set").default(false),
-
-  // Status & Workflow
+  marketingOptIn: boolean("marketing_opt_in").default(false),
+  termsAccepted: boolean("terms_accepted").default(false),
+  smsConsent: boolean("sms_consent").default(false),
+  acceptsEmailMarketing: boolean("accepts_email_marketing").default(false),
+  acceptsSmsMarketing: boolean("accepts_sms_marketing").default(false),
   status: text("status").notNull().default("pending"), // "pending", "approved", "rejected"
   approvedBy: varchar("approved_by").references(() => adminUsers.id),
   approvedAt: timestamp("approved_at"),

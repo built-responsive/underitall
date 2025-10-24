@@ -308,13 +308,13 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  // CRM Account Lookup - Query by AccountNumber
+  // CRM Account Lookup - Query by AccountId (not AccountNumber)
   app.post("/api/crm/account", async (req, res) => {
     try {
-      const { accountNumber } = req.body;
+      const { accountId } = req.body;
 
-      if (!accountNumber) {
-        return res.status(400).json({ error: "Missing accountNumber" });
+      if (!accountId) {
+        return res.status(400).json({ error: "Missing accountId" });
       }
 
       const crmBaseUrl = process.env.CRM_BASE_URL || "http://liveapi.claritysoftcrm.com";
@@ -324,14 +324,13 @@ export function registerRoutes(app: Express) {
         return res.status(500).json({ error: "CRM_API_KEY not configured" });
       }
 
-      console.log(`📥 CRM Account Lookup Request: ${accountNumber}`);
+      console.log(`📥 CRM Account Lookup Request: ${accountId}`);
 
       const crmPayload = {
         APIKey: crmApiKey,
         Resource: "Account",
         Operation: "Get",
-        SQLFilter: `AccountNumber = '${accountNumber}'`
-        // Omit Fields parameter - CRM may default to full payload
+        AccountId: accountId
       };
 
       console.log("📤 Exact CRM Payload:");
@@ -381,8 +380,8 @@ export function registerRoutes(app: Express) {
       console.log(JSON.stringify(crmData, null, 2));
 
       // Verify full payload (log field count)
-      if (crmData.Data && crmData.Data.length > 0) {
-        const fieldCount = Object.keys(crmData.Data[0]).length;
+      if (crmData.Data) {
+        const fieldCount = Object.keys(crmData.Data).length;
         console.log(`✅ Account found with ${fieldCount} fields`);
       }
 
@@ -652,23 +651,29 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  // Wholesale registration submission
+  // Wholesale registration submission (only save to DB as pending, no CRM creation yet)
   app.post("/api/wholesale-registration", async (req: Request, res: Response) => {
     try {
       const formData = req.body;
       console.log("📝 Wholesale registration received:", formData);
 
+      // Map marketingOptIn and smsConsent to CRM-compatible fields
+      const registrationData = {
+        ...formData,
+        acceptsEmailMarketing: formData.marketingOptIn || false,
+        acceptsSmsMarketing: formData.smsConsent || false,
+        status: 'pending',
+        submittedAt: new Date(),
+      };
+
       // Save to database (pending approval)
       const [registration] = await db
         .insert(wholesaleRegistrations)
-        .values({
-          ...formData,
-          status: 'pending',
-          submittedAt: new Date(),
-        })
+        .values(registrationData)
         .returning();
 
       console.log("✅ Registration saved to database (pending):", registration.id);
+      console.log("🔒 CRM creation deferred until admin approval");
 
       res.json({
         success: true,
@@ -698,51 +703,86 @@ export function registerRoutes(app: Express) {
         return res.status(404).json({ error: "Registration not found" });
       }
 
-      // Step 1: Create Clarity CRM Account
-      const crmBaseUrl = process.env.CRM_BASE_URL;
+      // Step 1: Create Clarity CRM Account with proper field mapping
+      const crmBaseUrl = process.env.CRM_BASE_URL || "http://liveapi.claritysoftcrm.com";
       const crmApiKey = process.env.CRM_API_KEY;
 
       let clarityAccountId = null;
 
-      if (crmBaseUrl && crmApiKey) {
+      if (crmApiKey) {
+        const { default: http } = await import("http");
+
         const crmPayload = {
           APIKey: crmApiKey,
           Resource: "Account",
           Operation: "Create Or Edit",
           Data: {
-            AccountName: registration.firmName,
-            Phone: registration.phone || "",
+            Account: registration.firmName,
+            CompanyPhone: registration.phone || "",
             Website: registration.website || "",
             Address1: registration.businessAddress,
             Address2: registration.businessAddress2 || "",
             City: registration.city,
             State: registration.state,
             ZipCode: registration.zipCode,
-            CustomFields: {
-              InstagramHandle: registration.instagramHandle || "",
-              AccountType: registration.businessType,
-              TaxExempt: registration.isTaxExempt ? "Yes" : "No",
-              TaxID: registration.taxId || "",
-              SampleSetReceived: registration.receivedSampleSet ? "Yes" : "No",
-              Source: registration.howDidYouHear || ""
-            }
+            "Account Type": registration.businessType || "",
+            "Sample Set": registration.receivedSampleSet ? "Yes" : "No",
+            "Lead Source Specifics": registration.howDidYouHear || "",
+            Instagram: registration.instagramHandle || "",
+            EIN: registration.taxId || "",
+            "Accepts Email Marketing": registration.acceptsEmailMarketing ? "Yes" : "No",
+            "Accepts SMS Marketing": registration.acceptsSmsMarketing ? "Yes" : "No",
           }
         };
 
-        const crmResponse = await fetch(`${crmBaseUrl}/api/v1`, {
+        console.log("📤 CRM Account Creation Payload:");
+        console.log(JSON.stringify(crmPayload, null, 2));
+
+        const payloadString = JSON.stringify(crmPayload);
+
+        const options = {
+          hostname: "liveapi.claritysoftcrm.com",
+          port: 80,
+          path: "/api/v1",
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(crmPayload),
+          headers: {
+            "Content-Type": "application/json",
+            "Content-Length": Buffer.byteLength(payloadString),
+            "Accept": "*/*",
+            "Accept-Encoding": "gzip, deflate",
+            "Connection": "keep-alive",
+            "User-Agent": "curl/7.68.0"
+          }
+        };
+
+        const crmData = await new Promise<any>((resolve, reject) => {
+          const req = http.request(options, (res: any) => {
+            let data = "";
+            res.on("data", (chunk: any) => (data += chunk));
+            res.on("end", () => {
+              try {
+                resolve(JSON.parse(data));
+              } catch (error) {
+                reject(new Error(`Failed to parse CRM response: ${data}`));
+              }
+            });
+          });
+
+          req.on("error", reject);
+          req.write(payloadString);
+          req.end();
         });
 
-        const crmData = await crmResponse.json();
+        console.log("📤 CRM Account Response:");
+        console.log(JSON.stringify(crmData, null, 2));
+
         clarityAccountId = crmData?.Data?.AccountId;
 
         if (!clarityAccountId) {
           throw new Error("CRM Account creation failed - no AccountId returned");
         }
 
-        console.log("✅ CRM Account created:", clarityAccountId);
+        console.log("✅ CRM Account created with AccountId:", clarityAccountId);
       } else {
         throw new Error("CRM credentials not configured");
       }
