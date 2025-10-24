@@ -1,5 +1,5 @@
 
-import type { Express } from "express";
+import type { Express, Request, Response } from "express";
 import { createServer } from "http";
 import webhookRoutes from "./webhooks";
 import { db } from "./db";
@@ -111,15 +111,71 @@ export function registerRoutes(app: Express) {
     }
   });
 
-import type { Express } from "express";
-import { createServer } from "http";
-import webhookRoutes from "./webhooks";
-import { db } from "./db";
-import { wholesaleRegistrations, calculatorQuotes, webhookLogs, draftOrders } from "@shared/schema";
-import { desc, eq } from "drizzle-orm";
-import { getShopifyConfig, executeShopifyGraphQL } from "./utils/shopifyConfig";
+  // Customer Account Extension API - Update Wholesale Account Data
+  app.patch("/api/customer/wholesale-account", async (req, res) => {
+    try {
+      // TODO: Add session token authentication here
+      const { customerId, clarityAccountId, updates } = req.body;
 
-export function registerRoutes(app: Express) {
+      if (!customerId || !clarityAccountId) {
+        return res.status(400).json({ error: "Missing customerId or clarityAccountId" });
+      }
+
+      // Update in our database
+      await db
+        .update(wholesaleRegistrations)
+        .set({
+          firmName: updates.company,
+          phone: updates.phone,
+          website: updates.website,
+          instagramHandle: updates.instagram,
+          businessAddress: updates.address,
+          businessAddress2: updates.address2,
+          city: updates.city,
+          state: updates.state,
+          zipCode: updates.zip,
+          taxId: updates.taxId,
+        })
+        .where(eq(wholesaleRegistrations.clarityAccountId, clarityAccountId));
+
+      // Optionally sync to CRM
+      const crmBaseUrl = process.env.CRM_BASE_URL;
+      const crmApiKey = process.env.CRM_API_KEY;
+
+      if (crmBaseUrl && crmApiKey) {
+        const crmPayload = {
+          APIKey: crmApiKey,
+          Resource: "Account",
+          Operation: "Create Or Edit",
+          Data: {
+            AccountId: clarityAccountId,
+            AccountName: updates.company,
+            Phone: updates.phone || "",
+            Website: updates.website || "",
+            Address1: updates.address,
+            Address2: updates.address2 || "",
+            City: updates.city,
+            State: updates.state,
+            ZipCode: updates.zip,
+          }
+        };
+
+        await fetch(`${crmBaseUrl}/api/v1`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(crmPayload),
+        });
+      }
+
+      res.json({ success: true, message: "Wholesale account updated" });
+    } catch (error) {
+      console.error("❌ Error updating wholesale account:", error);
+      res.status(500).json({ 
+        error: error instanceof Error ? error.message : "Failed to update wholesale account" 
+      });
+    }
+  });
+
   // GraphQL Proxy Bypass (for Shopify CLI) - Handle CORS preflight
   app.options("/graphiql/graphql.json", (req, res) => {
     res.header("Access-Control-Allow-Origin", "*");
