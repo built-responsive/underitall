@@ -61,8 +61,8 @@ exposeLocalhost = true
 
 [deployment]
 deploymentTarget = "gce"
-run = ["sh", "-c", "npm run start"]
-build = ["sh", "-c", "npm run build"]
+run = ["npm", "run", "start"]
+build = ["sh", "-c", "npm run build && npm run db:production-setup"]
 
 [nix]
 packages = ["postgresql_10", "shopify-cli"]

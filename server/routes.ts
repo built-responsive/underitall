@@ -1,4 +1,5 @@
 import type { Express, Request, Response } from "express";
+import { createServer } from "http";
 import webhookRoutes from "./webhooks";
 import { db } from "./db";
 import { wholesaleRegistrations, calculatorQuotes, webhookLogs, draftOrders } from "@shared/schema";
@@ -257,8 +258,8 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  // App Proxy Route - Serves wholesale registration within Shopify storefront
-  app.get("/apps/wholesale/*", async (req, res, next) => {
+  // App Proxy Route - Serves wholesale profile within Shopify storefront
+  app.get("/apps/wholesale/*", async (req, res) => {
     try {
       // Shopify sends proxy params in query: shop, logged_in_customer_id, etc.
       const { shop, logged_in_customer_id } = req.query;
@@ -269,12 +270,41 @@ export function registerRoutes(app: Express) {
         customerId: logged_in_customer_id,
       });
 
-      // Let the React app handle the routing - fall through to Vite/static handler
-      // This ensures proper routing within the /apps/wholesale/* namespace
-      next();
+      // Serve React app with injected Shopify params for App Bridge
+      res.send(`
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <meta name="shopify-api-key" content="78a602699150bda4e49a40861707d500" />
+          <title>Wholesale Profile</title>
+          <script type="text/javascript">
+            // Inject Shopify params for App Bridge from query string
+            window.__SHOPIFY_SHOP__ = "${shop || ''}";
+            window.__SHOPIFY_CUSTOMER_ID__ = "${logged_in_customer_id || ''}";
+            window.__SHOPIFY_EMBEDDED__ = false; // App Proxy runs outside admin iframe
+          </script>
+          <!-- Load App Bridge (optional for proxy, but safe to include) -->
+          <script src="https://cdn.shopify.com/shopifycloud/app-bridge.js" type="text/javascript"></script>
+          <!-- Vite dev assets -->
+          <script type="module" src="https://its-under-it-all.replit.app/@vite/client"></script>
+          <script type="module" src="https://its-under-it-all.replit.app/src/main.tsx"></script>
+        </head>
+        <body>
+          <div id="root"></div>
+          <script>
+            console.log('📦 App Proxy loaded:', {
+              shop: window.__SHOPIFY_SHOP__,
+              customerId: window.__SHOPIFY_CUSTOMER_ID__
+            });
+          </script>
+        </body>
+        </html>
+      `);
     } catch (error) {
       console.error("❌ App proxy error:", error);
-      res.status(500).send("Error loading wholesale app");
+      res.status(500).send("Error loading profile");
     }
   });
 
@@ -373,8 +403,14 @@ export function registerRoutes(app: Express) {
         return res.status(400).json({ error: "Missing GraphQL query" });
       }
 
+      console.log("📥 GraphQL Request:");
+      console.log(JSON.stringify({ query, variables }, null, 2));
+
       // Use the centralized executeShopifyGraphQL util
       const data = await executeShopifyGraphQL(query, variables);
+
+      console.log("📤 GraphQL Response:");
+      console.log(JSON.stringify(data, null, 2));
 
       res.json(data);
     } catch (error) {
@@ -908,19 +944,11 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  // Company Enrichment - Basic implementation (expand with OpenAI/CRM later)
+  // Company Enrichment (placeholder - implement when OpenAI/CRM integration ready)
   app.post("/api/enrich-company", async (req, res) => {
     try {
-      const { companyName } = req.body;
-      
-      console.log("🔍 Company enrichment request:", companyName);
-
-      // Return empty enrichment for now (client handles gracefully)
-      res.json({
-        enriched: false,
-        data: {},
-        message: "Enrichment service not yet configured"
-      });
+      // TODO: Implement company enrichment with OpenAI/CRM
+      res.json({ enriched: false, message: "Enrichment not yet implemented" });
     } catch (error) {
       console.error("❌ Error enriching company:", error);
       res.status(500).json({ error: "Failed to enrich company" });
@@ -1807,17 +1835,14 @@ export function registerRoutes(app: Express) {
   // Catch-all route for React Router (must be LAST, after all API routes)
   // This ensures unmatched routes fall through to the client-side router
   app.get("*", (req, res, next) => {
-    // Skip API routes - they should have been handled above
-    if (req.path.startsWith("/api")) {
-      return res.status(404).json({ error: "API endpoint not found" });
+    // Only serve React app for non-API routes
+    if (!req.path.startsWith("/api")) {
+      // Let Vite/serveStatic middleware handle this
+      return next();
     }
-    
-    // In production, serve the built index.html for client-side routing
-    if (app.get("env") === "production") {
-      return res.sendFile("index.html", { root: "./dist/public" });
-    }
-    
-    // In development, let Vite middleware handle it
-    next();
+    // If it's an API route that wasn't matched, 404
+    res.status(404).json({ error: "API endpoint not found" });
   });
+
+  return createServer(app);
 }

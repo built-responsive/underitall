@@ -148,8 +148,6 @@ function Router() {
       <Route path="/wholesale-registration" component={WholesaleRegistration} />
       <Route path="/apps/join" component={WholesaleRegistration} />
       <Route path="/apps/join/calculator" component={Calculator} />
-      <Route path="/apps/wholesale" component={WholesaleRegistration} />
-      <Route path="/apps/wholesale/:path*" component={WholesaleRegistration} />
       <Route path="/calculator" component={Calculator} />
       <Route path="/dashboard" component={Admin} />
       <Route path="/settings" component={Settings} />

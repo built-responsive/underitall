@@ -2,7 +2,6 @@
 // this uses the dotenv package (added to dependencies)
 import 'dotenv/config';
 import express, { type Request, Response, NextFunction } from "express";
-import { createServer } from "http";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import cors from "cors";
@@ -95,46 +94,24 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  // Setup Vite/static FIRST so assets never hit API routes
-  const server = createServer(app);
-  
+  // Register API routes FIRST before Vite middleware
+  const server = await registerRoutes(app);
+
+  // Error handler for API routes
+  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
+    const status = err.status || err.statusCode || 500;
+    const message = err.message || "Internal Server Error";
+
+    res.status(status).json({ message });
+    throw err;
+  });
+
+  // Setup Vite AFTER API routes so it only catches non-API requests
   if (app.get("env") === "development") {
     await setupVite(app, server);
   } else {
     serveStatic(app);
   }
-
-  // Register API routes AFTER static middleware
-  await registerRoutes(app);
-
-  // Error handler for API routes (AFTER static middleware to catch API errors only)
-  app.use("/api", (err: any, _req: Request, res: Response, _next: NextFunction) => {
-    const status = err.status || err.statusCode || 500;
-    const message = err.message || "Internal Server Error";
-
-    // Log error in production for debugging
-    console.error("❌ API Error:", {
-      status,
-      message,
-      path: _req.path,
-      method: _req.method,
-      stack: err.stack
-    });
-
-    res.status(status).json({ message });
-  });
-
-  // Global error handler for production
-  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-    console.error("❌ Unhandled Error:", err);
-    
-    // Don't leak error details in production
-    const isDev = app.get("env") === "development";
-    res.status(500).json({
-      error: "Internal Server Error",
-      ...(isDev && { details: err.message, stack: err.stack })
-    });
-  });
 
   // ALWAYS serve the app on the port specified in the environment variable PORT
   // Other ports are firewalled. Default to 5000 if not specified.
