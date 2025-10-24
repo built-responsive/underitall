@@ -1,3 +1,4 @@
+
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
 
 async function throwIfResNotOk(res: Response) {
@@ -6,11 +7,6 @@ async function throwIfResNotOk(res: Response) {
     throw new Error(`${res.status}: ${text}`);
   }
 }
-
-// Use absolute URL for production, relative for dev
-const API_BASE_URL = import.meta.env.PROD
-  ? "https://its-under-it-all.replit.app/"
-  : "";
 
 export async function apiRequest(
   method: string,
@@ -21,11 +17,9 @@ export async function apiRequest(
     "Content-Type": "application/json",
   };
 
-  // Use relative URLs in dev (hits local server), absolute in prod (for embedded Shopify iframe)
-  const baseUrl = import.meta.env.PROD 
-    ? 'https://its-under-it-all.replit.app'
-    : ''; // Empty string = relative to current origin (localhost:5000 in dev)
-  
+  // Use relative URLs in dev (hits localhost:5000), absolute in prod (for Shopify iframe)
+  const isDev = import.meta.env.DEV;
+  const baseUrl = isDev ? '' : 'https://its-under-it-all.replit.app';
   const fullPath = path.startsWith('/') ? `${baseUrl}${path}` : `${baseUrl}/${path}`;
 
   const options: RequestInit = {
@@ -38,7 +32,7 @@ export async function apiRequest(
     options.body = JSON.stringify(body);
   }
 
-  console.log(`🌐 API Request: ${method} ${fullPath}`); // Debug log
+  console.log(`🌐 [${isDev ? 'DEV' : 'PROD'}] API Request: ${method} ${fullPath}`);
   return fetch(fullPath, options);
 }
 
@@ -48,15 +42,13 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
-    // Use relative URLs in dev, absolute in prod
-    const baseUrl = import.meta.env.PROD
-      ? 'https://its-under-it-all.replit.app'
-      : ''; // Relative in dev
+    const isDev = import.meta.env.DEV;
+    const baseUrl = isDev ? '' : 'https://its-under-it-all.replit.app';
     
     const path = queryKey.join("/");
     const fullUrl = path.startsWith('http') ? path : `${baseUrl}${path.startsWith('/') ? path : `/${path}`}`;
     
-    console.log(`🔍 Query Fetch: ${fullUrl}`); // Debug log
+    console.log(`🔍 [${isDev ? 'DEV' : 'PROD'}] Query Fetch: ${fullUrl}`);
     
     const res = await fetch(fullUrl, {
       credentials: "include",
