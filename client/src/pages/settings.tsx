@@ -194,7 +194,7 @@ export default function Settings() {
                       <AlertCircle className="h-4 w-4" />
                       <AlertTitle className="font-['Archivo']">Failed to Load Health Status</AlertTitle>
                       <AlertDescription className="font-['Vazirmatn']">
-                        {healthError.message}
+                        Could not load health status. Please try again.
                         <Button
                           onClick={() => refetchHealth()}
                           variant="outline"
