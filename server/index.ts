@@ -28,6 +28,11 @@ app.use(cors({
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
 
+    // Allow Replit preview iframes (replit.dev domains)
+    if (origin && origin.includes('.replit.dev')) {
+      return callback(null, true);
+    }
+
     // Allow all Shopify admin subdomains (admin.shopify.com, partners.shopify.com, etc.)
     if (origin && (origin.includes('.shopify.com') || allowedOrigins.includes(origin))) {
       callback(null, true);

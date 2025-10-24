@@ -17,10 +17,8 @@ export async function apiRequest(
     "Content-Type": "application/json",
   };
 
-  // Use relative URLs in dev (hits localhost:5000), absolute in prod (for Shopify iframe)
-  const isDev = import.meta.env.DEV;
-  const baseUrl = isDev ? '' : 'https://its-under-it-all.replit.app';
-  const fullPath = path.startsWith('/') ? `${baseUrl}${path}` : `${baseUrl}/${path}`;
+  // Always use relative URLs for same-origin requests (works in iframe and new window)
+  const fullPath = path.startsWith('/') ? path : `/${path}`;
 
   const options: RequestInit = {
     method,
@@ -32,7 +30,7 @@ export async function apiRequest(
     options.body = JSON.stringify(body);
   }
 
-  console.log(`🌐 [${isDev ? 'DEV' : 'PROD'}] API Request: ${method} ${fullPath}`);
+  console.log(`🌐 API Request: ${method} ${fullPath}`);
   return fetch(fullPath, options);
 }
 
