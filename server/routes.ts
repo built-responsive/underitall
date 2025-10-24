@@ -87,9 +87,9 @@ export function registerRoutes(app: Express) {
       const { width, length, thickness, quantity } = req.body;
       
       // Import pricing calculator
-      const { calculatePrice } = await import("./utils/pricingCalculator");
+      const { calculateQuote } = await import("./utils/pricingCalculator");
       
-      const priceData = calculatePrice(width, length, thickness, quantity);
+      const priceData = calculateQuote(width, length, thickness, quantity);
       res.json(priceData);
     } catch (error) {
       console.error("❌ Error calculating price:", error);
@@ -105,14 +105,14 @@ export function registerRoutes(app: Express) {
       const quote = await db
         .insert(calculatorQuotes)
         .values({
-          rugWidth: quoteData.rugWidth,
-          rugLength: quoteData.rugLength,
+          width: quoteData.width,
+          length: quoteData.length,
           thickness: quoteData.thickness,
           shape: quoteData.shape,
+          area: quoteData.area,
           quantity: quoteData.quantity,
           totalPrice: quoteData.totalPrice,
           pricePerSqFt: quoteData.pricePerSqFt,
-          productName: quoteData.productName,
           projectName: quoteData.projectName,
           installLocation: quoteData.installLocation,
           poNumber: quoteData.poNumber,
@@ -139,19 +139,24 @@ export function registerRoutes(app: Express) {
           firmName: registrationData.firmName,
           firstName: registrationData.firstName,
           lastName: registrationData.lastName,
+          title: registrationData.title,
           email: registrationData.email,
           phone: registrationData.phone,
           website: registrationData.website,
-          instagramHandle: registrationData.instagramHandle,
-          streetAddress: registrationData.streetAddress,
-          suiteUnit: registrationData.suiteUnit,
+          businessAddress: registrationData.businessAddress,
+          businessAddress2: registrationData.businessAddress2,
           city: registrationData.city,
           state: registrationData.state,
           zipCode: registrationData.zipCode,
-          vatTaxId: registrationData.vatTaxId,
-          taxExempt: registrationData.taxExempt,
-          source: registrationData.source,
-          additionalMessage: registrationData.additionalMessage,
+          instagramHandle: registrationData.instagramHandle,
+          certificationUrl: registrationData.certificationUrl,
+          businessType: registrationData.businessType,
+          yearsInBusiness: registrationData.yearsInBusiness,
+          isTaxExempt: registrationData.isTaxExempt,
+          taxId: registrationData.taxId,
+          taxIdProofUrl: registrationData.taxIdProofUrl,
+          howDidYouHear: registrationData.howDidYouHear,
+          receivedSampleSet: registrationData.receivedSampleSet || false,
           status: "pending",
         })
         .returning();
