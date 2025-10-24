@@ -50,27 +50,7 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  // Webhook logs endpoint (moved here to add no-cache headers)
-  app.get("/api/webhooks/logs", async (req, res) => {
-    try {
-      const logs = await db
-        .select()
-        .from(webhookLogs)
-        .orderBy(desc(webhookLogs.timestamp))
-        .limit(50);
-      
-      // Force no-cache for fresh webhook data
-      res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-      res.setHeader("Pragma", "no-cache");
-      res.setHeader("Expires", "0");
-      res.json({ total: logs.length, logs });
-    } catch (error: any) {
-      console.error("❌ Error fetching webhook logs:", error);
-      res.status(500).json({ error: "Failed to fetch webhook logs" });
-    }
-  });
-
-  // Mount webhook routes
+  // Mount webhook routes (includes /logs endpoint with no-cache headers)
   app.use("/api/webhooks", webhookRoutes);
 
   // Wholesale Registration Update Route (for admin dashboard)
@@ -389,10 +369,13 @@ export function registerRoutes(app: Express) {
       const shopifyData = await shopifyResponse.json();
 
       if (shopifyData.errors || shopifyData.data?.draftOrderCreate?.userErrors?.length > 0) {
-        console.error("❌ Shopify draft order creation failed:", shopifyData);
+        const userErrors = shopifyData.data?.draftOrderCreate?.userErrors || [];
+        console.error("❌ Shopify draft order creation failed:");
+        console.error("User Errors:", JSON.stringify(userErrors, null, 2));
+        console.error("Full Response:", JSON.stringify(shopifyData, null, 2));
         return res.status(500).json({
           error: "Failed to create Shopify draft order",
-          details: shopifyData.errors || shopifyData.data?.draftOrderCreate?.userErrors,
+          details: userErrors.length > 0 ? userErrors : shopifyData.errors,
         });
       }
 
@@ -1005,6 +988,18 @@ export function registerRoutes(app: Express) {
         error: error instanceof Error ? error.message : "Health check failed"
       });
     }
+  });
+
+  // Catch-all route for React Router (must be LAST, after all API routes)
+  // This ensures unmatched routes fall through to the client-side router
+  app.get("*", (req, res, next) => {
+    // Only serve React app for non-API routes
+    if (!req.path.startsWith("/api")) {
+      // Let Vite/serveStatic middleware handle this
+      return next();
+    }
+    // If it's an API route that wasn't matched, 404
+    res.status(404).json({ error: "API endpoint not found" });
   });
 
   return createServer(app);
