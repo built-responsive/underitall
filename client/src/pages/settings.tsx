@@ -30,9 +30,11 @@ export default function Settings() {
   const [expandedWebhooks, setExpandedWebhooks] = useState<Set<number>>(new Set());
 
   const { data: webhookLogs, isLoading: loadingWebhooks, refetch: refetchWebhooks, isError: webhookError } = useQuery({
-    queryKey: ["/api/webhooks/logs"],
+    queryKey: ["https://its-under-it-all.replit.app/api/webhooks/logs"],
     queryFn: async () => {
-      const res = await apiRequest("GET", "/api/webhooks/logs");
+      const res = await fetch("https://its-under-it-all.replit.app/api/webhooks/logs", {
+        credentials: "include",
+      });
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
@@ -41,9 +43,11 @@ export default function Settings() {
   });
 
   const { data: healthCheck, isLoading: loadingHealth, refetch: refetchHealth, isError: healthError } = useQuery({
-    queryKey: ["/api/health"],
+    queryKey: ["https://its-under-it-all.replit.app/api/health"],
     queryFn: async () => {
-      const res = await apiRequest("GET", "/api/health");
+      const res = await fetch("https://its-under-it-all.replit.app/api/health", {
+        credentials: "include",
+      });
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }

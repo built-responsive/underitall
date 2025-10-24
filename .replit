@@ -60,9 +60,9 @@ externalPort = 3003
 exposeLocalhost = true
 
 [deployment]
-deploymentTarget = "autoscale"
+deploymentTarget = "gce"
 run = ["npm", "run", "start"]
-build = ["bash", "-c", "npm run build && npm run db:production-setup"]
+build = ["sh", "-c", "npm run build && npm run db:production-setup"]
 
 [nix]
 packages = ["postgresql_10", "shopify-cli"]
