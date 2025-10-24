@@ -947,7 +947,7 @@ export function registerRoutes(app: Express) {
   // Company Enrichment - AI-powered with Cloudflare geo + gpt-4o-search-preview strict schema
   app.post("/api/enrich-company", async (req, res) => {
     try {
-      const companyName = (req.body?.firmName || "").trim();
+      const companyName = (req.body?.firmName || req.body?.companyName || "").trim();
 
       console.log("🔍 Company enrichment request for:", companyName);
 
@@ -955,16 +955,7 @@ export function registerRoutes(app: Express) {
         console.log("⏭️ Company name too short, skipping enrichment");
         return res.json({
           enriched: false,
-          data: {
-            website: null,
-            instagramHandle: null,
-            businessAddress: null,
-            businessAddress2: null,
-            city: null,
-            state: null,
-            zipCode: null,
-            phone: null,
-          }
+          data: null
         });
       }
 
@@ -1141,7 +1132,20 @@ export function registerRoutes(app: Express) {
       const enriched = JSON.parse(responseContent);
       console.log("✅ Parsed enrichment data:", enriched);
 
-      // Return only the profile fields (strip reasoning)
+      // Check if we have ANY enriched data (show modal only if data exists)
+      const hasData = enriched.website || enriched.instagramHandle || enriched.businessAddress || 
+                      enriched.city || enriched.state || enriched.zipCode || enriched.phone;
+
+      if (!hasData) {
+        console.log("ℹ️ No enrichment data found for this company");
+        return res.json({
+          enriched: false,
+          data: null
+        });
+      }
+
+      // Return enriched data for modal confirmation
+      console.log("✅ Enrichment data found, triggering modal");
       return res.json({
         enriched: true,
         data: {
@@ -1159,16 +1163,8 @@ export function registerRoutes(app: Express) {
       console.error("❌ Company enrichment error:", error);
       return res.json({
         enriched: false,
-        data: {
-          website: null,
-          instagramHandle: null,
-          businessAddress: null,
-          businessAddress2: null,
-          city: null,
-          state: null,
-          zipCode: null,
-          phone: null,
-        }
+        data: null,
+        error: error instanceof Error ? error.message : "Enrichment failed"
       });
     }
   });

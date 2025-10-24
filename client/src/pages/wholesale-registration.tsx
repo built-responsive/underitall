@@ -182,22 +182,19 @@ export default function WholesaleRegistration() {
 
     try {
       const res = await apiRequest("POST", "/api/enrich-company", {
-        firmName: companyName.trim(),
+        companyName: companyName.trim(), // Backend expects 'companyName' or 'firmName'
       });
 
       console.log("📡 API Response status:", res.status);
 
-      const data = await res.json();
-      console.log("📦 API Response data:", data);
+      const result = await res.json();
+      console.log("📦 API Response data:", result);
 
-      // Check if we have any data to show
-      const hasData = data.website || data.instagramHandle || data.businessAddress || 
-                      data.city || data.state || data.zipCode || data.phone;
-
-      if (hasData) {
+      // Check if enrichment was successful and has data
+      if (result.enriched && result.data) {
         // Store enrichment data and show modal
         setEnrichmentData({
-          data,
+          data: result.data,
           currentValues: {
             website: currentWebsite,
             instagram: currentInstagram,

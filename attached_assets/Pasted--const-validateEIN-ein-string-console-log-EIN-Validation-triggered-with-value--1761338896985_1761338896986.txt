@@ -1,0 +1,113 @@
+
+  const validateEIN = (ein: string) => {
+    console.log("🔍 EIN Validation triggered with value:", ein);
+
+    if (!ein || ein.trim() === "" || ein.toUpperCase() === "NA") {
+      console.log("✅ EIN is empty or NA - validation passed");
+      setEinValidationError("");
+      return;
+    }
+
+    // EIN format: XX-XXXXXXX (exactly 2 digits, dash, 7 digits)
+    const einPattern = /^\d{2}-\d{7}$/;
+    const trimmedEin = ein.trim();
+
+    console.log("📝 Testing EIN format:", {
+      originalValue: ein,
+      trimmedValue: trimmedEin,
+      pattern: "XX-XXXXXXX (2 digits, dash, 7 digits)",
+      testResult: einPattern.test(trimmedEin)
+    });
+
+    if (!einPattern.test(trimmedEin)) {
+      console.log("❌ EIN validation FAILED - Invalid format");
+      setEinValidationError("Invalid EIN format. Must be XX-XXXXXXX (e.g., 12-3456789) or 'NA' if not applicable");
+    } else {
+      console.log("✅ EIN validation PASSED - Valid format");
+      setEinValidationError("");
+    }
+  };
+
+  const enrichCompanyData = async (companyName: string) => {
+    console.log("🔍 Company enrichment triggered with:", companyName);
+
+    if (!companyName || companyName.trim().length < 3) {
+      console.log("⏭️ Skipping enrichment - company name too short or empty");
+      return;
+    }
+
+    // Get current form values to check what's empty
+    const currentWebsite = form.getValues("website");
+    const currentInstagram = form.getValues("instagramHandle");
+    const currentAddress = form.getValues("businessAddress");
+    const currentAddress2 = form.getValues("businessAddress2");
+    const currentCity = form.getValues("city");
+    const currentState = form.getValues("state");
+    const currentZip = form.getValues("zipCode");
+    const currentPhone = form.getValues("phone");
+
+    console.log("📋 Current field values:", {
+      website: currentWebsite || "(empty)",
+      instagram: currentInstagram || "(empty)",
+      address: currentAddress || "(empty)",
+      address2: currentAddress2 || "(empty)",
+      city: currentCity || "(empty)",
+      state: currentState || "(empty)",
+      zip: currentZip || "(empty)",
+      phone: currentPhone || "(empty)"
+    });
+
+    // Skip if all fields are already filled
+    if (currentWebsite && currentInstagram && currentAddress && currentCity && currentState && currentZip && currentPhone) {
+      console.log("⏭️ Skipping enrichment - all fields already filled");
+      return;
+    }
+
+    console.log("🚀 Starting API enrichment request...");
+    setIsEnriching(true);
+
+    try {
+      const res = await apiRequest("POST", "/api/enrich-company", {
+        companyName: companyName.trim(),
+      });
+
+      console.log("📡 API Response status:", res.status);
+
+      const data = await res.json();
+      console.log("📦 API Response data:", data);
+
+      // Check if we have any data to show
+      const hasData = data.website || data.instagramHandle || data.businessAddress || 
+                      data.city || data.state || data.zipCode || data.phone;
+
+      if (hasData) {
+        // Store enrichment data and show modal
+        setEnrichmentData({
+          data,
+          currentValues: {
+            website: currentWebsite,
+            instagram: currentInstagram,
+            address: currentAddress,
+            address2: currentAddress2,
+            city: currentCity,
+            state: currentState,
+            zip: currentZip,
+            phone: currentPhone
+          }
+        });
+        setShowEnrichmentModal(true);
+        console.log("🔔 Showing enrichment confirmation modal");
+      } else {
+        console.log("ℹ️ No enrichment data found for this company");
+      }
+    } catch (error) {
+      console.error("❌ Enrichment failed with error:", error);
+      console.error("Error details:", {
+        message: error instanceof Error ? error.message : "Unknown error",
+        stack: error instanceof Error ? error.stack : undefined
+      });
+    } finally {
+      setIsEnriching(false);
+      console.log("✅ Enrichment process complete");
+    }
+  };
