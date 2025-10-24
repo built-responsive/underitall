@@ -512,8 +512,13 @@ export default function WholesaleRegistration() {
         <Card className="rounded-[16px]">
           <CardHeader>
             <CardTitle className="text-2xl font-['Archivo'] text-[#212227]">Create Account</CardTitle>
-            <CardDescription className="font-['Vazirmatn'] text-[#696A6D] leading-snug">
-              Becoming a trade member takes less than one minute and opens the door to exclusive pricing, custom rug pad options, and resources built for design professionals.  We're trade only, which means all accounts require verified business details before purchasing. Registration is quick, easy and absolutely worth it.  Enter your info, upload your resale certificate and start shopping.
+            <CardDescription className="font-['Vazirmatn'] text-[#696A6D] leading-snug space-y-4">
+              <p>
+                Becoming a trade member takes less than one minute and opens the door to exclusive pricing, custom rug pad options, and resources built for design professionals.
+              </p>
+              <p>
+                We're trade only, which means all accounts require verified business details before purchasing. Registration is quick, easy and absolutely worth it. Enter your info, upload your resale certificate and start shopping.
+              </p>
             </CardDescription>
           </CardHeader>
           <CardContent>
