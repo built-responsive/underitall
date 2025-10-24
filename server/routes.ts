@@ -3,7 +3,7 @@ import type { Express } from "express";
 import { createServer } from "http";
 import webhookRoutes from "./webhooks";
 import { db } from "./db";
-import { wholesaleRegistrations, calculatorQuotes, webhookLogs } from "@shared/schema";
+import { wholesaleRegistrations, calculatorQuotes, webhookLogs, draftOrders } from "@shared/schema";
 import { desc } from "drizzle-orm";
 
 export function registerRoutes(app: Express) {
@@ -179,14 +179,106 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  // Admin API - Draft Orders (placeholder - implement when you have the table)
+  // Admin API - Draft Orders
   app.get("/api/draft-orders", async (req, res) => {
     try {
-      // TODO: Implement draft orders table and query
-      res.json([]);
+      const orders = await db
+        .select()
+        .from(draftOrders)
+        .orderBy(desc(draftOrders.createdAt));
+      res.json(orders);
     } catch (error) {
       console.error("❌ Error fetching draft orders:", error);
       res.status(500).json({ error: "Failed to fetch draft orders" });
+    }
+  });
+
+  // Create Draft Order via Shopify Admin API
+  app.post("/api/draft-order", async (req, res) => {
+    try {
+      const { calculatorQuoteId, lineItems, customerEmail, note } = req.body;
+
+      const shopDomain = process.env.SHOPIFY_SHOP_DOMAIN;
+      const adminToken = process.env.SHOPIFY_ADMIN_ACCESS_TOKEN;
+
+      if (!shopDomain || !adminToken) {
+        return res.status(500).json({ error: "Shopify credentials not configured" });
+      }
+
+      // Create Shopify Draft Order via Admin API
+      const draftOrderMutation = `
+        mutation draftOrderCreate($input: DraftOrderInput!) {
+          draftOrderCreate(input: $input) {
+            draftOrder {
+              id
+              invoiceUrl
+              totalPrice
+            }
+            userErrors {
+              field
+              message
+            }
+          }
+        }
+      `;
+
+      const variables = {
+        input: {
+          email: customerEmail,
+          note: note || "Created via UnderItAll Calculator",
+          lineItems: lineItems.map((item: any) => ({
+            variantId: item.variantId,
+            quantity: item.quantity,
+            customAttributes: item.customAttributes || [],
+          })),
+        },
+      };
+
+      const shopifyResponse = await fetch(
+        `https://${shopDomain}/admin/api/2025-01/graphql.json`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Shopify-Access-Token": adminToken,
+          },
+          body: JSON.stringify({ query: draftOrderMutation, variables }),
+        }
+      );
+
+      const shopifyData = await shopifyResponse.json();
+
+      if (shopifyData.errors || shopifyData.data?.draftOrderCreate?.userErrors?.length > 0) {
+        console.error("❌ Shopify draft order creation failed:", shopifyData);
+        return res.status(500).json({
+          error: "Failed to create Shopify draft order",
+          details: shopifyData.errors || shopifyData.data?.draftOrderCreate?.userErrors,
+        });
+      }
+
+      const draftOrder = shopifyData.data.draftOrderCreate.draftOrder;
+
+      // Save to local database
+      const [savedOrder] = await db
+        .insert(draftOrders)
+        .values({
+          shopifyDraftOrderId: draftOrder.id,
+          shopifyDraftOrderUrl: `https://${shopDomain}/admin/draft_orders/${draftOrder.id.split('/').pop()}`,
+          invoiceUrl: draftOrder.invoiceUrl,
+          totalPrice: draftOrder.totalPrice,
+          lineItems: lineItems,
+          calculatorQuoteId: calculatorQuoteId || null,
+        })
+        .returning();
+
+      res.json({
+        success: true,
+        draftOrder: savedOrder,
+        invoiceUrl: draftOrder.invoiceUrl,
+      });
+    } catch (error) {
+      console.error("❌ Error creating draft order:", error);
+      res.status(500).json({ error: "Failed to create draft order" });
     }
   });
 
