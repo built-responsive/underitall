@@ -1,0 +1,111 @@
+vendors-node_modules_pnpm_remote-ui_async-subscription_2_1_16_node_modules_remote-ui_async-su-b156aa-ed56f9b588afc1d18186.js:2 [bugsnag] Loaded!
+vendors-node_modules_pnpm_remote-ui_async-subscription_2_1_16_node_modules_remote-ui_async-su-b156aa-ed56f9b588afc1d18186.js:2 No Shopify analytics manager found. Using noop manager.
+test.e._isBreadcrumbTypeEnabled.console.<computed> @ vendors-node_modules_pnpm_remote-ui_async-subscription_2_1_16_node_modules_remote-ui_async-su-b156aa-ed56f9b588afc1d18186.js:2
+(anonymous) @ vendors-node_modules_pnpm_remote-ui_async-subscription_2_1_16_node_modules_remote-ui_async-su-b156aa-ed56f9b588afc1d18186.js:2
+useMemo @ vendors-node_modules_pnpm_remote-ui_async-subscription_2_1_16_node_modules_remote-ui_async-su-b156aa-ed56f9b588afc1d18186.js:2
+t.useMemo @ vendors-node_modules_pnpm_remote-ui_async-subscription_2_1_16_node_modules_remote-ui_async-su-b156aa-ed56f9b588afc1d18186.js:2
+c @ vendors-node_modules_pnpm_remote-ui_async-subscription_2_1_16_node_modules_remote-ui_async-su-b156aa-ed56f9b588afc1d18186.js:2
+fo @ vendors-node_modules_pnpm_remote-ui_async-subscription_2_1_16_node_modules_remote-ui_async-su-b156aa-ed56f9b588afc1d18186.js:2
+yl @ vendors-node_modules_pnpm_remote-ui_async-subscription_2_1_16_node_modules_remote-ui_async-su-b156aa-ed56f9b588afc1d18186.js:2
+mu @ vendors-node_modules_pnpm_remote-ui_async-subscription_2_1_16_node_modules_remote-ui_async-su-b156aa-ed56f9b588afc1d18186.js:2
+pu @ vendors-node_modules_pnpm_remote-ui_async-subscription_2_1_16_node_modules_remote-ui_async-su-b156aa-ed56f9b588afc1d18186.js:2
+fu @ vendors-node_modules_pnpm_remote-ui_async-subscription_2_1_16_node_modules_remote-ui_async-su-b156aa-ed56f9b588afc1d18186.js:2
+eu @ vendors-node_modules_pnpm_remote-ui_async-subscription_2_1_16_node_modules_remote-ui_async-su-b156aa-ed56f9b588afc1d18186.js:2
+x @ vendors-node_modules_pnpm_remote-ui_async-subscription_2_1_16_node_modules_remote-ui_async-su-b156aa-ed56f9b588afc1d18186.js:2
+A @ vendors-node_modules_pnpm_remote-ui_async-subscription_2_1_16_node_modules_remote-ui_async-su-b156aa-ed56f9b588afc1d18186.js:2
+j.<computed> @ vendors-node_modules_pnpm_remote-ui_async-subscription_2_1_16_node_modules_remote-ui_async-su-b156aa-ed56f9b588afc1d18186.js:2
+T @ vendors-node_modules_pnpm_remote-ui_async-subscription_2_1_16_node_modules_remote-ui_async-su-b156aa-ed56f9b588afc1d18186.js:2
+O @ vendors-node_modules_pnpm_remote-ui_async-subscription_2_1_16_node_modules_remote-ui_async-su-b156aa-ed56f9b588afc1d18186.js:2
+vendors-node_modules_pnpm_remote-ui_async-subscription_2_1_16_node_modules_remote-ui_async-su-b156aa-ed56f9b588afc1d18186.js:2 [Violation] 'message' handler took 230ms
+dev-wholesale-account-profile-extension:42 [Intervention] Slow network is detected. See https://www.chromestatus.com/feature/5636954674692096 for more details. Fallback font will be used while loading: https://fonts.shopifycdn.com/archivo/archivo_n4.dc8d917cc69af0a65ae04d01fd8eeab28a3573c9.woff2?valid_until=MTc2MTI3ODc4Mw&hmac=4547c8fc964214fcc901a0faaa86bfb92276a64b2562603ded53d5f5ba855b9a
+vendors-node_modules_pnpm_remote-ui_async-subscription_2_1_16_node_modules_remote-ui_async-su-b156aa-ed56f9b588afc1d18186.js:2 [bugsnag] Breadcrumb not attached due to onBreadcrumb callback
+vendors-node_modules_pnpm_remote-ui_async-subscription_2_1_16_node_modules_remote-ui_async-su-b156aa-ed56f9b588afc1d18186.js:2 [bugsnag] Breadcrumb not attached due to onBreadcrumb callback
+vendors-node_modules_pnpm_remote-ui_async-subscription_2_1_16_node_modules_remote-ui_async-su-b156aa-ed56f9b588afc1d18186.js:2 [bugsnag] Breadcrumb not attached due to onBreadcrumb callback
+vendors-node_modules_pnpm_remote-ui_async-subscription_2_1_16_node_modules_remote-ui_async-su-b156aa-ed56f9b588afc1d18186.js:2 [bugsnag] Breadcrumb not attached due to onBreadcrumb callback
+vendors-node_modules_pnpm_remote-ui_async-subscription_2_1_16_node_modules_remote-ui_async-su-b156aa-ed56f9b588afc1d18186.js:2 [bugsnag] Breadcrumb not attached due to onBreadcrumb callback
+vendors-node_modules_pnpm_remote-ui_async-subscription_2_1_16_node_modules_remote-ui_async-su-b156aa-ed56f9b588afc1d18186.js:2 [bugsnag] Breadcrumb not attached due to onBreadcrumb callback
+vendors-node_modules_pnpm_remote-ui_async-subscription_2_1_16_node_modules_remote-ui_async-su-b156aa-ed56f9b588afc1d18186.js:2 [bugsnag] Breadcrumb not attached due to onBreadcrumb callback
+wholesale-account-profile.js:1 The above error occurred in the <wR> component:
+
+    at wR (https://2d8f7c0c-938e-4f87-b0ca-9f262520d64e-00-2o84gg8qrj25w.spock.replit.dev/extensions/dev-wholesale-account-profile-extension/assets/wholesale-account-profile.js:157:13840)
+    at gp (https://2d8f7c0c-938e-4f87-b0ca-9f262520d64e-00-2o84gg8qrj25w.spock.replit.dev/extensions/dev-wholesale-account-profile-extension/assets/wholesale-account-profile.js:157:12228)
+
+React will try to recreate this component tree from scratch using the error boundary you provided, gp.
+Kf @ react-reconciler.development.js:9877
+Xf.u.componentDidCatch.a.callback @ react-reconciler.development.js:9945
+ZS @ react-reconciler.development.js:6207
+jv @ react-reconciler.development.js:6228
+fE @ react-reconciler.development.js:15031
+vd @ react-reconciler.development.js:16405
+uh @ react-reconciler.development.js:16391
+xE @ react-reconciler.development.js:16329
+Ex @ react-reconciler.development.js:19005
+pi @ react-reconciler.development.js:18864
+gh @ react-reconciler.development.js:18264
+Va @ react-reconciler.development.js:2936
+lv @ react-reconciler.development.js:2915
+At @ react-reconciler.development.js:17685
+wh @ react-reconciler.development.js:21061
+hp @ render.mjs:60
+eval @ render.mjs:16
+eval @ render.mjs:14
+U @ wholesale-account-profile.js:1
+Promise.then
+F @ wholesale-account-profile.js:1
+eval @ wholesale-account-profile.js:1
+mi @ wholesale-account-profile.js:1
+eval @ render.mjs:12
+eval @ registration.mjs:28
+eval @ wholesale-account-profile.js:1
+mi @ wholesale-account-profile.js:1
+g @ registration.mjs:13
+Tt @ VM4:1
+Lt @ VM4:1
+Ut @ VM4:1
+p @ VM4:1
+buyer-identity.mjs:48 Uncaught ExtensionHasNoFieldrror: Cannot access 'buyerIdentity' on target 'customer-account.page.render'. The corresponding property was not found on the API.
+    at BR (buyer-identity.mjs:48:11)
+    at Ep (buyer-identity.mjs:11:25)
+    at wR (ProfileBlock.jsx:27:20)
+    at Qi (react-reconciler.development.js:6659:18)
+    at Mb (react-reconciler.development.js:11276:13)
+    at wm (react-reconciler.development.js:12799:16)
+    at zd (react-reconciler.development.js:19608:14)
+    at xh (react-reconciler.development.js:18742:12)
+    at gx (react-reconciler.development.js:18648:5)
+    at ps (react-reconciler.development.js:18616:7)
+BR @ buyer-identity.mjs:48
+Ep @ buyer-identity.mjs:11
+wR @ ProfileBlock.jsx:27
+Qi @ react-reconciler.development.js:6659
+Mb @ react-reconciler.development.js:11276
+wm @ react-reconciler.development.js:12799
+zd @ react-reconciler.development.js:19608
+xh @ react-reconciler.development.js:18742
+gx @ react-reconciler.development.js:18648
+ps @ react-reconciler.development.js:18616
+gh @ react-reconciler.development.js:18232
+Va @ react-reconciler.development.js:2936
+lv @ react-reconciler.development.js:2915
+At @ react-reconciler.development.js:17685
+wh @ react-reconciler.development.js:21061
+hp @ render.mjs:60
+eval @ render.mjs:16
+eval @ render.mjs:14
+U @ wholesale-account-profile.js:1
+Promise.then
+F @ wholesale-account-profile.js:1
+eval @ wholesale-account-profile.js:1
+mi @ wholesale-account-profile.js:1
+eval @ render.mjs:12
+eval @ registration.mjs:28
+eval @ wholesale-account-profile.js:1
+mi @ wholesale-account-profile.js:1
+g @ registration.mjs:13
+Tt @ VM4:1
+Lt @ VM4:1
+Ut @ VM4:1
+p @ VM4:1
+vendors-node_modules_pnpm_remote-ui_async-subscription_2_1_16_node_modules_remote-ui_async-su-b156aa-ed56f9b588afc1d18186.js:2 [bugsnag] Event not sent due to onError callback
+vendors-node_modules_pnpm_remote-ui_async-subscription_2_1_16_node_modules_remote-ui_async-su-b156aa-ed56f9b588afc1d18186.js:2 [bugsnag] Breadcrumb not attached due to onBreadcrumb callback
+vendors-node_modules_pnpm_remote-ui_async-subscription_2_1_16_node_modules_remote-ui_async-su-b156aa-ed56f9b588afc1d18186.js:2 Download the Apollo DevTools for a better development experience: https://chrome.google.com/webstore/detail/apollo-client-developer-t/jdkknkkbebbapilgoeccciglkfbmbnfm

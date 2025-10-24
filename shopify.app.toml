@@ -17,13 +17,13 @@ api_version = "2026-01"
   uri = "/api/webhooks/customers/create"
 
   [[webhooks.subscriptions]]
+  topics = [ "customers/update" ]
+  uri = "/api/webhooks/customers/update"
+
+  [[webhooks.subscriptions]]
   topics = [ "metaobjects/update" ]
   uri = "/api/webhooks/metaobjects/update"
   filter = "type:wholesale_account"
-
-  [[webhooks.subscriptions]]
-  topics = [ "customers/update" ]
-  uri = "/api/webhooks/customers/update"
 
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
