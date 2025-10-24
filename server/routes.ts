@@ -258,8 +258,8 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  // App Proxy Route - Serves wholesale profile within Shopify storefront
-  app.get("/apps/wholesale/*", async (req, res) => {
+  // App Proxy Route - Serves wholesale registration within Shopify storefront
+  app.get("/apps/wholesale/*", async (req, res, next) => {
     try {
       // Shopify sends proxy params in query: shop, logged_in_customer_id, etc.
       const { shop, logged_in_customer_id } = req.query;
@@ -270,41 +270,12 @@ export function registerRoutes(app: Express) {
         customerId: logged_in_customer_id,
       });
 
-      // Serve React app with injected Shopify params for App Bridge
-      res.send(`
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <meta name="shopify-api-key" content="78a602699150bda4e49a40861707d500" />
-          <title>Wholesale Profile</title>
-          <script type="text/javascript">
-            // Inject Shopify params for App Bridge from query string
-            window.__SHOPIFY_SHOP__ = "${shop || ''}";
-            window.__SHOPIFY_CUSTOMER_ID__ = "${logged_in_customer_id || ''}";
-            window.__SHOPIFY_EMBEDDED__ = false; // App Proxy runs outside admin iframe
-          </script>
-          <!-- Load App Bridge (optional for proxy, but safe to include) -->
-          <script src="https://cdn.shopify.com/shopifycloud/app-bridge.js" type="text/javascript"></script>
-          <!-- Vite dev assets -->
-          <script type="module" src="https://its-under-it-all.replit.app/@vite/client"></script>
-          <script type="module" src="https://its-under-it-all.replit.app/src/main.tsx"></script>
-        </head>
-        <body>
-          <div id="root"></div>
-          <script>
-            console.log('📦 App Proxy loaded:', {
-              shop: window.__SHOPIFY_SHOP__,
-              customerId: window.__SHOPIFY_CUSTOMER_ID__
-            });
-          </script>
-        </body>
-        </html>
-      `);
+      // Let the React app handle the routing - fall through to Vite/static handler
+      // This ensures proper routing within the /apps/wholesale/* namespace
+      next();
     } catch (error) {
       console.error("❌ App proxy error:", error);
-      res.status(500).send("Error loading profile");
+      res.status(500).send("Error loading wholesale app");
     }
   });
 
