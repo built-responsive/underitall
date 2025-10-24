@@ -1,0 +1,47 @@
+   ┃  Extensions:
+   ┃  + wholesale-account-profile-page (uid: wholesale-account-profile-page) 
+   ┃    (new)
+   ┃  + wholesale-account-profile-block (uid: wholesale-account-profile-block) 
+   ┃    (new)
+   ┃  • underitall-tools
+   ┃  - wholesale-account-profile (uid: wholesale-account-profile-extension) 
+   ┃    (removed)
+   ┃
+   ┃  Removing extensions can permanently delete app user data
+
+   Type its-under-it-all to confirm, or press Escape to cancel.
+>  its-under-it-all█
+   ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
+?  Release a new version of its-under-it-all?
+✔  Confirmed
+
+
+Releasing a new app version as part of its-under-it-all
+
+         underitall-tools │ Running theme check on your Theme app extension...
+wholesale-account-profile │ Bundling UI extension wholesale-account-profile-page...
+wholesale-account-profile │ Bundling UI extension wholesale-account-profile-block...
+wholesale-account-profile │ wholesale-account-profile-page successfully built
+wholesale-account-profile │ wholesale-account-profile-block successfully built
+         underitall-tools │
+         underitall-tools │ [warning]: HardcodedRoutes
+         underitall-tools │ Use routes object {{ routes.account_url }} instead of
+hardcoding /account
+         underitall-tools │
+         underitall-tools │ 18  <a href="/account/wholesale-profile" class="button
+button--primary">
+         underitall-tools │
+         underitall-tools │
+         underitall-tools │ [warning]: HardcodedRoutes
+         underitall-tools │ Use routes object {{ routes.account_login_url }} instead
+of hardcoding /account/login
+         underitall-tools │
+         underitall-tools │ 43  <a href="/account/login" class="button
+button--primary">
+         underitall-tools │
+         underitall-tools │
+         underitall-tools │ [error]: MissingAsset
+         underitall-tools │ 'assets/wholesale-registration.js' does not exist
+         underitall-tools │
+         underitall-tools │ 35  <script src="{{ 'wholesale-registration.js' |
+asset_url }}" defer></script>
