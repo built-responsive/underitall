@@ -374,14 +374,8 @@ export function registerRoutes(app: Express) {
         return res.status(400).json({ error: "Missing GraphQL query" });
       }
 
-      console.log("📥 GraphQL Request:");
-      console.log(JSON.stringify({ query, variables }, null, 2));
-
       // Use the centralized executeShopifyGraphQL util
       const data = await executeShopifyGraphQL(query, variables);
-
-      console.log("📤 GraphQL Response:");
-      console.log(JSON.stringify(data, null, 2));
 
       res.json(data);
     } catch (error) {
