@@ -176,6 +176,26 @@ export function registerRoutes(app: Express) {
     }
   });
 
+  // Shopify GraphQL endpoint for client-side queries (settings, admin, etc.)
+  app.post("/api/shopify/graphql", async (req, res) => {
+    try {
+      const { query, variables } = req.body;
+
+      if (!query) {
+        return res.status(400).json({ error: "Missing GraphQL query" });
+      }
+
+      // Use the centralized executeShopifyGraphQL util
+      const data = await executeShopifyGraphQL(query, variables);
+      res.json(data);
+    } catch (error) {
+      console.error("❌ Shopify GraphQL error:", error);
+      res.status(500).json({ 
+        error: error instanceof Error ? error.message : "GraphQL query failed" 
+      });
+    }
+  });
+
   // GraphQL Proxy Bypass (for Shopify CLI) - Handle CORS preflight
   app.options("/graphiql/graphql.json", (req, res) => {
     res.header("Access-Control-Allow-Origin", "*");
