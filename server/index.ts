@@ -109,8 +109,28 @@ app.use((req, res, next) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
 
+    // Log error in production for debugging
+    console.error("❌ API Error:", {
+      status,
+      message,
+      path: _req.path,
+      method: _req.method,
+      stack: err.stack
+    });
+
     res.status(status).json({ message });
-    throw err;
+  });
+
+  // Global error handler for production
+  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
+    console.error("❌ Unhandled Error:", err);
+    
+    // Don't leak error details in production
+    const isDev = app.get("env") === "development";
+    res.status(500).json({
+      error: "Internal Server Error",
+      ...(isDev && { details: err.message, stack: err.stack })
+    });
   });
 
   // ALWAYS serve the app on the port specified in the environment variable PORT

@@ -1808,13 +1808,18 @@ export function registerRoutes(app: Express) {
   // Catch-all route for React Router (must be LAST, after all API routes)
   // This ensures unmatched routes fall through to the client-side router
   app.get("*", (req, res, next) => {
-    // Only serve React app for non-API routes
-    if (!req.path.startsWith("/api")) {
-      // Let Vite/serveStatic middleware handle this
-      return next();
+    // Skip API routes - they should have been handled above
+    if (req.path.startsWith("/api")) {
+      return res.status(404).json({ error: "API endpoint not found" });
     }
-    // If it's an API route that wasn't matched, 404
-    res.status(404).json({ error: "API endpoint not found" });
+    
+    // In production, serve the built index.html for client-side routing
+    if (app.get("env") === "production") {
+      return res.sendFile("index.html", { root: "./dist/public" });
+    }
+    
+    // In development, let Vite middleware handle it
+    next();
   });
 
   return createServer(app);
