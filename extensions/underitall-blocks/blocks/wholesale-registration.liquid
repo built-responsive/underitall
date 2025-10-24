@@ -15,7 +15,7 @@
       <div class="account-status-card">
         <h2>{{ block.settings.existing_account_heading }}</h2>
         <p>{{ block.settings.existing_account_message }}</p>
-        <a href="/account/wholesale-profile" class="button button--primary">
+        <a href="{{ routes.account_url }}" class="button button--primary">
           {{ block.settings.view_account_text }}
         </a>
       </div>
@@ -32,15 +32,14 @@
         };
       </script>
     </div>
-    <script src="{{ 'wholesale-registration.js' | asset_url }}" defer></script>
-  {% endif %}
+    {% endif %}
 {% else %}
   {%- comment -%} Not logged in - prompt login {%- endcomment -%}
   <div class="wholesale-registration-block login-required">
     <div class="login-prompt">
       <h2>{{ block.settings.login_heading }}</h2>
       <p>{{ block.settings.login_message }}</p>
-      <a href="/account/login" class="button button--primary">
+      <a href="{{ routes.account_login_url }}" class="button button--primary">
         {{ block.settings.login_button_text }}
       </a>
     </div>
