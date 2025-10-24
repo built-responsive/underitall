@@ -202,9 +202,16 @@ export function registerRoutes(app: Express) {
         // Omit Fields parameter - CRM may default to full payload
       };
 
+      console.log("📤 Exact CRM Payload:");
+      console.log(JSON.stringify(crmPayload, null, 2));
+
       const crmResponse = await fetch(`${crmBaseUrl}/api/v1`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Cache-Control": "no-cache"
+        },
         body: JSON.stringify(crmPayload),
       });
 
