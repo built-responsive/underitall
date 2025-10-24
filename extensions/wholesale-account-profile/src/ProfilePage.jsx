@@ -61,7 +61,9 @@ function WholesaleAccountFullPage() {
               {namespace: "custom", key: "wholesale_sample_set"},
               {namespace: "custom", key: "wholesale_clarity_id"},
               {namespace: "custom", key: "wholesale_source"},
-              {namespace: "custom", key: "wholesale_message"}
+              {namespace: "custom", key: "wholesale_message"},
+              {namespace: "custom", key: "wholesale_page"},
+              {namespace: "custom", key: "wholesale_owner"}
             ]) {
               key
               value
@@ -103,14 +105,26 @@ function WholesaleAccountFullPage() {
 
       const metafields = Object.entries(formData)
         .filter(([key]) => key.startsWith('wholesale_'))
-        .map(([key, value]) => ({
-          key,
-          namespace: 'custom',
-          type: key === 'wholesale_tax_exempt' || key === 'wholesale_sample_set' ? 'boolean' : 
-                key === 'wholesale_source' || key === 'wholesale_message' ? 'multi_line_text_field' : 
-                'single_line_text_field',
-          value: String(value || '')
-        }));
+        .map(([key, value]) => {
+          // Determine type based on field
+          let type = 'single_line_text_field';
+          if (key === 'wholesale_tax_exempt' || key === 'wholesale_sample_set') {
+            type = 'boolean';
+          } else if (key === 'wholesale_source' || key === 'wholesale_message') {
+            type = 'multi_line_text_field';
+          } else if (key === 'wholesale_page') {
+            type = 'page_reference';
+          } else if (key === 'wholesale_owner' || key === 'wholesale_account_type') {
+            type = 'list.metaobject_reference';
+          }
+
+          return {
+            key,
+            namespace: 'custom',
+            type,
+            value: String(value || '')
+          };
+        });
 
       const result = await applyMetafieldsChange({
         type: 'updateMetafield',

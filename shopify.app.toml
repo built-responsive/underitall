@@ -123,6 +123,15 @@ type = "file_reference"
 name = "Clarity CRM Account ID"
 type = "single_line_text_field"
 
+[metaobjects.app.wholesale_account.fields.owner]
+name = "Account Owners"
+type = "list.metaobject_reference"
+validations = { reference_type = "customer" }
+
+[metaobjects.app.wholesale_account.fields.page]
+name = "Linked OnlineStorePage"
+type = "page_reference"
+
 # Wholesale Account Data (stored directly in customer metafields)
 [customer.metafields.app.wholesale_company]
 type = "single_line_text_field"
@@ -249,5 +258,22 @@ type = "multi_line_text_field"
 name = "Wholesale Admin Notes"
 
   [customer.metafields.app.wholesale_message.access]
+  customer_account = "read"
+  admin = "merchant_read_write"
+
+[customer.metafields.app.wholesale_page]
+type = "page_reference"
+name = "Wholesale Account Page"
+
+  [customer.metafields.app.wholesale_page.access]
+  customer_account = "read"
+  admin = "merchant_read_write"
+
+[customer.metafields.app.wholesale_owner]
+type = "list.metaobject_reference"
+name = "Wholesale Account Owners"
+validations = { reference_type = "customer" }
+
+  [customer.metafields.app.wholesale_owner.access]
   customer_account = "read"
   admin = "merchant_read_write"
