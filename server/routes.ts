@@ -7,8 +7,20 @@ import { wholesaleRegistrations, calculatorQuotes, webhookLogs } from "@shared/s
 import { desc } from "drizzle-orm";
 
 export function registerRoutes(app: Express) {
-  // GraphQL Proxy Bypass (for Shopify CLI)
+  // GraphQL Proxy Bypass (for Shopify CLI) - Handle CORS preflight
+  app.options("/graphiql/graphql.json", (req, res) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Methods", "POST, OPTIONS");
+    res.header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With");
+    res.sendStatus(200);
+  });
+
   app.post("/graphiql/graphql.json", async (req, res) => {
+    // Explicit CORS headers for cross-origin Shopify CLI requests
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Methods", "POST, OPTIONS");
+    res.header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With");
+
     try {
       const { api_version } = req.query;
       const shopDomain = process.env.SHOPIFY_SHOP_DOMAIN;
