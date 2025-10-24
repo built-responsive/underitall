@@ -17,6 +17,7 @@ const allowedOrigins = [
   'https://underitall-redeux.myshopify.com',
   'https://www.itsunderitall.com',
   'https://itsunderitall.com',
+  'https://join.itsunderitall.com',
   'https://its-under-it-all.replit.app',
   'https://2d8f7c0c-938e-4f87-b0ca-9f262520d64e-00-2o84gg8qrj25w.spock.replit.dev',
   'http://localhost:5000',
