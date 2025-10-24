@@ -41,6 +41,45 @@ export function registerRoutes(app: Express) {
   // Mount webhook routes
   app.use("/api/webhooks", webhookRoutes);
 
+  // Admin API - Wholesale Registrations
+  app.get("/api/wholesale-registrations", async (req, res) => {
+    try {
+      const registrations = await db
+        .select()
+        .from(wholesaleRegistrations)
+        .orderBy(desc(wholesaleRegistrations.createdAt));
+      res.json(registrations);
+    } catch (error) {
+      console.error("❌ Error fetching registrations:", error);
+      res.status(500).json({ error: "Failed to fetch registrations" });
+    }
+  });
+
+  // Admin API - Calculator Quotes
+  app.get("/api/calculator/quotes", async (req, res) => {
+    try {
+      const quotes = await db
+        .select()
+        .from(calculatorQuotes)
+        .orderBy(desc(calculatorQuotes.createdAt));
+      res.json(quotes);
+    } catch (error) {
+      console.error("❌ Error fetching quotes:", error);
+      res.status(500).json({ error: "Failed to fetch quotes" });
+    }
+  });
+
+  // Admin API - Draft Orders (placeholder - implement when you have the table)
+  app.get("/api/draft-orders", async (req, res) => {
+    try {
+      // TODO: Implement draft orders table and query
+      res.json([]);
+    } catch (error) {
+      console.error("❌ Error fetching draft orders:", error);
+      res.status(500).json({ error: "Failed to fetch draft orders" });
+    }
+  });
+
   // Debug endpoint - Visual UI for testing/monitoring
   app.get("/debug", async (req, res) => {
     try {
@@ -444,9 +483,82 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  // Health check
-  app.get("/api/health", (req, res) => {
-    res.json({ status: "ok", timestamp: new Date().toISOString() });
+  // Health check with integration status
+  app.get("/api/health", async (req, res) => {
+    try {
+      const shopDomain = process.env.SHOPIFY_SHOP_DOMAIN;
+      const adminToken = process.env.SHOPIFY_ADMIN_ACCESS_TOKEN;
+      const crmBaseUrl = process.env.CRM_BASE_URL;
+      const crmApiKey = process.env.CRM_API_KEY;
+
+      // Check Shopify integration
+      const shopifyHealth: any = {
+        configured: !!(shopDomain && adminToken),
+        shop: shopDomain,
+      };
+
+      if (shopDomain && adminToken) {
+        try {
+          // Check for metaobject definition
+          const query = `
+            query {
+              metaobjectDefinitionByType(type: "$app:wholesale_account") {
+                id
+                name
+                type
+              }
+              metaobjects(type: "$app:wholesale_account", first: 1) {
+                nodes {
+                  id
+                }
+              }
+            }
+          `;
+
+          const response = await fetch(
+            `https://${shopDomain}/admin/api/2025-01/graphql.json`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "X-Shopify-Access-Token": adminToken,
+              },
+              body: JSON.stringify({ query }),
+            }
+          );
+
+          const data = await response.json();
+          
+          if (data.data?.metaobjectDefinitionByType) {
+            shopifyHealth.metaobjectDefinition = true;
+            shopifyHealth.metaobjectId = data.data.metaobjectDefinitionByType.id;
+            shopifyHealth.entryCount = data.data.metaobjects?.nodes?.length || 0;
+          } else {
+            shopifyHealth.metaobjectDefinition = false;
+          }
+        } catch (error) {
+          shopifyHealth.error = error instanceof Error ? error.message : "Unknown error";
+        }
+      }
+
+      // Check CRM integration
+      const crmHealth: any = {
+        configured: !!(crmBaseUrl && crmApiKey),
+        baseUrl: crmBaseUrl,
+      };
+
+      res.json({
+        status: "ok",
+        timestamp: new Date().toISOString(),
+        shopify: shopifyHealth,
+        crm: crmHealth,
+      });
+    } catch (error) {
+      console.error("❌ Health check error:", error);
+      res.status(500).json({
+        error: error instanceof Error ? error.message : "Health check failed"
+      });
+    }
   });
 
   return createServer(app);
