@@ -61,9 +61,9 @@ localPort = 42247
 externalPort = 4200
 
 [deployment]
-deploymentTarget = "vm"
-run = ["npm", "start"]
-build = ["npm", "run", "build"]
+deploymentTarget = "autoscale"
+run = ["npm", "run", "start"]
+build = ["bash", "-c", "npm run build && npm run db:production-setup"]
 
 [nix]
 packages = ["postgresql_10", "shopify-cli"]
