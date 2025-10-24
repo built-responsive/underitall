@@ -186,6 +186,51 @@ export default function Admin() {
     }
   };
 
+  // Company enrichment helper (for admin edits/inline enrichment)
+  const enrichCompanyData = async (firmName: string) => {
+    console.log("🔍 Admin enrichment triggered with:", firmName);
+
+    if (!firmName || firmName.trim().length < 3) {
+      console.log("⏭️ Skipping enrichment - company name too short or empty");
+      return;
+    }
+
+    try {
+      console.log("🚀 Starting enrichment request...");
+      const res = await apiRequest("POST", "/api/enrich-company", {
+        firmName: firmName.trim(),
+      });
+
+      console.log("📡 Enrichment response status:", res.status);
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error("❌ Enrichment API error:", errorText);
+        throw new Error(`Enrichment failed: ${res.status}`);
+      }
+
+      const data = await res.json();
+      console.log("📦 Enrichment data:", data);
+
+      if (data.enriched && data.data) {
+        toast({
+          title: "Company Info Found",
+          description: `Retrieved data for ${firmName}`,
+        });
+        // You can add auto-fill logic here if needed for admin edits
+      } else {
+        console.log("ℹ️ No enrichment data found");
+      }
+    } catch (error) {
+      console.error("❌ Enrichment failed:", error);
+      toast({
+        title: "Enrichment Failed",
+        description: error instanceof Error ? error.message : "Could not enrich company data",
+        variant: "destructive",
+      });
+    }
+  };
+
 
   // Log errors
   useEffect(() => {
