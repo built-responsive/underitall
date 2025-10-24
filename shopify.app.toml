@@ -43,6 +43,6 @@ description = "Links customer to their wholesale account in Clarity CRM (e.g., A
   storefront = "public_read"
   customer_account = "read_write"
   admin = "merchant_read_write"
-  
+
 
 
