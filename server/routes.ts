@@ -512,6 +512,22 @@ export function registerRoutes(app: Express) {
       font-size: 2.5rem;
       text-shadow: 0 2px 4px rgba(242, 99, 58, 0.3);
     }
+    .metaobject-badge {
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.875rem;
+      text-transform: uppercase;
+    }
+    .metaobject-badge.configured {
+      background: #10b981;
+      color: #fff;
+    }
+    .metaobject-badge.not-configured {
+      background: #ef4444;
+      color: #fff;
+    }
     .section {
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid rgba(242, 99, 58, 0.2);
@@ -621,7 +637,79 @@ export function registerRoutes(app: Express) {
     <h1>🔧 UnderItAll Debug Dashboard</h1>
     <button class="refresh-btn" onclick="location.reload()">🔄 Refresh Data</button>
 
-    <!-- Metaobject Status -->
+    <!-- Metaobject Status (Top Priority) -->
+    <div class="section" style="border: 2px solid ${metaobjectStatus.configured ? '#10b981' : '#ef4444'};">
+      <h2>🔮 Metaobject Definition Status</h2>
+      <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+        <span class="metaobject-badge ${metaobjectStatus.configured ? 'configured' : 'not-configured'}">
+          ${metaobjectStatus.configured ? '✅ CONFIGURED' : '❌ NOT CONFIGURED'}
+        </span>
+        ${metaobjectStatus.configured ? `
+          <span style="color: #9ca3af; font-size: 0.875rem;">
+            wholesale_account metaobject definition deployed
+          </span>
+        ` : `
+          <span style="color: #ef4444; font-size: 0.875rem;">
+            Run 'shopify app deploy' to sync shopify.app.toml
+          </span>
+        `}
+      </div>
+      ${metaobjectStatus.configured ? `
+        <div class="stats">
+          <div class="stat-card">
+            <div class="stat-value">${metaobjectStatus.definition?.fieldDefinitions?.length || 0}</div>
+            <div class="stat-label">Field Definitions</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">${metaobjectStatus.entryCount || 0}</div>
+            <div class="stat-label">Wholesale Accounts</div>
+          </div>
+        </div>
+        <div style="margin-top: 1rem;">
+          <p style="color: #9ca3af; font-size: 0.875rem; margin-bottom: 0.5rem;">Definition ID:</p>
+          <code style="background: #1a1a1a; padding: 0.5rem; border-radius: 6px; color: #10b981; font-size: 0.875rem; display: block; overflow-x: auto;">${metaobjectStatus.definition?.id || 'N/A'}</code>
+        </div>
+        <div style="margin-top: 1rem;">
+          <p style="color: #9ca3af; font-size: 0.875rem; margin-bottom: 0.5rem;">Type:</p>
+          <code style="background: #1a1a1a; padding: 0.5rem; border-radius: 6px; color: #10b981; font-size: 0.875rem; display: block;">${metaobjectStatus.definition?.type || 'N/A'}</code>
+        </div>
+        ${metaobjectStatus.entries.length > 0 ? `
+          <details style="margin-top: 1rem;">
+            <summary style="cursor: pointer; color: #F2633A; font-weight: 600; margin-bottom: 0.5rem;">📋 Recent Entries (${metaobjectStatus.entries.length})</summary>
+            <table style="width: 100%; margin-top: 0.5rem;">
+              <thead>
+                <tr>
+                  <th style="text-align: left; padding: 0.5rem; background: rgba(242, 99, 58, 0.1); color: #F2633A;">Display Name</th>
+                  <th style="text-align: left; padding: 0.5rem; background: rgba(242, 99, 58, 0.1); color: #F2633A;">Handle</th>
+                  <th style="text-align: left; padding: 0.5rem; background: rgba(242, 99, 58, 0.1); color: #F2633A;">ID</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${metaobjectStatus.entries.map((entry: any) => `
+                  <tr style="border-bottom: 1px solid rgba(242, 99, 58, 0.1);">
+                    <td style="padding: 0.5rem;">${entry.displayName}</td>
+                    <td style="padding: 0.5rem;"><code style="font-size: 0.75rem; color: #10b981;">${entry.handle}</code></td>
+                    <td style="padding: 0.5rem; color: #9ca3af; font-size: 0.75rem;">${entry.id}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </details>
+        ` : ''}
+      ` : `
+        <div style="margin-top: 1rem; padding: 1rem; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px;">
+          <p style="color: #ef4444; font-weight: 600;">❌ Metaobject definition not found in Shopify</p>
+          <p style="color: #9ca3af; font-size: 0.875rem; margin-top: 0.5rem;">
+            ${metaobjectStatus.error ? `Error: ${metaobjectStatus.error}` : 'Expected type: $app:wholesale_account'}
+          </p>
+          <p style="color: #9ca3af; font-size: 0.875rem; margin-top: 0.5rem;">
+            Run <code style="background: #1a1a1a; padding: 0.25rem 0.5rem; border-radius: 4px; color: #F2633A;">shopify app deploy</code> to sync your shopify.app.toml configuration.
+          </p>
+        </div>
+      `}
+    </div>
+
+    <!-- Stats Overview (Now Below Metaobject) -->
     <div class="section">
       <h2>🔮 Metaobject Status</h2>
       <div class="stats">

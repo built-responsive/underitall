@@ -170,6 +170,72 @@ export default function Settings() {
 
           <TabsContent value="health">
             <div className="space-y-6">
+              {/* Metaobject Status Card (Top Priority) */}
+              {!loadingHealth && healthCheck?.shopify && (
+                <Card className={`rounded-[16px] border-2 ${healthCheck.shopify.metaobjectDefinition ? 'border-green-500' : 'border-yellow-500'}`}>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <CardTitle className="font-['Archivo'] text-[#212227] flex items-center gap-2">
+                          <Package className="w-6 h-6 text-[#F2633A]" />
+                          Metaobject Definition Status
+                        </CardTitle>
+                        <CardDescription className="font-['Vazirmatn'] text-[#696A6D]">
+                          wholesale_account metaobject configuration
+                        </CardDescription>
+                      </div>
+                      <Badge variant={healthCheck.shopify.metaobjectDefinition ? "default" : "destructive"} className="font-['Vazirmatn'] text-lg px-4 py-2">
+                        {healthCheck.shopify.metaobjectDefinition ? '✅ CONFIGURED' : '❌ NOT CONFIGURED'}
+                      </Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    {healthCheck.shopify.metaobjectDefinition ? (
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="bg-[#F3F1E9] p-4 rounded-[11px]">
+                            <div className="text-3xl font-bold text-[#F2633A] mb-1">
+                              {healthCheck.shopify.fieldCount || 0}
+                            </div>
+                            <div className="text-sm text-[#696A6D] font-['Vazirmatn']">Field Definitions</div>
+                          </div>
+                          <div className="bg-[#F3F1E9] p-4 rounded-[11px]">
+                            <div className="text-3xl font-bold text-[#F2633A] mb-1">
+                              {healthCheck.shopify.entryCount || 0}
+                            </div>
+                            <div className="text-sm text-[#696A6D] font-['Vazirmatn']">Wholesale Accounts</div>
+                          </div>
+                        </div>
+                        {healthCheck.shopify.metaobjectId && (
+                          <div>
+                            <p className="text-xs text-[#696A6D] font-['Vazirmatn'] mb-2">Definition ID:</p>
+                            <code className="block bg-[#212227] text-green-400 p-3 rounded-[11px] text-xs overflow-x-auto font-mono">
+                              {healthCheck.shopify.metaobjectId}
+                            </code>
+                          </div>
+                        )}
+                        {healthCheck.shopify.metaobjectType && (
+                          <div>
+                            <p className="text-xs text-[#696A6D] font-['Vazirmatn'] mb-2">Type:</p>
+                            <code className="block bg-[#212227] text-green-400 p-3 rounded-[11px] text-xs font-mono">
+                              {healthCheck.shopify.metaobjectType}
+                            </code>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <Alert className="border-yellow-500 bg-yellow-50">
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertTitle className="font-['Archivo']">Metaobject Not Found</AlertTitle>
+                        <AlertDescription className="font-['Vazirmatn']">
+                          {healthCheck.shopify.error || "Run 'shopify app deploy' to sync shopify.app.toml"}
+                        </AlertDescription>
+                      </Alert>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+
               <Card className="rounded-[16px]">
                 <CardHeader>
                   <div className="flex items-center justify-between">
