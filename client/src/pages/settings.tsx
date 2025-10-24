@@ -29,18 +29,24 @@ export default function Settings() {
   const [thickCsvUrl, setThickCsvUrl] = useState("https://docs.google.com/spreadsheets/d/e/2PACX-1vSdjr_ZWgEOAfDH0c9bAxhRe-fDuc_Z9DAdCW3b4pSUgGjWtOhaVXUW7lWxlBN7eN9F_Z0M-I5X2N85/pub?gid=218236355&single=true&output=csv");
   const [expandedWebhooks, setExpandedWebhooks] = useState<Set<number>>(new Set());
 
-  const { data: webhookLogs, isLoading: loadingWebhooks, refetch: refetchWebhooks } = useQuery({
+  const { data: webhookLogs, isLoading: loadingWebhooks, refetch: refetchWebhooks, isError: webhookError } = useQuery({
     queryKey: ["/api/webhooks/logs"],
     queryFn: async () => {
       const res = await apiRequest("GET", "/api/webhooks/logs");
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
       return await res.json();
     },
   });
 
-  const { data: healthCheck, isLoading: loadingHealth, refetch: refetchHealth } = useQuery({
+  const { data: healthCheck, isLoading: loadingHealth, refetch: refetchHealth, isError: healthError } = useQuery({
     queryKey: ["/api/health"],
     queryFn: async () => {
       const res = await apiRequest("GET", "/api/health");
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
       return await res.json();
     },
   });
@@ -48,6 +54,9 @@ export default function Settings() {
   const testCrmMutation = useMutation({
     mutationFn: async () => {
       const res = await apiRequest("POST", "/api/admin/test-crm");
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
       return await res.json();
     },
     onSuccess: (data) => {
@@ -62,6 +71,9 @@ export default function Settings() {
   const testShopifyMutation = useMutation({
     mutationFn: async () => {
       const res = await apiRequest("POST", "/api/admin/test-shopify");
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
       return await res.json();
     },
     onSuccess: (data) => {
@@ -76,6 +88,9 @@ export default function Settings() {
   const initializeMetaobjectMutation = useMutation({
     mutationFn: async () => {
       const res = await apiRequest("POST", "/api/admin/initialize-metaobject");
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
       return await res.json();
     },
     onSuccess: (data) => {
@@ -91,6 +106,9 @@ export default function Settings() {
   const updatePricesMutation = useMutation({
     mutationFn: async ({ thinCsvUrl, thickCsvUrl }: any) => {
       const res = await apiRequest("POST", "/api/admin/update-prices", { thinCsvUrl, thickCsvUrl });
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
       return await res.json();
     },
     onSuccess: (data) => {
@@ -171,6 +189,22 @@ export default function Settings() {
                 <CardContent className="space-y-4">
                   {loadingHealth ? (
                     <div className="text-center py-8 font-['Vazirmatn'] text-[#696A6D]">Checking system health...</div>
+                  ) : healthError ? (
+                    <Alert className="border-red-500">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertTitle className="font-['Archivo']">Failed to Load Health Status</AlertTitle>
+                      <AlertDescription className="font-['Vazirmatn']">
+                        {healthError.message}
+                        <Button
+                          onClick={() => refetchHealth()}
+                          variant="outline"
+                          size="sm"
+                          className="ml-4 rounded-[11px]"
+                        >
+                          Retry
+                        </Button>
+                      </AlertDescription>
+                    </Alert>
                   ) : healthCheck ? (
                     <div className="space-y-4">
                       <Alert className={healthCheck.shopify?.configured ? "border-green-500" : "border-yellow-500"}>
@@ -381,6 +415,22 @@ export default function Settings() {
               <CardContent>
                 {loadingWebhooks ? (
                   <div className="text-center py-8 font-['Vazirmatn'] text-[#696A6D]">Loading webhook logs...</div>
+                ) : webhookError ? (
+                  <Alert className="border-red-500">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle className="font-['Archivo']">Failed to Load Webhook Logs</AlertTitle>
+                    <AlertDescription className="font-['Vazirmatn']">
+                      Could not fetch webhook logs. Please try again.
+                      <Button
+                        onClick={() => refetchWebhooks()}
+                        variant="outline"
+                        size="sm"
+                        className="ml-4 rounded-[11px]"
+                      >
+                        Retry
+                      </Button>
+                    </AlertDescription>
+                  </Alert>
                 ) : logs.length === 0 ? (
                   <div className="text-center py-8 text-[#696A6D] font-['Vazirmatn']">No webhook calls logged yet</div>
                 ) : (

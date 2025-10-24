@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
     <meta name="shopify-api-key" content="78a602699150bda4e49a40861707d500" />
     <script type="text/javascript">
-      // Detect if running in Shopify iframe
-      window.__SHOPIFY_EMBEDDED__ = window !== window.parent || new URLSearchParams(window.location.search).has('shop');
+      // Detect if TRULY running in Shopify embedded context
+      const urlParams = new URLSearchParams(window.location.search);
+      window.__SHOPIFY_EMBEDDED__ = (window !== window.parent && urlParams.has('shop')) || urlParams.has('embedded');
     </script>
     <!-- App Bridge MUST be first script for Shopify embedded apps - blocking load -->
     <script src="https://cdn.shopify.com/shopifycloud/app-bridge.js" type="text/javascript"></script>
