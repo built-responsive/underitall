@@ -36,11 +36,17 @@ function ShopifyAppBridge({ children }: { children: React.ReactNode }) {
         }
 
         const urlParams = new URLSearchParams(window.location.search);
-        const shopOrigin = urlParams.get('shop');
+        const shopOrigin = urlParams.get('shop') || (window as any).__SHOPIFY_SHOP__;
         const host = urlParams.get('host');
 
-        if (!shopOrigin || !host) {
-          console.warn('⚠️ Missing shop/host params - not initializing App Bridge');
+        if (!shopOrigin) {
+          console.warn('⚠️ Missing shop param - not initializing App Bridge');
+          return;
+        }
+
+        // App Proxy doesn't have 'host' param — skip App Bridge init for proxy routes
+        if (!host) {
+          console.log('ℹ️ App Proxy mode - skipping App Bridge (no host param)');
           return;
         }
 

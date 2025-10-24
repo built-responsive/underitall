@@ -270,68 +270,34 @@ export function registerRoutes(app: Express) {
         customerId: logged_in_customer_id,
       });
 
-      // Serve a simple HTML page (can be replaced with React UI later)
+      // Serve React app with injected Shopify params for App Bridge
       res.send(`
         <!DOCTYPE html>
         <html lang="en">
         <head>
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <meta name="shopify-api-key" content="78a602699150bda4e49a40861707d500" />
           <title>Wholesale Profile</title>
-          <style>
-            body {
-              font-family: 'Vazirmatn', sans-serif;
-              max-width: 1200px;
-              margin: 0 auto;
-              padding: 32px;
-              background: #F3F1E9;
-            }
-            .profile-card {
-              background: white;
-              border-radius: 22px;
-              padding: 24px;
-              box-shadow: 0 4px 12px rgba(105, 106, 109, 0.08);
-            }
-            h1 {
-              font-family: 'Archivo', sans-serif;
-              font-weight: 700;
-              color: #212227;
-            }
-            .btn {
-              background: #F2633A;
-              color: white;
-              padding: 12px 24px;
-              border-radius: 16px;
-              border: none;
-              font-weight: 600;
-              cursor: pointer;
-            }
-          </style>
+          <script type="text/javascript">
+            // Inject Shopify params for App Bridge from query string
+            window.__SHOPIFY_SHOP__ = "${shop || ''}";
+            window.__SHOPIFY_CUSTOMER_ID__ = "${logged_in_customer_id || ''}";
+            window.__SHOPIFY_EMBEDDED__ = false; // App Proxy runs outside admin iframe
+          </script>
+          <!-- Load App Bridge (optional for proxy, but safe to include) -->
+          <script src="https://cdn.shopify.com/shopifycloud/app-bridge.js" type="text/javascript"></script>
+          <!-- Vite dev assets -->
+          <script type="module" src="https://its-under-it-all.replit.app/@vite/client"></script>
+          <script type="module" src="https://its-under-it-all.replit.app/src/main.tsx"></script>
         </head>
         <body>
-          <div class="profile-card">
-            <h1>Wholesale Profile</h1>
-            <p><strong>Shop:</strong> ${shop || 'Unknown'}</p>
-            <p><strong>Customer ID:</strong> ${logged_in_customer_id || 'Not logged in'}</p>
-            <button class="btn" onclick="fetchProfile()">Fetch CRM Data</button>
-            <div id="profile-data"></div>
-          </div>
-
+          <div id="root"></div>
           <script>
-            async function fetchProfile() {
-              const customerId = '${logged_in_customer_id}';
-              if (!customerId) {
-                alert('Please log in to view your profile');
-                return;
-              }
-
-              // Call your backend API to fetch CRM data
-              const response = await fetch('/api/customer/wholesale-account?customerId=' + customerId); // Corrected API endpoint
-              const data = await response.json();
-
-              document.getElementById('profile-data').innerHTML = 
-                '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
-            }
+            console.log('📦 App Proxy loaded:', {
+              shop: window.__SHOPIFY_SHOP__,
+              customerId: window.__SHOPIFY_CUSTOMER_ID__
+            });
           </script>
         </body>
         </html>
