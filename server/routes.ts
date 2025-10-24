@@ -7,6 +7,37 @@ import { wholesaleRegistrations, calculatorQuotes, webhookLogs } from "@shared/s
 import { desc } from "drizzle-orm";
 
 export function registerRoutes(app: Express) {
+  // GraphQL Proxy Bypass (for Shopify CLI)
+  app.post("/graphiql/graphql.json", async (req, res) => {
+    try {
+      const { api_version } = req.query;
+      const shopDomain = process.env.SHOPIFY_SHOP_DOMAIN;
+      const adminToken = process.env.SHOPIFY_ADMIN_ACCESS_TOKEN;
+
+      if (!shopDomain || !adminToken) {
+        return res.status(500).json({ error: "Shopify credentials not configured" });
+      }
+
+      const version = api_version || "2025-01";
+      const graphqlUrl = `https://${shopDomain}/admin/api/${version}/graphql.json`;
+
+      const response = await fetch(graphqlUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Shopify-Access-Token": adminToken,
+        },
+        body: JSON.stringify(req.body),
+      });
+
+      const data = await response.json();
+      res.json(data);
+    } catch (error) {
+      console.error("❌ GraphQL proxy error:", error);
+      res.status(500).json({ error: "GraphQL proxy failed" });
+    }
+  });
+
   // Mount webhook routes
   app.use("/api/webhooks", webhookRoutes);
 
