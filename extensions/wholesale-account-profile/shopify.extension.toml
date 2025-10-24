@@ -8,6 +8,10 @@ handle = "wholesale-account-profile"
 
 [[extensions.targeting]]
 module = "./src/ProfileBlock.jsx"
+target = "customer-account.profile.block.render"
+
+[[extensions.targeting]]
+module = "./src/ProfilePage.jsx"
 target = "customer-account.page.render"
 
 [extensions.capabilities]

@@ -1,4 +1,3 @@
-
 /**
  * Build script for Shopify Theme App Extension bundles
  * Creates standalone JavaScript bundles for calculator and chat blocks
@@ -96,15 +95,59 @@ async function buildChat() {
   console.log('✓ Chat block built successfully');
 }
 
+// Build configuration for wholesale registration block
+async function buildWholesaleRegistration() {
+  console.log('🔨 Building wholesale registration block...');
+
+  await build({
+    root: path.resolve(__dirname, 'client'),
+    plugins: [react()],
+    resolve: {
+      alias: {
+        '@': path.resolve(__dirname, 'client', 'src'),
+        '@shared': path.resolve(__dirname, 'shared'),
+      }
+    },
+    build: {
+      outDir: path.resolve(__dirname, 'extensions/underitall-blocks/assets'),
+      emptyOutDir: false,
+      lib: {
+        entry: path.resolve(__dirname, 'client/src/pages/wholesale-registration.tsx'),
+        name: 'UnderItAllWholesaleRegistration',
+        fileName: () => 'wholesale-registration-block.js',
+        formats: ['iife']
+      },
+      rollupOptions: {
+        external: ['react', 'react-dom', 'react/jsx-runtime'],
+        output: {
+          globals: {
+            react: 'React',
+            'react-dom': 'ReactDOM',
+            'react/jsx-runtime': 'React'
+          },
+          assetFileNames: 'wholesale-registration-block.[ext]'
+        }
+      }
+    },
+    define: {
+      'process.env.NODE_ENV': '"production"'
+    }
+  });
+
+  console.log('✓ Wholesale registration block built successfully');
+}
+
+
 // Main build process
 async function buildAll() {
   try {
     // Ensure asset directories exist
     fs.mkdirSync(path.resolve(__dirname, 'extensions/underitall-blocks/assets'), { recursive: true });
 
-    // Build both blocks
+    // Build all blocks
     await buildCalculator();
     await buildChat();
+    await buildWholesaleRegistration();
 
     console.log('\n✨ All theme app blocks built successfully!');
     console.log('\n📦 Next steps:');
@@ -116,6 +159,8 @@ async function buildAll() {
     console.log('   - extensions/underitall-blocks/assets/calculator-block.css');
     console.log('   - extensions/underitall-blocks/assets/chat-block.js');
     console.log('   - extensions/underitall-blocks/assets/chat-block.css');
+    console.log('   - extensions/underitall-blocks/assets/wholesale-registration-block.js');
+    console.log('   - extensions/underitall-blocks/assets/wholesale-registration-block.css');
   } catch (error) {
     console.error('❌ Build failed:', error);
     process.exit(1);

@@ -1,0 +1,100 @@
+
+{% comment %}
+  UnderItAll Wholesale Registration Block
+  Conditionally renders registration form OR account link based on metafield
+{% endcomment %}
+
+{{ 'wholesale-registration.css' | asset_url | stylesheet_tag }}
+
+{% if customer %}
+  {% assign wholesale_account = customer.metafields.custom.wholesale_account %}
+  
+  {% if wholesale_account %}
+    {%- comment -%} Customer has wholesale account - show link to profile {%- endcomment -%}
+    <div class="wholesale-registration-block wholesale-account-exists">
+      <div class="account-status-card">
+        <h2>{{ block.settings.existing_account_heading }}</h2>
+        <p>{{ block.settings.existing_account_message }}</p>
+        <a href="/account/wholesale-profile" class="button button--primary">
+          {{ block.settings.view_account_text }}
+        </a>
+      </div>
+    </div>
+  {% else %}
+    {%- comment -%} No wholesale account - show registration form {%- endcomment -%}
+    <div class="wholesale-registration-block" id="underitall-wholesale-registration-root"
+         data-api-url="{{ block.settings.api_url }}">
+      <script>
+        window.UNDERITALL_WHOLESALE_CONFIG = {
+          apiUrl: "{{ block.settings.api_url }}",
+          customerEmail: "{{ customer.email }}",
+          customerId: "{{ customer.id }}"
+        };
+      </script>
+    </div>
+    <script src="{{ 'wholesale-registration.js' | asset_url }}" defer></script>
+  {% endif %}
+{% else %}
+  {%- comment -%} Not logged in - prompt login {%- endcomment -%}
+  <div class="wholesale-registration-block login-required">
+    <div class="login-prompt">
+      <h2>{{ block.settings.login_heading }}</h2>
+      <p>{{ block.settings.login_message }}</p>
+      <a href="/account/login" class="button button--primary">
+        {{ block.settings.login_button_text }}
+      </a>
+    </div>
+  </div>
+{% endif %}
+
+{% schema %}
+{
+  "name": "Wholesale Registration",
+  "target": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "api_url",
+      "label": "API Base URL",
+      "default": "https://its-under-it-all.replit.app",
+      "info": "Backend API endpoint"
+    },
+    {
+      "type": "text",
+      "id": "existing_account_heading",
+      "label": "Existing Account Heading",
+      "default": "Welcome Back, Trade Partner"
+    },
+    {
+      "type": "textarea",
+      "id": "existing_account_message",
+      "label": "Existing Account Message",
+      "default": "You already have an active wholesale account. View and manage your account details."
+    },
+    {
+      "type": "text",
+      "id": "view_account_text",
+      "label": "View Account Button Text",
+      "default": "View My Wholesale Account"
+    },
+    {
+      "type": "text",
+      "id": "login_heading",
+      "label": "Login Required Heading",
+      "default": "Trade Account Required"
+    },
+    {
+      "type": "textarea",
+      "id": "login_message",
+      "label": "Login Required Message",
+      "default": "Please log in to your Shopify account to apply for wholesale access."
+    },
+    {
+      "type": "text",
+      "id": "login_button_text",
+      "label": "Login Button Text",
+      "default": "Log In to Apply"
+    }
+  ]
+}
+{% endschema %}

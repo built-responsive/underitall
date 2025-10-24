@@ -1,0 +1,64 @@
+
+/* UnderItAll Wholesale Registration Block Styles */
+
+:root {
+  --uia-rorange: #F2633A;
+  --uia-felt-gray: #696A6D;
+  --uia-greige: #E1E0DA;
+  --uia-soft-black: #212227;
+  --uia-cream: #F3F1E9;
+}
+
+.wholesale-registration-block {
+  font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  padding: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.account-status-card,
+.login-prompt {
+  background: var(--uia-cream);
+  border: 2px solid var(--uia-greige);
+  border-radius: 16px;
+  padding: 3rem;
+  text-align: center;
+}
+
+.account-status-card h2,
+.login-prompt h2 {
+  font-family: 'Archivo', sans-serif;
+  color: var(--uia-soft-black);
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.account-status-card p,
+.login-prompt p {
+  font-family: 'Vazirmatn', sans-serif;
+  color: var(--uia-felt-gray);
+  font-size: 1.125rem;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+.button {
+  display: inline-block;
+  padding: 1rem 2rem;
+  font-family: 'Vazirmatn', sans-serif;
+  font-weight: 600;
+  border-radius: 11px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.button--primary {
+  background: var(--uia-rorange);
+  color: white;
+  border: 2px solid var(--uia-rorange);
+}
+
+.button--primary:hover {
+  background: #d94f28;
+  border-color: #d94f28;
+}
