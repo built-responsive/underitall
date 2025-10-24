@@ -421,6 +421,66 @@ export function registerRoutes(app: Express) {
   // Debug endpoint - Visual UI for testing/monitoring
   app.get("/debug", async (req, res) => {
     try {
+      // Fetch metaobject definition status
+      const shopDomain = process.env.SHOPIFY_SHOP_DOMAIN;
+      const adminToken = process.env.SHOPIFY_ADMIN_ACCESS_TOKEN;
+      
+      let metaobjectStatus: any = { configured: false };
+      
+      if (shopDomain && adminToken) {
+        try {
+          const query = `
+            query {
+              metaobjectDefinitionByType(type: "$app:wholesale_account") {
+                id
+                name
+                type
+                displayNameKey
+                fieldDefinitions {
+                  key
+                  name
+                  type {
+                    name
+                  }
+                }
+              }
+              metaobjects(type: "$app:wholesale_account", first: 10) {
+                nodes {
+                  id
+                  handle
+                  displayName
+                }
+              }
+            }
+          `;
+
+          const response = await fetch(
+            `https://${shopDomain}/admin/api/2025-01/graphql.json`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "X-Shopify-Access-Token": adminToken,
+              },
+              body: JSON.stringify({ query }),
+            }
+          );
+
+          const data = await response.json();
+
+          if (data.data?.metaobjectDefinitionByType) {
+            metaobjectStatus = {
+              configured: true,
+              definition: data.data.metaobjectDefinitionByType,
+              entryCount: data.data.metaobjects?.nodes?.length || 0,
+              entries: data.data.metaobjects?.nodes || [],
+            };
+          }
+        } catch (error) {
+          metaobjectStatus.error = error instanceof Error ? error.message : "Unknown error";
+        }
+      }
+
       // Fetch recent data for debugging
       const [recentRegistrations, recentQuotes, recentWebhooks] = await Promise.all([
         db.select().from(wholesaleRegistrations).orderBy(desc(wholesaleRegistrations.createdAt)).limit(10),
@@ -560,6 +620,63 @@ export function registerRoutes(app: Express) {
   <div class="container">
     <h1>🔧 UnderItAll Debug Dashboard</h1>
     <button class="refresh-btn" onclick="location.reload()">🔄 Refresh Data</button>
+
+    <!-- Metaobject Status -->
+    <div class="section">
+      <h2>🔮 Metaobject Status</h2>
+      <div class="stats">
+        <div class="stat-card">
+          <div class="stat-value">${metaobjectStatus.configured ? '✅' : '❌'}</div>
+          <div class="stat-label">Definition Status</div>
+        </div>
+        ${metaobjectStatus.configured ? `
+          <div class="stat-card">
+            <div class="stat-value">${metaobjectStatus.entryCount}</div>
+            <div class="stat-label">Wholesale Accounts</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">${metaobjectStatus.definition?.fieldDefinitions?.length || 0}</div>
+            <div class="stat-label">Field Definitions</div>
+          </div>
+        ` : ''}
+      </div>
+      ${metaobjectStatus.configured ? `
+        <div style="margin-top: 1rem;">
+          <p class="text-sm" style="color: #9ca3af; margin-bottom: 0.5rem;">Definition ID:</p>
+          <code style="background: #1a1a1a; padding: 0.5rem; border-radius: 6px; color: #10b981; font-size: 0.875rem;">${metaobjectStatus.definition.id}</code>
+        </div>
+        ${metaobjectStatus.entries.length > 0 ? `
+          <details style="margin-top: 1rem;">
+            <summary style="cursor: pointer; color: #F2633A; font-weight: 600;">View Recent Entries (${metaobjectStatus.entries.length})</summary>
+            <table style="margin-top: 0.5rem;">
+              <thead>
+                <tr>
+                  <th>Display Name</th>
+                  <th>Handle</th>
+                  <th>ID</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${metaobjectStatus.entries.map((entry: any) => `
+                  <tr>
+                    <td>${entry.displayName}</td>
+                    <td><code>${entry.handle}</code></td>
+                    <td class="timestamp">${entry.id}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </details>
+        ` : ''}
+      ` : `
+        <div style="margin-top: 1rem; padding: 1rem; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px;">
+          <p style="color: #ef4444; font-weight: 600;">❌ Metaobject definition not found</p>
+          <p style="color: #9ca3af; font-size: 0.875rem; margin-top: 0.5rem;">
+            ${metaobjectStatus.error ? `Error: ${metaobjectStatus.error}` : 'Configure the wholesale_account metaobject in Settings'}
+          </p>
+        </div>
+      `}
+    </div>
 
     <!-- Stats Overview -->
     <div class="section">
@@ -941,17 +1058,27 @@ export function registerRoutes(app: Express) {
 
       if (shopDomain && adminToken) {
         try {
-          // Check for metaobject definition
+          // Check for metaobject definition with full details
           const query = `
             query {
               metaobjectDefinitionByType(type: "$app:wholesale_account") {
                 id
                 name
                 type
+                displayNameKey
+                fieldDefinitions {
+                  key
+                  name
+                  type {
+                    name
+                  }
+                }
               }
-              metaobjects(type: "$app:wholesale_account", first: 1) {
+              metaobjects(type: "$app:wholesale_account", first: 5) {
                 nodes {
                   id
+                  handle
+                  displayName
                 }
               }
             }
@@ -974,7 +1101,11 @@ export function registerRoutes(app: Express) {
           if (data.data?.metaobjectDefinitionByType) {
             shopifyHealth.metaobjectDefinition = true;
             shopifyHealth.metaobjectId = data.data.metaobjectDefinitionByType.id;
+            shopifyHealth.metaobjectName = data.data.metaobjectDefinitionByType.name;
+            shopifyHealth.metaobjectType = data.data.metaobjectDefinitionByType.type;
+            shopifyHealth.fieldCount = data.data.metaobjectDefinitionByType.fieldDefinitions?.length || 0;
             shopifyHealth.entryCount = data.data.metaobjects?.nodes?.length || 0;
+            shopifyHealth.recentEntries = data.data.metaobjects?.nodes || [];
           } else {
             shopifyHealth.metaobjectDefinition = false;
           }
