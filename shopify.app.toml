@@ -40,7 +40,7 @@ name = "Wholesale Account ID (Clarity CRM)"
 description = "Links customer to their wholesale account in Clarity CRM (e.g., AC000930)"
 
   [customer.metafields.app.wholesale_clarity_id.access]
-  storefront = true
+  storefront = "public_read"
   customer_account = "read_write"
   admin = "merchant_read_write"
   
