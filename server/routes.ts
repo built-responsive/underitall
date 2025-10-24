@@ -4,17 +4,7 @@ import webhookRoutes from "./webhooks";
 import { db } from "./db";
 import { wholesaleRegistrations, calculatorQuotes, webhookLogs, draftOrders } from "@shared/schema";
 import { desc } from "drizzle-orm";
-// Inline Shopify config helper (replaces missing shopifyConfig.ts)
-function getShopifyConfig() {
-  const shop = process.env.SHOPIFY_SHOP_DOMAIN;
-  const accessToken = process.env.SHOPIFY_ADMIN_ACCESS_TOKEN;
-  
-  if (!shop || !accessToken) {
-    return null;
-  }
-  
-  return { shop, accessToken };
-}
+import { getShopifyConfig, executeShopifyGraphQL } from "./utils/shopifyConfig";
 
 export function registerRoutes(app: Express) {
   // GraphQL Proxy Bypass (for Shopify CLI) - Handle CORS preflight
