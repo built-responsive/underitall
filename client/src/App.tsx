@@ -45,7 +45,7 @@ function ShopifyAppBridge({ children }: { children: React.ReactNode }) {
         }
 
         console.log('✅ Initializing App Bridge for', shopOrigin);
-        
+
         const app = (window as any).ShopifyApp.createApp({
           apiKey: '78a602699150bda4e49a40861707d500',
           host: host,
