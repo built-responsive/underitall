@@ -944,14 +944,84 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  // Company Enrichment (placeholder - implement when OpenAI/CRM integration ready)
+  // Company Enrichment - Query OpenAI for business details from firm name
   app.post("/api/enrich-company", async (req, res) => {
     try {
-      // TODO: Implement company enrichment with OpenAI/CRM
-      res.json({ enriched: false, message: "Enrichment not yet implemented" });
+      const { firmName } = req.body;
+
+      if (!firmName) {
+        return res.status(400).json({ 
+          enriched: false, 
+          error: "Missing firmName in request body" 
+        });
+      }
+
+      console.log(`🔍 Enriching company: ${firmName}`);
+
+      // Query OpenAI for business info (uses GPT-4o-mini for speed/cost)
+      const { openai } = await import("./utils/openai");
+      
+      const completion = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [
+          {
+            role: "system",
+            content: `You are a business intelligence assistant. Extract or infer these fields from the company name/context:
+- website (infer domain if known brand, e.g., "Nike" → "nike.com")
+- instagram (infer handle if known brand, e.g., "Nike" → "@nike")
+- businessType (e.g., "Design Firm", "Retailer", "Manufacturer")
+- estimatedEmployees (rough guess: "1-10", "11-50", "51-200", etc.)
+
+Return ONLY valid JSON with these exact keys. If unknown, use empty string.`
+          },
+          {
+            role: "user",
+            content: `Company name: "${firmName}"`
+          }
+        ],
+        temperature: 0.3,
+        max_tokens: 200,
+      });
+
+      const enrichedText = completion.choices[0]?.message?.content?.trim();
+
+      if (!enrichedText) {
+        return res.json({ 
+          enriched: false, 
+          message: "No enrichment data returned from OpenAI" 
+        });
+      }
+
+      // Parse OpenAI's JSON response
+      let enrichedData;
+      try {
+        enrichedData = JSON.parse(enrichedText);
+      } catch (parseError) {
+        console.error("❌ Failed to parse OpenAI response:", enrichedText);
+        return res.json({ 
+          enriched: false, 
+          error: "Invalid JSON from OpenAI", 
+          rawResponse: enrichedText 
+        });
+      }
+
+      console.log("✅ Company enriched:", enrichedData);
+
+      res.json({
+        enriched: true,
+        data: {
+          website: enrichedData.website || "",
+          instagramHandle: enrichedData.instagram || "",
+          businessType: enrichedData.businessType || "",
+          estimatedEmployees: enrichedData.estimatedEmployees || "",
+        }
+      });
     } catch (error) {
       console.error("❌ Error enriching company:", error);
-      res.status(500).json({ error: "Failed to enrich company" });
+      res.status(500).json({ 
+        enriched: false,
+        error: error instanceof Error ? error.message : "Failed to enrich company" 
+      });
     }
   });
 
