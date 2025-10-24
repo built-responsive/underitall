@@ -101,7 +101,8 @@ function WholesaleAccountPage() {
       setError(null);
 
       // Update via backend API (requires session token for auth)
-      const appUrl = 'https://its-under-it-all.replit.app';
+      //const appUrl = 'https://its-under-it-all.replit.app';
+      const appUrl = 'https://2d8f7c0c-938e-4f87-b0ca-9f262520d64e-00-2o84gg8qrj25w.spock.replit.dev';
       const metaobjectId = wholesaleAccount.id.split('/').pop();
 
       const response = await fetch(`${appUrl}/api/wholesale-account/${metaobjectId}`, {

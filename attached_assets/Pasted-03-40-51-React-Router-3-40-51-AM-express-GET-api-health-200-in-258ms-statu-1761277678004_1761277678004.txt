@@ -1,0 +1,66 @@
+03:40:51 │              React Router │ 3:40:51 AM [express] GET /api/health 200
+in 258ms :: {"status":"ok","timestamp":"2025-10-24T03:40:51…
+03:41:36 │              React Router │ ⚠️ HMAC verification failed
+03:41:36 │              React Router │ Expected:
+6IyQX7O8BdZBOk/HFn06bpn43iuZyY6mB2ATAZ4IYbs=
+03:41:36 │              React Router │ Received:
+B+OptG4EyHas7KvqYTRo0w3816u03hv7xTJjkXIOK/Q=
+03:41:36 │              React Router │ ⚠️ Invalid webhook signature
+03:41:36 │              React Router │ 3:41:36 AM [express] POST
+/api/webhooks/customers/create 401 in 4ms :: {"error":"Unauthorized"}
+03:41:36 │              React Router │ ⚠️ HMAC verification failed
+03:41:36 │              React Router │ Expected:
+6IyQX7O8BdZBOk/HFn06bpn43iuZyY6mB2ATAZ4IYbs=
+03:41:36 │              React Router │ Received:
+B+OptG4EyHas7KvqYTRo0w3816u03hv7xTJjkXIOK/Q=
+03:41:36 │              React Router │ ⚠️ Invalid webhook signature
+03:41:36 │              React Router │ 3:41:36 AM [express] POST
+/api/webhooks/customers/update 401 in 4ms :: {"error":"Unauthorized"}
+03:41:37 │              React Router │ ⚠️ HMAC verification failed
+03:41:37 │              React Router │ Expected:
+6IyQX7O8BdZBOk/HFn06bpn43iuZyY6mB2ATAZ4IYbs=
+03:41:37 │              React Router │ Received:
+B+OptG4EyHas7KvqYTRo0w3816u03hv7xTJjkXIOK/Q=
+03:41:37 │              React Router │ ⚠️ Invalid webhook signature
+03:41:37 │              React Router │ 3:41:37 AM [express] POST
+/api/webhooks/customers/create 401 in 1ms :: {"error":"Unauthorized"}
+03:41:37 │              React Router │ ⚠️ HMAC verification failed
+03:41:37 │              React Router │ Expected:
+6IyQX7O8BdZBOk/HFn06bpn43iuZyY6mB2ATAZ4IYbs=
+03:41:37 │              React Router │ Received:
+B+OptG4EyHas7KvqYTRo0w3816u03hv7xTJjkXIOK/Q=
+03:41:37 │              React Router │ ⚠️ Invalid webhook signature
+03:41:37 │              React Router │ 3:41:37 AM [express] POST
+/api/webhooks/customers/update 401 in 1ms :: {"error":"Unauthorized"}
+03:42:38 │              React Router │ ⚠️ HMAC verification failed
+03:42:38 │              React Router │ Expected:
+6IyQX7O8BdZBOk/HFn06bpn43iuZyY6mB2ATAZ4IYbs=
+03:42:38 │              React Router │ Received:
+B+OptG4EyHas7KvqYTRo0w3816u03hv7xTJjkXIOK/Q=
+03:42:38 │              React Router │ ⚠️ Invalid webhook signature
+03:42:38 │              React Router │ 3:42:38 AM [express] POST
+/api/webhooks/customers/create 401 in 1ms :: {"error":"Unauthorized"}
+03:42:38 │              React Router │ ⚠️ HMAC verification failed
+03:42:38 │              React Router │ Expected:
+6IyQX7O8BdZBOk/HFn06bpn43iuZyY6mB2ATAZ4IYbs=
+03:42:38 │              React Router │ Received:
+B+OptG4EyHas7KvqYTRo0w3816u03hv7xTJjkXIOK/Q=
+03:42:38 │              React Router │ ⚠️ Invalid webhook signature
+03:42:38 │              React Router │ 3:42:38 AM [express] POST
+/api/webhooks/customers/update 401 in 1ms :: {"error":"Unauthorized"}
+03:44:38 │              React Router │ ⚠️ HMAC verification failed
+03:44:38 │              React Router │ Expected:
+6IyQX7O8BdZBOk/HFn06bpn43iuZyY6mB2ATAZ4IYbs=
+03:44:38 │              React Router │ Received:
+B+OptG4EyHas7KvqYTRo0w3816u03hv7xTJjkXIOK/Q=
+03:44:38 │              React Router │ ⚠️ Invalid webhook signature
+03:44:38 │              React Router │ 3:44:38 AM [express] POST
+/api/webhooks/customers/create 401 in 1ms :: {"error":"Unauthorized"}
+03:44:38 │              React Router │ ⚠️ HMAC verification failed
+03:44:38 │              React Router │ Expected:
+6IyQX7O8BdZBOk/HFn06bpn43iuZyY6mB2ATAZ4IYbs=
+03:44:38 │              React Router │ Received:
+B+OptG4EyHas7KvqYTRo0w3816u03hv7xTJjkXIOK/Q=
+03:44:38 │              React Router │ ⚠️ Invalid webhook signature
+03:44:38 │              React Router │ 3:44:38 AM [express] POST
+/api/webhooks/customers/update 401 in 1ms :: {"error":"Unauthorized"}

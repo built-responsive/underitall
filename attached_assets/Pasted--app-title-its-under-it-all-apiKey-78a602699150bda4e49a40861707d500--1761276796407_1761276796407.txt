@@ -1,0 +1,126 @@
+{
+  "app": {
+    "title": "its-under-it-all",
+    "apiKey": "78a602699150bda4e49a40861707d500",
+    "url": "https://underitall-redeux.myshopify.com/admin/oauth/redirect_from_cli?client_id=78a602699150bda4e49a40861707d500",
+    "mobileUrl": "https://underitall-redeux.myshopify.com/admin/apps/78a602699150bda4e49a40861707d500?shop=underitall-redeux.myshopify.com&host=dW5kZXJpdGFsbC1yZWRldXgubXlzaG9waWZ5LmNvbS9hZG1pbi9hcHBzLzc4YTYwMjY5OTE1MGJkYTRlNDlhNDA4NjE3MDdkNTAw"
+  },
+  "appId": "gid://shopify/App/290419769345",
+  "version": "3",
+  "root": {
+    "url": "https://2d8f7c0c-938e-4f87-b0ca-9f262520d64e-00-2o84gg8qrj25w.spock.replit.dev/extensions"
+  },
+  "socket": {
+    "url": "wss://2d8f7c0c-938e-4f87-b0ca-9f262520d64e-00-2o84gg8qrj25w.spock.replit.dev/extensions"
+  },
+  "devConsole": {
+    "url": "https://2d8f7c0c-938e-4f87-b0ca-9f262520d64e-00-2o84gg8qrj25w.spock.replit.dev/extensions/dev-console"
+  },
+  "store": "underitall-redeux.myshopify.com",
+  "extensions": [
+    {
+      "assets": {
+        "main": {
+          "name": "main",
+          "url": "https://2d8f7c0c-938e-4f87-b0ca-9f262520d64e-00-2o84gg8qrj25w.spock.replit.dev/extensions/dev-wholesale-account-profile-extension/assets/wholesale-account-profile.js",
+          "lastUpdated": 1761274834758
+        }
+      },
+      "capabilities": {
+        "blockProgress": false,
+        "networkAccess": true,
+        "apiAccess": true,
+        "collectBuyerConsent": {
+          "smsMarketing": false,
+          "customerPrivacy": false
+        },
+        "iframe": {
+          "sources": []
+        }
+      },
+      "development": {
+        "status": "success",
+        "resource": {
+          "url": ""
+        },
+        "root": {
+          "url": "https://2d8f7c0c-938e-4f87-b0ca-9f262520d64e-00-2o84gg8qrj25w.spock.replit.dev/extensions/dev-wholesale-account-profile-extension"
+        },
+        "hidden": false,
+        "localizationStatus": "success"
+      },
+      "extensionPoints": [
+        {
+          "target": "customer-account.page.render",
+          "module": "./src/ProfileBlock.jsx",
+          "metafields": [],
+          "urls": {
+
+          },
+          "preloads": {
+
+          },
+          "build_manifest": {
+            "assets": {
+              "main": {
+                "filepath": "wholesale-account-profile.js",
+                "module": "./src/ProfileBlock.jsx"
+              }
+            }
+          },
+          "assets": {
+            "main": {
+              "name": "main",
+              "url": "https://2d8f7c0c-938e-4f87-b0ca-9f262520d64e-00-2o84gg8qrj25w.spock.replit.dev/extensions/dev-wholesale-account-profile-extension/assets/wholesale-account-profile.js",
+              "lastUpdated": 1761274835072
+            }
+          },
+          "surface": "customer-accounts",
+          "root": {
+            "url": "https://2d8f7c0c-938e-4f87-b0ca-9f262520d64e-00-2o84gg8qrj25w.spock.replit.dev/extensions/dev-wholesale-account-profile-extension/customer-account.page.render"
+          },
+          "resource": {
+            "url": ""
+          }
+        }
+      ],
+      "localization": {
+        "defaultLocale": "en",
+        "translations": {
+          "en": {
+            "title": "Wholesale Account Information",
+            "loading": "Loading wholesale account...",
+            "businessInfo": "Business Information",
+            "addressInfo": "Business Address",
+            "taxInfo": "Tax Information",
+            "additionalInfo": "Additional Information",
+            "edit": "Edit Information",
+            "save": "Save Changes",
+            "cancel": "Cancel",
+            "successMessage": "Wholesale account updated successfully!",
+            "errorMessage": "Error updating wholesale account"
+          }
+        },
+        "lastUpdated": 1761274835167
+      },
+      "metafields": null,
+      "type": "ui_extension",
+      "externalType": "ui_extension",
+      "uuid": "dev-wholesale-account-profile-extension",
+      "title": "Wholesale Account Profile",
+      "handle": "wholesale-account-profile",
+      "name": "Wholesale Account Profile",
+      "apiVersion": "2025-01",
+      "approvalScopes": [
+        "read_checkout_external_data",
+        "read_customer_address",
+        "read_customer_email",
+        "read_customer_name",
+        "read_customer_phone",
+        "read_customer_personal_data",
+        "write_themes_assets",
+        "write_theme_api"
+      ]
+    }
+  ]
+}
