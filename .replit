@@ -55,10 +55,6 @@ localPort = 9293
 externalPort = 3003
 exposeLocalhost = true
 
-[[ports]]
-localPort = 37429
-externalPort = 4200
-
 [deployment]
 deploymentTarget = "vm"
 run = ["npm", "start"]
