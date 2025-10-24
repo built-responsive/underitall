@@ -187,13 +187,34 @@ export default function Calculator() {
     },
   });
 
+  // Variant ID mapping (from product JSON)
+  const getVariantId = (thickness: string, shape: string): string => {
+    const variantMap: Record<string, Record<string, string>> = {
+      thin: {
+        rectangle: "gid://shopify/ProductVariant/46989691683051",
+        round: "gid://shopify/ProductVariant/46989691715819",
+        square: "gid://shopify/ProductVariant/46989691748587",
+        freeform: "gid://shopify/ProductVariant/46989691781355",
+      },
+      thick: {
+        rectangle: "gid://shopify/ProductVariant/46989691814123",
+        round: "gid://shopify/ProductVariant/46989691846891",
+        square: "gid://shopify/ProductVariant/46989691879659",
+        freeform: "gid://shopify/ProductVariant/46989691912427",
+      },
+    };
+    return variantMap[thickness]?.[shape] || variantMap.thin.rectangle;
+  };
+
   // Create draft order
   const createDraftOrderMutation = useMutation({
     mutationFn: async (quoteId: string) => {
       const values = form.getValues();
+      const variantId = getVariantId(values.thickness, values.shape);
+      
       const lineItems = [
         {
-          variantId: "gid://shopify/ProductVariant/REPLACE_WITH_ACTUAL_VARIANT_ID", // TODO: Use real variant ID
+          variantId,
           quantity: values.quantity || 1,
           customAttributes: [
             { key: "Width", value: `${widthFeet}'${widthInches}"` },
