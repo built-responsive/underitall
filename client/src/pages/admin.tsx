@@ -44,17 +44,58 @@ export default function Admin() {
   const [actionType, setActionType] = useState<"approve" | "reject" | null>(null);
   const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
 
-  const { data: registrations = [], isLoading: loadingRegistrations, refetch } = useQuery({
+  // Debug logging on mount
+  useEffect(() => {
+    console.log("🎯 Admin component mounted - queries initialized");
+  }, []);
+
+  const { data: registrations = [], isLoading: loadingRegistrations, refetch, error: regError } = useQuery({
     queryKey: ["/api/wholesale-registrations"],
-  }) as { data: any[]; isLoading: boolean, refetch: () => void };
+    queryFn: async () => {
+      console.log("🔥 Fetching registrations...");
+      const res = await apiRequest("GET", "/api/wholesale-registrations");
+      if (!res.ok) {
+        const err = await res.text();
+        console.error("❌ Registrations fetch failed:", res.status, err);
+        throw new Error(`${res.status}: ${err}`);
+      }
+      const data = await res.json();
+      console.log("✅ Registrations loaded:", data.length);
+      return data;
+    },
+  }) as { data: any[]; isLoading: boolean, refetch: () => void, error: any };
 
-  const { data: quotes = [], isLoading: loadingQuotes } = useQuery({
+  const { data: quotes = [], isLoading: loadingQuotes, error: quotesError } = useQuery({
     queryKey: ["/api/calculator/quotes"],
-  }) as { data: any[]; isLoading: boolean };
+    queryFn: async () => {
+      console.log("🔥 Fetching quotes...");
+      const res = await apiRequest("GET", "/api/calculator/quotes");
+      if (!res.ok) {
+        const err = await res.text();
+        console.error("❌ Quotes fetch failed:", res.status, err);
+        throw new Error(`${res.status}: ${err}`);
+      }
+      const data = await res.json();
+      console.log("✅ Quotes loaded:", data.length);
+      return data;
+    },
+  }) as { data: any[]; isLoading: boolean, error: any };
 
-  const { data: draftOrders = [], isLoading: loadingOrders } = useQuery({
+  const { data: draftOrders = [], isLoading: loadingOrders, error: ordersError } = useQuery({
     queryKey: ["/api/draft-orders"],
-  }) as { data: any[]; isLoading: boolean };
+    queryFn: async () => {
+      console.log("🔥 Fetching draft orders...");
+      const res = await apiRequest("GET", "/api/draft-orders");
+      if (!res.ok) {
+        const err = await res.text();
+        console.error("❌ Draft orders fetch failed:", res.status, err);
+        throw new Error(`${res.status}: ${err}`);
+      }
+      const data = await res.json();
+      console.log("✅ Draft orders loaded:", data.length);
+      return data;
+    },
+  }) as { data: any[]; isLoading: boolean, error: any };
 
   const updateRegistrationMutation = useMutation({
     mutationFn: async ({ id, status, adminNotes, rejectionReason }: any) => {
@@ -145,6 +186,13 @@ export default function Admin() {
     }
   };
 
+
+  // Log errors
+  useEffect(() => {
+    if (regError) console.error("🔴 Registrations error:", regError);
+    if (quotesError) console.error("🔴 Quotes error:", quotesError);
+    if (ordersError) console.error("🔴 Orders error:", ordersError);
+  }, [regError, quotesError, ordersError]);
 
   const pendingCount = registrations.filter((r: any) => r.status === "pending").length;
   const approvedCount = registrations.filter((r: any) => r.status === "approved").length;
