@@ -67,6 +67,11 @@ const formSchema = z.object({
   taxIdProofUrl: z.string().optional(),
   howDidYouHear: z.string().optional(),
   receivedSampleSet: z.boolean(),
+  marketingOptIn: z.boolean().optional(),
+  termsAccepted: z.boolean().default(false).refine((val) => val === true, {
+    message: "You must accept the terms and privacy policy to continue.",
+  }),
+  smsConsent: z.boolean().optional(),
 });
 
 export default function WholesaleRegistration() {
@@ -100,6 +105,9 @@ export default function WholesaleRegistration() {
       taxIdProofUrl: "",
       howDidYouHear: "",
       receivedSampleSet: false,
+      marketingOptIn: false,
+      termsAccepted: false,
+      smsConsent: false,
     },
   });
 
@@ -222,13 +230,13 @@ export default function WholesaleRegistration() {
     mutationFn: async (data: z.infer<typeof formSchema>) => {
       console.log("🚀 Submitting registration with data:", data);
       const res = await apiRequest("POST", "/api/wholesale-registration", data);
-      
+
       if (!res.ok) {
         const errorData = await res.json();
         console.error("❌ Registration submission failed:", errorData);
         throw new Error(errorData.error || "Registration failed");
       }
-      
+
       return await res.json();
     },
     onSuccess: (data) => {
@@ -877,16 +885,110 @@ export default function WholesaleRegistration() {
                             className="flex gap-4"
                           >
                             <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="yes" id="sample-yes" />
+                              <RadioGroupItem value="yes" id="sample-yes" className="border-[#7e8d76]" />
                               <Label htmlFor="sample-yes" className="font-['Vazirmatn'] cursor-pointer">Yes</Label>
                             </div>
                             <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="no" id="sample-no" />
+                              <RadioGroupItem value="no" id="sample-no" className="border-[#7e8d76]" />
                               <Label htmlFor="sample-no" className="font-['Vazirmatn'] cursor-pointer">No</Label>
                             </div>
                           </RadioGroup>
                         </FormControl>
                         <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold font-['Archivo'] text-[#212227]">Consent & Agreements</h3>
+
+                  <FormField
+                    control={form.control}
+                    name="marketingOptIn"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                            className="border-[#7e8d76] mt-1"
+                          />
+                        </FormControl>
+                        <div className="space-y-1 leading-none">
+                          <FormLabel className="font-['Vazirmatn'] text-[#212227] font-normal">
+                            Marketing Opt-In
+                          </FormLabel>
+                          <p className="text-sm text-[#696A6D] font-['Vazirmatn']">
+                            Yes, I'd like to receive updates, promotions, and product news from UnderItAll Holdings LLC. (You can opt out anytime.)
+                          </p>
+                        </div>
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="termsAccepted"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                            className="border-[#7e8d76] mt-1"
+                          />
+                        </FormControl>
+                        <div className="space-y-1 leading-none">
+                          <FormLabel className="font-['Vazirmatn'] text-[#212227] font-normal">
+                            Terms of Service & Privacy
+                          </FormLabel>
+                          <p className="text-sm text-[#696A6D] font-['Vazirmatn']">
+                            By creating an account, you agree to our{' '}
+                            <a 
+                              href="https://www.itsunderitall.com/pages/terms-conditions" 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="text-[#F2633A] hover:underline"
+                            >
+                              Terms of Service
+                            </a>
+                            {' '}and acknowledge that you've read our{' '}
+                            <a 
+                              href="https://www.itsunderitall.com/pages/privacy-policy" 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="text-[#F2633A] hover:underline"
+                            >
+                              Privacy Policy
+                            </a>.
+                          </p>
+                        </div>
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="smsConsent"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                            className="border-[#7e8d76] mt-1"
+                          />
+                        </FormControl>
+                        <div className="space-y-1 leading-none">
+                          <FormLabel className="font-['Vazirmatn'] text-[#212227] font-normal">
+                            SMS Consent
+                          </FormLabel>
+                          <p className="text-sm text-[#696A6D] font-['Vazirmatn']">
+                            I agree to receive text messages from UnderItAll Holdings LLC regarding my account and exclusive offers.
+                            Message and data rates may apply. Reply STOP to unsubscribe.
+                          </p>
+                        </div>
                       </FormItem>
                     )}
                   />
