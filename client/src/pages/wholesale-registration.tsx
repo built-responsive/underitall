@@ -537,7 +537,11 @@ export default function WholesaleRegistration() {
                           <Input
                             placeholder="Your Company Name"
                             {...field}
-                            onBlur={() => enrichCompanyData(field.value)}
+                            onBlur={() => {
+                              // Read current form value instead of stale field.value
+                              const currentCompanyName = form.getValues("firmName");
+                              enrichCompanyData(currentCompanyName);
+                            }}
                             data-testid="input-firm-name"
                             className="rounded-[11px] font-['Vazirmatn']"
                           />

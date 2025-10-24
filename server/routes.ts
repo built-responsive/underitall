@@ -947,6 +947,8 @@ export function registerRoutes(app: Express) {
   // Company Enrichment - AI-powered with Cloudflare geo + gpt-4o-search-preview strict schema
   app.post("/api/enrich-company", async (req, res) => {
     try {
+      console.log("📦 Raw request body:", JSON.stringify(req.body, null, 2));
+      
       const companyName = (req.body?.firmName || req.body?.companyName || "").trim();
 
       console.log("🔍 Company enrichment request for:", companyName);
