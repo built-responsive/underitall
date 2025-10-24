@@ -2,7 +2,7 @@
 
 client_id = "78a602699150bda4e49a40861707d500"
 name = "its-under-it-all"
-application_url = "https://its-under-it-all.replit.app"
+application_url = "https://join.itsunderitall.com"
 embedded = true
 handle = "its-under-it-all"
 
@@ -27,14 +27,16 @@ scopes = "read_customers,write_customers,read_orders,write_orders,read_draft_ord
 [auth]
 redirect_urls = [
   "https://its-under-it-all.replit.app/api/auth",
-  "https://its-under-it-all.replit.app/auth/callback"
+  "https://its-under-it-all.replit.app/auth/callback",
+  "https://join.itsunderitall.com/api/auth",
+  "https://join.itsunderitall.com/auth/callback"
 ]
 
 [app_preferences]
-url = "https://its-under-it-all.replit.app/settings"
+url = "https://join.itsunderitall.com/settings"
 
 [app_proxy]
-url = "https://its-under-it-all.replit.app"
+url = "https://join.itsunderitall.com"
 subpath = "wholesale"
 prefix = "apps"
 
