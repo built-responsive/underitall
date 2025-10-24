@@ -17,7 +17,9 @@
     "deploy:prod": "npx shopify app deploy --env production",
     "start": "NODE_ENV=production node dist/index.js",
     "check": "tsc",
-    "db:push": "drizzle-kit push"
+    "db:push": "drizzle-kit push",
+    "db:recreate": "node scripts/migrate-database.js",
+    "db:create-admin": "node scripts/create-admin-user.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
