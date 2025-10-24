@@ -206,7 +206,7 @@ export function registerRoutes(app: Express) {
       console.log(JSON.stringify(crmPayload, null, 2));
 
       // Use native http module to mimic curl's exact behavior (HTTP/1.1, all headers)
-      const http = await import("http");
+      const { default: http } = await import("http");
       const payloadString = JSON.stringify(crmPayload);
 
       const options = {
