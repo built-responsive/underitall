@@ -1,0 +1,141 @@
+7:22:42 PM [express] POST /api/shopify/graphql 200 in 332ms :: {"data":{"customers":{"nodes":[{"id":…
+📥 GraphQL Request:
+{
+  "query": "\n        query {\n          customers(first: 10, query: \"metafield:custom.wholesale_company:*\") {\n            nodes {\n              id\n              email\n              firstName\n              lastName\n              metafields(namespace: \"custom\", first: 20) {\n                edges {\n                  node {\n                    key\n                    value\n                    type\n                  }\n                }\n              }\n            }\n          }\n        }\n      "
+}
+📤 GraphQL Response:
+{
+  "data": {
+    "customers": {
+      "nodes": [
+        {
+          "id": "gid://shopify/Customer/6359032463595",
+          "email": "simplewebit@gmail.com",
+          "firstName": "Chris",
+          "lastName": "McArthur",
+          "metafields": {
+            "edges": []
+          }
+        },
+        {
+          "id": "gid://shopify/Customer/6359292182763",
+          "email": "trimbolipete@gmail.com",
+          "firstName": "Peter",
+          "lastName": "Trimboli",
+          "metafields": {
+            "edges": []
+          }
+        },
+        {
+          "id": "gid://shopify/Customer/6364289237227",
+          "email": "thompson154@bellsouth.net",
+          "firstName": "John",
+          "lastName": "Thompson",
+          "metafields": {
+            "edges": []
+          }
+        },
+        {
+          "id": "gid://shopify/Customer/6444366233835",
+          "email": "chris@builtresponsive.com",
+          "firstName": "Chris",
+          "lastName": "McArthur",
+          "metafields": {
+            "edges": []
+          }
+        },
+        {
+          "id": "gid://shopify/Customer/6499757687019",
+          "email": "john@itsunderitall.com",
+          "firstName": "john",
+          "lastName": "Thompson",
+          "metafields": {
+            "edges": []
+          }
+        },
+        {
+          "id": "gid://shopify/Customer/6500060528875",
+          "email": "mattblitz1@gmail.com",
+          "firstName": "Matt",
+          "lastName": "Blitz",
+          "metafields": {
+            "edges": []
+          }
+        },
+        {
+          "id": "gid://shopify/Customer/6534567657707",
+          "email": "anthonyanderson0916@gmail.com",
+          "firstName": null,
+          "lastName": null,
+          "metafields": {
+            "edges": []
+          }
+        },
+        {
+          "id": "gid://shopify/Customer/6569140224235",
+          "email": "kylehuff2@gmail.com",
+          "firstName": null,
+          "lastName": null,
+          "metafields": {
+            "edges": []
+          }
+        },
+        {
+          "id": "gid://shopify/Customer/6573210075371",
+          "email": "cphillips@srsworldwide.com",
+          "firstName": "Chris",
+          "lastName": "Phillips",
+          "metafields": {
+            "edges": []
+          }
+        },
+        {
+          "id": "gid://shopify/Customer/6576341057771",
+          "email": "terrifayeinteriors@gmail.com",
+          "firstName": "terri",
+          "lastName": "levitan",
+          "metafields": {
+            "edges": []
+          }
+        }
+      ]
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 34,
+      "actualQueryCost": 14,
+      "throttleStatus": {
+        "maximumAvailable": 2000,
+        "currentlyAvailable": 1986,
+        "restoreRate": 100
+      }
+    },
+    "search": [
+      {
+        "path": [
+          "customers"
+        ],
+        "query": "metafield:custom.wholesale_company:*",
+        "parsed": {
+          "and": [
+            {
+              "field": "metafield",
+              "match_all": "custom.wholesale_company"
+            },
+            {
+              "field": "default",
+              "exists": true
+            }
+          ]
+        },
+        "warnings": [
+          {
+            "field": "metafield",
+            "message": "Invalid search field for this query."
+          }
+        ]
+      }
+    ]
+  }
+}

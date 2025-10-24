@@ -61,7 +61,7 @@ exposeLocalhost = true
 
 [deployment]
 deploymentTarget = "gce"
-run = ["npm", "run", "start"]
+run = ["sh", "-c", "node server/index.js"]
 build = ["sh", "-c", "npm run build && npm run db:production-setup"]
 
 [nix]
