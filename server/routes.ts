@@ -346,11 +346,24 @@ export function registerRoutes(app: Express) {
         input: {
           email: customerEmail || "noreply@underitall.com",
           note: note || "Created via UnderItAll Calculator",
-          lineItems: lineItems.map((item: any) => ({
-            variantId: item.variantId,
-            quantity: item.quantity,
-            customAttributes: item.customAttributes || [],
-          })),
+          lineItems: lineItems.map((item: any) => {
+            // Support both variant-based and custom line items
+            if (item.variantId) {
+              return {
+                variantId: item.variantId,
+                quantity: item.quantity,
+                customAttributes: item.customAttributes || [],
+              };
+            } else {
+              // Custom line item with price override (no variant)
+              return {
+                title: item.title,
+                quantity: item.quantity,
+                originalUnitPrice: item.price,
+                customAttributes: item.customAttributes || [],
+              };
+            }
+          }),
         },
       };
 

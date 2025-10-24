@@ -187,40 +187,32 @@ export default function Calculator() {
     },
   });
 
-  // Variant ID mapping (from product JSON)
-  const getVariantId = (thickness: string, shape: string): string => {
-    const variantMap: Record<string, Record<string, string>> = {
-      thin: {
-        rectangle: "gid://shopify/ProductVariant/46989691683051",
-        round: "gid://shopify/ProductVariant/46989691715819",
-        square: "gid://shopify/ProductVariant/46989691748587",
-        freeform: "gid://shopify/ProductVariant/46989691781355",
-      },
-      thick: {
-        rectangle: "gid://shopify/ProductVariant/46989691814123",
-        round: "gid://shopify/ProductVariant/46989691846891",
-        square: "gid://shopify/ProductVariant/46989691879659",
-        freeform: "gid://shopify/ProductVariant/46989691912427",
-      },
-    };
-    return variantMap[thickness]?.[shape] || variantMap.thin.rectangle;
-  };
-
   // Create draft order
   const createDraftOrderMutation = useMutation({
     mutationFn: async (quoteId: string) => {
       const values = form.getValues();
-      const variantId = getVariantId(values.thickness, values.shape);
+      
+      if (!priceData) {
+        throw new Error("Price calculation required before creating draft order");
+      }
+
+      // Build custom line item title
+      const thicknessLabel = values.thickness === "thin" ? "Luxe Lite ⅛\"" : "Luxe ¼\"";
+      const shapeLabel = values.shape.charAt(0).toUpperCase() + values.shape.slice(1);
+      const title = `Custom Rug Pad - ${thicknessLabel} ${shapeLabel}`;
       
       const lineItems = [
         {
-          variantId,
+          title: title,
           quantity: values.quantity || 1,
+          price: String(priceData.total), // Use calculated price
           customAttributes: [
             { key: "Width", value: `${widthFeet}'${widthInches}"` },
             { key: "Length", value: `${lengthFeet}'${lengthInches}"` },
+            { key: "Area", value: `${priceData.area.toFixed(2)} sq ft` },
             { key: "Thickness", value: values.thickness === "thin" ? "⅛ inch" : "¼ inch" },
             { key: "Shape", value: values.shape },
+            { key: "Price/Sq Ft", value: `$${priceData.pricePerSqFt.toFixed(2)}` },
             { key: "Project Name", value: values.projectName || "N/A" },
             { key: "Install Location", value: values.installLocation || "N/A" },
           ],
