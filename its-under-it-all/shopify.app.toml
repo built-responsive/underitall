@@ -1,0 +1,135 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+client_id = "78a602699150bda4e49a40861707d500"
+name = "its-under-it-all"
+application_url = "https://its-under-it-all.replit.app"
+embedded = true
+handle = "its-under-it-all"
+
+[build]
+automatically_update_urls_on_dev = true
+include_config_on_deploy = true
+
+[webhooks]
+api_version = "2026-01"
+
+  [[webhooks.subscriptions]]
+  topics = [ "customers/create" ]
+  uri = "/api/webhooks/customers/create"
+
+  [[webhooks.subscriptions]]
+  topics = [ "customers/update" ]
+  uri = "/api/webhooks/customers/update"
+
+  [[webhooks.subscriptions]]
+  topics = [ "metaobjects/update" ]
+  uri = "/api/webhooks/metaobjects/update"
+  filter = "type:wholesale_account"
+
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = "read_all_cart_transforms,read_analytics,read_app_proxy,read_assigned_fulfillment_orders,read_channels,read_checkout_branding_settings,read_content,read_custom_pixels,read_customer_data_erasure,read_customer_events,read_customer_merge,read_customers,read_discounts,read_discovery,read_draft_orders,read_files,read_metaobject_definitions,read_metaobjects,read_online_store_navigation,read_online_store_pages,read_orders,read_packing_slip_templates,read_pixels,read_price_rules,read_product_feeds,read_product_listings,read_products,read_purchase_options,read_script_tags,read_themes,read_validations,unauthenticated_read_bulk_operations,unauthenticated_read_bundles,unauthenticated_read_checkouts,unauthenticated_read_content,unauthenticated_read_customer_tags,unauthenticated_read_customers,unauthenticated_read_metaobjects,unauthenticated_read_product_inventory,unauthenticated_read_product_listings,unauthenticated_read_product_pickup_locations,unauthenticated_read_product_tags,unauthenticated_read_selling_plans,unauthenticated_read_shop_pay_installments_pricing,unauthenticated_write_bulk_operations,unauthenticated_write_checkouts,unauthenticated_write_customers,write_app_proxy,write_assigned_fulfillment_orders,write_channels,write_checkout_branding_settings,write_content,write_custom_pixels,write_customer_data_erasure,write_customer_merge,write_customers,write_discounts,write_discovery,write_draft_orders,write_files,write_metaobject_definitions,write_metaobjects,write_online_store_navigation,write_online_store_pages,write_orders,write_packing_slip_templates,write_pixels,write_price_rules,write_product_feeds,write_product_listings,write_products,write_purchase_options,write_script_tags,write_theme_code,write_themes,write_validations"
+
+[auth]
+redirect_urls = [
+  "https://its-under-it-all.replit.app/api/auth",
+  "https://its-under-it-all.replit.app/auth/callback"
+]
+
+[app_preferences]
+url = "https://its-under-it-all.replit.app/settings"
+
+[metaobjects.app.wholesale_account]
+name = "Wholesale Account"
+display_name_field = "company"
+
+  [metaobjects.app.wholesale_account.access]
+  admin = "merchant_read_write"
+  storefront = "public_read"
+
+  [metaobjects.app.wholesale_account.capabilities]
+  translatable = true
+
+[metaobjects.app.wholesale_account.fields.company]
+name = "Company Name"
+type = "single_line_text_field"
+required = true
+
+[metaobjects.app.wholesale_account.fields.email]
+name = "Email"
+type = "single_line_text_field"
+required = true
+
+[metaobjects.app.wholesale_account.fields.phone]
+name = "Phone"
+type = "single_line_text_field"
+
+[metaobjects.app.wholesale_account.fields.website]
+name = "Website"
+type = "single_line_text_field"
+
+[metaobjects.app.wholesale_account.fields.instagram]
+name = "Instagram Handle"
+type = "single_line_text_field"
+
+[metaobjects.app.wholesale_account.fields.address]
+name = "Business Address"
+type = "single_line_text_field"
+
+[metaobjects.app.wholesale_account.fields.address2]
+name = "Address Line 2"
+type = "single_line_text_field"
+
+[metaobjects.app.wholesale_account.fields.city]
+name = "City"
+type = "single_line_text_field"
+
+[metaobjects.app.wholesale_account.fields.state]
+name = "State"
+type = "single_line_text_field"
+
+[metaobjects.app.wholesale_account.fields.zip]
+name = "ZIP Code"
+type = "single_line_text_field"
+
+[metaobjects.app.wholesale_account.fields.source]
+name = "How Did You Hear About Us"
+type = "multi_line_text_field"
+
+[metaobjects.app.wholesale_account.fields.message]
+name = "Admin Notes"
+type = "multi_line_text_field"
+
+[metaobjects.app.wholesale_account.fields.account_type]
+name = "Account Type"
+type = "list.single_line_text_field"
+
+[metaobjects.app.wholesale_account.fields.sample_set]
+name = "Sample Set Received"
+type = "boolean"
+
+[metaobjects.app.wholesale_account.fields.tax_exempt]
+name = "Tax Exempt"
+type = "boolean"
+
+[metaobjects.app.wholesale_account.fields.vat_tax_id]
+name = "VAT/Tax ID"
+type = "single_line_text_field"
+
+[metaobjects.app.wholesale_account.fields.tax_proof]
+name = "Tax Proof Document"
+type = "file_reference"
+
+[metaobjects.app.wholesale_account.fields.clarity_id]
+name = "Clarity CRM Account ID"
+type = "single_line_text_field"
+
+[customer.metafields.app.wholesale_account]
+type = "metaobject_reference<$app:wholesale_account>"
+name = "Wholesale Account"
+description = "Link to customer's wholesale account metaobject"
+
+  [customer.metafields.app.wholesale_account.access]
+  customer_account = "read_write"
+  admin = "merchant_read_write"
+  storefront = "public_read"
