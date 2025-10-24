@@ -152,21 +152,19 @@ function WholesaleAccountPage() {
 
   if (!wholesaleAccount) {
     return (
-      <Page title="Wholesale Account">
-        <Card>
-          <BlockStack spacing="base">
-            <Heading level={2}>No Wholesale Account Found</Heading>
-            <Text>You do not have an active wholesale account. Apply now to access wholesale pricing and custom orders.</Text>
-            <Button
-              onPress={() => {
-                window.open('https://its-under-it-all.replit.app/wholesale-registration', '_blank');
-              }}
-            >
-              Apply for Wholesale Account
-            </Button>
-          </BlockStack>
-        </Card>
-      </Page>
+      <Card>
+        <BlockStack spacing="base">
+          <Heading level={2}>No Wholesale Account Found</Heading>
+          <Text>You do not have an active wholesale account. Apply now to access wholesale pricing and custom orders.</Text>
+          <Button
+            onPress={() => {
+              window.open('https://its-under-it-all.replit.app/wholesale-registration', '_blank');
+            }}
+          >
+            Apply for Wholesale Account
+          </Button>
+        </BlockStack>
+      </Card>
     );
   }
 
@@ -328,9 +326,19 @@ function WholesaleAccountPage() {
           {/* Action Buttons */}
           <InlineStack spacing="tight">
             {!editing ? (
-              <Button onPress={() => setEditing(true)}>
-                Edit Information
-              </Button>
+              <>
+                <Button onPress={() => setEditing(true)}>
+                  Edit Information
+                </Button>
+                <Button
+                  kind="secondary"
+                  onPress={() => {
+                    window.location.href = '/account/wholesale-profile';
+                  }}
+                >
+                  View Full Profile
+                </Button>
+              </>
             ) : (
               <>
                 <Button onPress={handleSave} loading={saving}>
