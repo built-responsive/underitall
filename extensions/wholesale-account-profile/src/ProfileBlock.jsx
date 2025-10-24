@@ -156,7 +156,14 @@ function WholesaleAccountPage() {
         <Card>
           <BlockStack spacing="base">
             <Heading level={2}>No Wholesale Account Found</Heading>
-            <Text>You do not have an active wholesale account. Please contact support to apply.</Text>
+            <Text>You do not have an active wholesale account. Apply now to access wholesale pricing and custom orders.</Text>
+            <Button
+              onPress={() => {
+                window.open('https://its-under-it-all.replit.app/wholesale-registration', '_blank');
+              }}
+            >
+              Apply for Wholesale Account
+            </Button>
           </BlockStack>
         </Card>
       </Page>
