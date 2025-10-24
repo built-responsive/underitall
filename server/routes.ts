@@ -205,28 +205,46 @@ export function registerRoutes(app: Express) {
       console.log("📤 Exact CRM Payload:");
       console.log(JSON.stringify(crmPayload, null, 2));
 
-      // Mimic Postman headers to bypass potential CRM filtering
-      const requestHeaders = {
-        "Content-Type": "application/json",
-        "Accept": "application/json",
-        "Cache-Control": "no-cache",
-        "User-Agent": "PostmanRuntime/7.32.3" // Spoof Postman
+      // Use native http module to mimic curl's exact behavior (HTTP/1.1, all headers)
+      const https = await import("https");
+      const payloadString = JSON.stringify(crmPayload);
+
+      const options = {
+        hostname: "liveapi.claritysoftcrm.com",
+        port: 80,
+        path: "/api/v1",
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Content-Length": Buffer.byteLength(payloadString),
+          "Accept": "*/*",
+          "Accept-Encoding": "gzip, deflate",
+          "Connection": "keep-alive",
+          "User-Agent": "curl/7.68.0"
+        }
       };
 
-      console.log("📤 Request Headers:");
-      console.log(JSON.stringify(requestHeaders, null, 2));
+      console.log("📤 Request Options (curl-like):");
+      console.log(JSON.stringify(options, null, 2));
 
-      const crmResponse = await fetch(`${crmBaseUrl}/api/v1`, {
-        method: "POST",
-        headers: requestHeaders,
-        body: JSON.stringify(crmPayload),
+      const crmData = await new Promise<any>((resolve, reject) => {
+        const http = require("http"); // Force HTTP/1.1 (not HTTPS)
+        const req = http.request(options, (res: any) => {
+          let data = "";
+          res.on("data", (chunk: any) => (data += chunk));
+          res.on("end", () => {
+            try {
+              resolve(JSON.parse(data));
+            } catch (error) {
+              reject(new Error(`Failed to parse CRM response: ${data}`));
+            }
+          });
+        });
+
+        req.on("error", reject);
+        req.write(payloadString);
+        req.end();
       });
-
-      if (!crmResponse.ok) {
-        throw new Error(`CRM API returned ${crmResponse.status}: ${crmResponse.statusText}`);
-      }
-
-      const crmData = await crmResponse.json();
 
       console.log("📤 CRM Account Response:");
       console.log(JSON.stringify(crmData, null, 2));
