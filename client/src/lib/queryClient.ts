@@ -21,8 +21,11 @@ export async function apiRequest(
     "Content-Type": "application/json",
   };
 
-  // Always use absolute URLs to work in both standalone and embedded contexts
-  const baseUrl = 'https://its-under-it-all.replit.app';
+  // Use relative URLs in dev (hits local server), absolute in prod (for embedded Shopify iframe)
+  const baseUrl = import.meta.env.PROD 
+    ? 'https://its-under-it-all.replit.app'
+    : ''; // Empty string = relative to current origin (localhost:5000 in dev)
+  
   const fullPath = path.startsWith('/') ? `${baseUrl}${path}` : `${baseUrl}/${path}`;
 
   const options: RequestInit = {
@@ -35,6 +38,7 @@ export async function apiRequest(
     options.body = JSON.stringify(body);
   }
 
+  console.log(`🌐 API Request: ${method} ${fullPath}`); // Debug log
   return fetch(fullPath, options);
 }
 
@@ -44,9 +48,15 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
-    const baseUrl = 'https://its-under-it-all.replit.app';
+    // Use relative URLs in dev, absolute in prod
+    const baseUrl = import.meta.env.PROD
+      ? 'https://its-under-it-all.replit.app'
+      : ''; // Relative in dev
+    
     const path = queryKey.join("/");
     const fullUrl = path.startsWith('http') ? path : `${baseUrl}${path.startsWith('/') ? path : `/${path}`}`;
+    
+    console.log(`🔍 Query Fetch: ${fullUrl}`); // Debug log
     
     const res = await fetch(fullUrl, {
       credentials: "include",
