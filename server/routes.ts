@@ -915,11 +915,19 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  // Company Enrichment (placeholder - implement when OpenAI/CRM integration ready)
+  // Company Enrichment - Basic implementation (expand with OpenAI/CRM later)
   app.post("/api/enrich-company", async (req, res) => {
     try {
-      // TODO: Implement company enrichment with OpenAI/CRM
-      res.json({ enriched: false, message: "Enrichment not yet implemented" });
+      const { companyName } = req.body;
+      
+      console.log("🔍 Company enrichment request:", companyName);
+
+      // Return empty enrichment for now (client handles gracefully)
+      res.json({
+        enriched: false,
+        data: {},
+        message: "Enrichment service not yet configured"
+      });
     } catch (error) {
       console.error("❌ Error enriching company:", error);
       res.status(500).json({ error: "Failed to enrich company" });

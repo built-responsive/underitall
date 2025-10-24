@@ -94,24 +94,24 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  // Register API routes FIRST before Vite middleware
+  // Register API routes FIRST before ANY middleware
   const server = await registerRoutes(app);
 
-  // Error handler for API routes
-  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
+  // Setup Vite/static AFTER API routes - ensures /api/* never falls through to static files
+  if (app.get("env") === "development") {
+    await setupVite(app, server);
+  } else {
+    serveStatic(app);
+  }
+
+  // Error handler for API routes (AFTER static middleware to catch API errors only)
+  app.use("/api", (err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
 
     res.status(status).json({ message });
     throw err;
   });
-
-  // Setup Vite AFTER API routes so it only catches non-API requests
-  if (app.get("env") === "development") {
-    await setupVite(app, server);
-  } else {
-    serveStatic(app);
-  }
 
   // ALWAYS serve the app on the port specified in the environment variable PORT
   // Other ports are firewalled. Default to 5000 if not specified.
