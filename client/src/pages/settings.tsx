@@ -141,6 +141,64 @@ export default function Settings() {
     });
   };
 
+  // State for shopify data, now focusing on customers and their metafields
+  const [shopifyData, setShopifyData] = useState<{
+    customers?: any[];
+  }>({});
+
+  // Fetch shopify data on component mount
+  React.useEffect(() => {
+    const fetchShopifyData = async () => {
+      try {
+        // Fetch customers with wholesale metafields
+        const customersQuery = `
+        query {
+          customers(first: 10, query: "metafield:custom.wholesale_company:*") {
+            nodes {
+              id
+              email
+              firstName
+              lastName
+              metafields(namespace: "custom", first: 20) {
+                edges {
+                  node {
+                    key
+                    value
+                    type
+                  }
+                }
+              }
+            }
+          }
+        }
+      `;
+
+        const customersResponse = await fetch(`/api/shopify/graphql`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query: customersQuery }),
+        });
+
+        const customersData = await customersResponse.json();
+        console.log("Customers data:", customersData);
+
+        setShopifyData({
+          customers: customersData?.data?.customers?.nodes || [],
+        });
+      } catch (error) {
+        console.error("Error fetching Shopify data:", error);
+        toast({
+          title: "Error Fetching Data",
+          description: "Could not load wholesale customer data.",
+          variant: "destructive",
+        });
+      }
+    };
+
+    fetchShopifyData();
+  }, [toast]);
+
+
   return (
     <div className="min-h-screen bg-[#F3F1E9]">
       <div className="container mx-auto px-4 py-8">
@@ -403,6 +461,77 @@ export default function Settings() {
                       )}
                     </div>
                   )}
+                </CardContent>
+              </Card>
+
+              {/* New Section to display Customers and their Metafields */}
+              <Card className="rounded-[16px]">
+                <CardHeader>
+                  <CardTitle className="font-['Archivo'] text-[#212227]">Wholesale Customer Data</CardTitle>
+                  <CardDescription className="font-['Vazirmatn'] text-[#696A6D]">
+                    View and manage wholesale customer information and their associated metafields.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-semibold">Wholesale Customers</h3>
+                      {shopifyData.customers && shopifyData.customers.length > 0 && (
+                        <Badge variant="outline" className="bg-green-50">
+                          <CheckCircle2 className="w-3 h-3 mr-1" />
+                          {shopifyData.customers.length} Active
+                        </Badge>
+                      )}
+                    </div>
+
+                    {shopifyData.customers && shopifyData.customers.length > 0 ? (
+                      <div className="space-y-2">
+                        {shopifyData.customers.map((customer: any) => {
+                          const metafields = customer.metafields.edges.reduce((acc: any, edge: any) => {
+                            acc[edge.node.key] = edge.node.value;
+                            return acc;
+                          }, {});
+
+                          return (
+                            <Card key={customer.id}>
+                              <CardContent className="pt-4">
+                                <div className="flex items-center justify-between mb-2">
+                                  <div>
+                                    <span className="font-medium">{metafields.wholesale_company || 'No Company'}</span>
+                                    <div className="text-xs text-muted-foreground">{customer.email}</div>
+                                  </div>
+                                  <Badge variant="outline" className="text-xs">
+                                    {customer.id.split('/').pop()}
+                                  </Badge>
+                                </div>
+                                <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground mt-2">
+                                  {metafields.wholesale_phone && (
+                                    <div><span className="font-medium">Phone:</span> {metafields.wholesale_phone}</div>
+                                  )}
+                                  {metafields.wholesale_city && metafields.wholesale_state && (
+                                    <div><span className="font-medium">Location:</span> {metafields.wholesale_city}, {metafields.wholesale_state}</div>
+                                  )}
+                                  {metafields.wholesale_account_type && (
+                                    <div><span className="font-medium">Type:</span> {metafields.wholesale_account_type}</div>
+                                  )}
+                                  {metafields.wholesale_tax_exempt && (
+                                    <div><span className="font-medium">Tax Exempt:</span> {metafields.wholesale_tax_exempt === 'true' ? 'Yes' : 'No'}</div>
+                                  )}
+                                </div>
+                              </CardContent>
+                            </Card>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <Alert>
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertDescription>
+                          No wholesale customers found. Submit a registration to create one.
+                        </AlertDescription>
+                      </Alert>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             </div>

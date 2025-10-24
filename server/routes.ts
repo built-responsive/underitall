@@ -161,7 +161,7 @@ export function registerRoutes(app: Express) {
         .select()
         .from(wholesaleRegistrations)
         .orderBy(desc(wholesaleRegistrations.createdAt));
-      
+
       // Force no-cache for fresh data on every request
       res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
       res.setHeader("Pragma", "no-cache");
@@ -180,7 +180,7 @@ export function registerRoutes(app: Express) {
         .select()
         .from(calculatorQuotes)
         .orderBy(desc(calculatorQuotes.createdAt));
-      
+
       // Force no-cache for fresh data on every request
       res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
       res.json(quotes);
@@ -237,43 +237,183 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  // Wholesale Registration - Create new registration
-  app.post("/api/wholesale-registration", async (req, res) => {
+  // Wholesale registration submission
+  app.post("/api/wholesale-registration", async (req: Request, res: Response) => {
     try {
-      const registrationData = req.body;
+      const formData = req.body;
+      console.log("📝 Wholesale registration received:", formData);
 
-      const registration = await db
+      // Save to database
+      const [registration] = await db
         .insert(wholesaleRegistrations)
         .values({
-          firmName: registrationData.firmName,
-          firstName: registrationData.firstName,
-          lastName: registrationData.lastName,
-          title: registrationData.title,
-          email: registrationData.email,
-          phone: registrationData.phone,
-          website: registrationData.website,
-          businessAddress: registrationData.businessAddress,
-          businessAddress2: registrationData.businessAddress2,
-          city: registrationData.city,
-          state: registrationData.state,
-          zipCode: registrationData.zipCode,
-          instagramHandle: registrationData.instagramHandle,
-          certificationUrl: registrationData.certificationUrl,
-          businessType: registrationData.businessType,
-          yearsInBusiness: registrationData.yearsInBusiness,
-          isTaxExempt: registrationData.isTaxExempt,
-          taxId: registrationData.taxId,
-          taxIdProofUrl: registrationData.taxIdProofUrl,
-          howDidYouHear: registrationData.howDidYouHear,
-          receivedSampleSet: registrationData.receivedSampleSet || false,
-          status: "pending",
+          ...formData,
+          submittedAt: new Date(),
         })
         .returning();
 
-      res.json(registration[0]);
+      console.log("✅ Registration saved to database:", registration.id);
+
+      // Create/fetch customer + write metafields in Shopify
+      const shopDomain = process.env.SHOPIFY_SHOP_DOMAIN;
+      const adminToken = process.env.SHOPIFY_ADMIN_ACCESS_TOKEN;
+
+      if (shopDomain && adminToken) {
+        try {
+          // Step 1: Check if customer exists by email
+          const customerQuery = `
+            query GetCustomerByEmail($email: String!) {
+              customers(first: 1, query: $email) {
+                edges {
+                  node {
+                    id
+                  }
+                }
+              }
+            }
+          `;
+
+          const customerCheckResponse = await fetch(
+            `https://${shopDomain}/admin/api/2025-01/graphql.json`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "X-Shopify-Access-Token": adminToken,
+              },
+              body: JSON.stringify({
+                query: customerQuery,
+                variables: { email: `email:${formData.email}` },
+              }),
+            }
+          );
+
+          const customerCheckData = await customerCheckResponse.json();
+          let customerId = customerCheckData?.data?.customers?.edges?.[0]?.node?.id;
+
+          // Step 2: Create customer if doesn't exist
+          if (!customerId) {
+            console.log("🆕 Creating new customer:", formData.email);
+            const customerCreateMutation = `
+              mutation CreateCustomer($input: CustomerInput!) {
+                customerCreate(input: $input) {
+                  customer {
+                    id
+                  }
+                  userErrors {
+                    field
+                    message
+                  }
+                }
+              }
+            `;
+
+            const customerInput = {
+              email: formData.email,
+              firstName: formData.firstName,
+              lastName: formData.lastName,
+              phone: formData.phone || null,
+            };
+
+            const customerCreateResponse = await fetch(
+              `https://${shopDomain}/admin/api/2025-01/graphql.json`,
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  "X-Shopify-Access-Token": adminToken,
+                },
+                body: JSON.stringify({
+                  query: customerCreateMutation,
+                  variables: { input: customerInput },
+                }),
+              }
+            );
+
+            const customerCreateData = await customerCreateResponse.json();
+
+            if (customerCreateData?.data?.customerCreate?.userErrors?.length > 0) {
+              console.error("❌ Customer creation errors:", customerCreateData.data.customerCreate.userErrors);
+              throw new Error(customerCreateData.data.customerCreate.userErrors[0].message);
+            }
+
+            customerId = customerCreateData?.data?.customerCreate?.customer?.id;
+            console.log("✅ Customer created:", customerId);
+          } else {
+            console.log("✅ Customer exists:", customerId);
+          }
+
+          // Step 3: Write metafields to customer
+          const metafieldsMutation = `
+            mutation SetCustomerMetafields($metafields: [MetafieldsSetInput!]!) {
+              metafieldsSet(metafields: $metafields) {
+                metafields {
+                  key
+                  namespace
+                  value
+                }
+                userErrors {
+                  field
+                  message
+                }
+              }
+            }
+          `;
+
+          const metafields = [
+            { ownerId: customerId, namespace: "custom", key: "wholesale_company", value: formData.firmName, type: "single_line_text_field" },
+            { ownerId: customerId, namespace: "custom", key: "wholesale_phone", value: formData.phone || "", type: "single_line_text_field" },
+            { ownerId: customerId, namespace: "custom", key: "wholesale_website", value: formData.website || "", type: "single_line_text_field" },
+            { ownerId: customerId, namespace: "custom", key: "wholesale_instagram", value: formData.instagramHandle || "", type: "single_line_text_field" },
+            { ownerId: customerId, namespace: "custom", key: "wholesale_address", value: formData.businessAddress, type: "single_line_text_field" },
+            { ownerId: customerId, namespace: "custom", key: "wholesale_address2", value: formData.businessAddress2 || "", type: "single_line_text_field" },
+            { ownerId: customerId, namespace: "custom", key: "wholesale_city", value: formData.city, type: "single_line_text_field" },
+            { ownerId: customerId, namespace: "custom", key: "wholesale_state", value: formData.state, type: "single_line_text_field" },
+            { ownerId: customerId, namespace: "custom", key: "wholesale_zip", value: formData.zipCode, type: "single_line_text_field" },
+            { ownerId: customerId, namespace: "custom", key: "wholesale_source", value: formData.howDidYouHear || "", type: "multi_line_text_field" },
+            { ownerId: customerId, namespace: "custom", key: "wholesale_account_type", value: formData.businessType, type: "single_line_text_field" },
+            { ownerId: customerId, namespace: "custom", key: "wholesale_sample_set", value: String(formData.receivedSampleSet), type: "boolean" },
+            { ownerId: customerId, namespace: "custom", key: "wholesale_tax_exempt", value: String(formData.isTaxExempt), type: "boolean" },
+            { ownerId: customerId, namespace: "custom", key: "wholesale_vat_tax_id", value: formData.taxId || "", type: "single_line_text_field" },
+          ];
+
+          const metafieldsResponse = await fetch(
+            `https://${shopDomain}/admin/api/2025-01/graphql.json`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "X-Shopify-Access-Token": adminToken,
+              },
+              body: JSON.stringify({
+                query: metafieldsMutation,
+                variables: { metafields },
+              }),
+            }
+          );
+
+          const metafieldsResult = await metafieldsResponse.json();
+          console.log("📦 Shopify metafields response:", JSON.stringify(metafieldsResult, null, 2));
+
+          if (metafieldsResult.data?.metafieldsSet?.userErrors?.length > 0) {
+            console.error("❌ Metafields write errors:", metafieldsResult.data.metafieldsSet.userErrors);
+          } else {
+            console.log("✅ Metafields written:", metafieldsResult.data?.metafieldsSet?.metafields?.length);
+          }
+        } catch (error) {
+          console.error("❌ Error creating customer/metafields:", error);
+        }
+      }
+
+      res.json({
+        success: true,
+        registrationId: registration.id,
+      });
     } catch (error) {
-      console.error("❌ Error creating registration:", error);
-      res.status(500).json({ error: "Failed to create registration" });
+      console.error("❌ Registration error:", error);
+      res.status(500).json({
+        error: error instanceof Error ? error.message : "Registration failed",
+      });
     }
   });
 
@@ -295,7 +435,7 @@ export function registerRoutes(app: Express) {
         .select()
         .from(draftOrders)
         .orderBy(desc(draftOrders.createdAt));
-      
+
       // Force no-cache for fresh data on every request
       res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
       res.json(orders);
@@ -424,9 +564,9 @@ export function registerRoutes(app: Express) {
       // Fetch metaobject definition status
       const shopDomain = process.env.SHOPIFY_SHOP_DOMAIN;
       const adminToken = process.env.SHOPIFY_ADMIN_ACCESS_TOKEN;
-      
+
       let metaobjectStatus: any = { configured: false };
-      
+
       if (shopDomain && adminToken) {
         try {
           const query = `
@@ -710,63 +850,6 @@ export function registerRoutes(app: Express) {
     </div>
 
     <!-- Stats Overview (Now Below Metaobject) -->
-    <div class="section">
-      <h2>🔮 Metaobject Status</h2>
-      <div class="stats">
-        <div class="stat-card">
-          <div class="stat-value">${metaobjectStatus.configured ? '✅' : '❌'}</div>
-          <div class="stat-label">Definition Status</div>
-        </div>
-        ${metaobjectStatus.configured ? `
-          <div class="stat-card">
-            <div class="stat-value">${metaobjectStatus.entryCount}</div>
-            <div class="stat-label">Wholesale Accounts</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-value">${metaobjectStatus.definition?.fieldDefinitions?.length || 0}</div>
-            <div class="stat-label">Field Definitions</div>
-          </div>
-        ` : ''}
-      </div>
-      ${metaobjectStatus.configured ? `
-        <div style="margin-top: 1rem;">
-          <p class="text-sm" style="color: #9ca3af; margin-bottom: 0.5rem;">Definition ID:</p>
-          <code style="background: #1a1a1a; padding: 0.5rem; border-radius: 6px; color: #10b981; font-size: 0.875rem;">${metaobjectStatus.definition.id}</code>
-        </div>
-        ${metaobjectStatus.entries.length > 0 ? `
-          <details style="margin-top: 1rem;">
-            <summary style="cursor: pointer; color: #F2633A; font-weight: 600;">View Recent Entries (${metaobjectStatus.entries.length})</summary>
-            <table style="margin-top: 0.5rem;">
-              <thead>
-                <tr>
-                  <th>Display Name</th>
-                  <th>Handle</th>
-                  <th>ID</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${metaobjectStatus.entries.map((entry: any) => `
-                  <tr>
-                    <td>${entry.displayName}</td>
-                    <td><code>${entry.handle}</code></td>
-                    <td class="timestamp">${entry.id}</td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
-          </details>
-        ` : ''}
-      ` : `
-        <div style="margin-top: 1rem; padding: 1rem; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px;">
-          <p style="color: #ef4444; font-weight: 600;">❌ Metaobject definition not found</p>
-          <p style="color: #9ca3af; font-size: 0.875rem; margin-top: 0.5rem;">
-            ${metaobjectStatus.error ? `Error: ${metaobjectStatus.error}` : 'Configure the wholesale_account metaobject in Settings'}
-          </p>
-        </div>
-      `}
-    </div>
-
-    <!-- Stats Overview -->
     <div class="section">
       <h2>📊 Quick Stats</h2>
       <div class="stats">

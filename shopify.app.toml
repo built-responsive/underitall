@@ -17,11 +17,6 @@ api_version = "2026-01"
   uri = "/api/webhooks/customers/create"
 
   [[webhooks.subscriptions]]
-  topics = [ "metaobjects/update" ]
-  uri = "/api/webhooks/metaobjects/update"
-  filter = "type:wholesale_account"
-
-  [[webhooks.subscriptions]]
   topics = [ "customers/update" ]
   uri = "/api/webhooks/customers/update"
 
@@ -37,100 +32,6 @@ redirect_urls = [
 
 [app_preferences]
 url = "https://its-under-it-all.replit.app/settings"
-
-[metaobjects.app.wholesale_account]
-name = "Wholesale Account"
-display_name_field = "company"
-
-  [metaobjects.app.wholesale_account.access]
-  admin = "merchant_read_write"
-  storefront = "public_read"
-
-  [metaobjects.app.wholesale_account.capabilities]
-  translatable = true
-
-[metaobjects.app.wholesale_account.fields.company]
-name = "Company Name"
-type = "single_line_text_field"
-required = true
-
-[metaobjects.app.wholesale_account.fields.email]
-name = "Email"
-type = "single_line_text_field"
-required = true
-
-[metaobjects.app.wholesale_account.fields.phone]
-name = "Phone"
-type = "single_line_text_field"
-
-[metaobjects.app.wholesale_account.fields.website]
-name = "Website"
-type = "single_line_text_field"
-
-[metaobjects.app.wholesale_account.fields.instagram]
-name = "Instagram Handle"
-type = "single_line_text_field"
-
-[metaobjects.app.wholesale_account.fields.address]
-name = "Business Address"
-type = "single_line_text_field"
-
-[metaobjects.app.wholesale_account.fields.address2]
-name = "Address Line 2"
-type = "single_line_text_field"
-
-[metaobjects.app.wholesale_account.fields.city]
-name = "City"
-type = "single_line_text_field"
-
-[metaobjects.app.wholesale_account.fields.state]
-name = "State"
-type = "single_line_text_field"
-
-[metaobjects.app.wholesale_account.fields.zip]
-name = "ZIP Code"
-type = "single_line_text_field"
-
-[metaobjects.app.wholesale_account.fields.source]
-name = "How Did You Hear About Us"
-type = "multi_line_text_field"
-
-[metaobjects.app.wholesale_account.fields.message]
-name = "Admin Notes"
-type = "multi_line_text_field"
-
-[metaobjects.app.wholesale_account.fields.account_type]
-name = "Account Type"
-type = "list.single_line_text_field"
-
-[metaobjects.app.wholesale_account.fields.sample_set]
-name = "Sample Set Received"
-type = "boolean"
-
-[metaobjects.app.wholesale_account.fields.tax_exempt]
-name = "Tax Exempt"
-type = "boolean"
-
-[metaobjects.app.wholesale_account.fields.vat_tax_id]
-name = "VAT/Tax ID"
-type = "single_line_text_field"
-
-[metaobjects.app.wholesale_account.fields.tax_proof]
-name = "Tax Proof Document"
-type = "file_reference"
-
-[metaobjects.app.wholesale_account.fields.clarity_id]
-name = "Clarity CRM Account ID"
-type = "single_line_text_field"
-
-[metaobjects.app.wholesale_account.fields.owner]
-name = "Account Owners"
-type = "list.metaobject_reference"
-validations = { reference_type = "customer" }
-
-[metaobjects.app.wholesale_account.fields.page]
-name = "Linked OnlineStorePage"
-type = "page_reference"
 
 # Wholesale Account Data (stored directly in customer metafields)
 [customer.metafields.app.wholesale_company]
@@ -261,19 +162,4 @@ name = "Wholesale Admin Notes"
   customer_account = "read"
   admin = "merchant_read_write"
 
-[customer.metafields.app.wholesale_page]
-type = "page_reference"
-name = "Wholesale Account Page"
 
-  [customer.metafields.app.wholesale_page.access]
-  customer_account = "read"
-  admin = "merchant_read_write"
-
-[customer.metafields.app.wholesale_owner]
-type = "list.metaobject_reference"
-name = "Wholesale Account Owners"
-validations = { reference_type = "customer" }
-
-  [customer.metafields.app.wholesale_owner.access]
-  customer_account = "read"
-  admin = "merchant_read_write"
