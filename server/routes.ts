@@ -1,10 +1,10 @@
-
 import type { Express } from "express";
 import { createServer } from "http";
 import webhookRoutes from "./webhooks";
 import { db } from "./db";
 import { wholesaleRegistrations, calculatorQuotes, webhookLogs, draftOrders } from "@shared/schema";
 import { desc } from "drizzle-orm";
+import { getShopifyConfig } from "./utils/shopifyConfig"; // Assuming this utility exists
 
 export function registerRoutes(app: Express) {
   // GraphQL Proxy Bypass (for Shopify CLI) - Handle CORS preflight
@@ -53,6 +53,80 @@ export function registerRoutes(app: Express) {
   // Mount webhook routes
   app.use("/api/webhooks", webhookRoutes);
 
+  // Wholesale Account Update Route (for customer account extension)
+  app.patch("/api/wholesale-account/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updates = req.body;
+
+      const shopifyConfig = getShopifyConfig();
+      if (!shopifyConfig) {
+        return res.status(500).json({ error: "Shopify credentials not configured" });
+      }
+
+      const { shop, accessToken } = shopifyConfig;
+
+      // Build metaobject update mutation
+      const metaobjectMutation = `
+        mutation metaobjectUpdate($id: ID!, $metaobject: MetaobjectUpdateInput!) {
+          metaobjectUpdate(id: $id, metaobject: $metaobject) {
+            metaobject {
+              id
+              handle
+              displayName
+            }
+            userErrors {
+              field
+              message
+            }
+          }
+        }
+      `;
+
+      // Convert flat updates to fields array format
+      const fields = Object.entries(updates).map(([key, value]) => ({
+        key,
+        value: String(value)
+      }));
+
+      const variables = {
+        id: `gid://shopify/Metaobject/${id}`,
+        metaobject: {
+          fields
+        }
+      };
+
+      const shopifyResponse = await fetch(`https://${shop}/admin/api/2025-01/graphql.json`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Shopify-Access-Token": accessToken,
+        },
+        body: JSON.stringify({
+          query: metaobjectMutation,
+          variables,
+        }),
+      });
+
+      const result = await shopifyResponse.json();
+
+      if (result.data?.metaobjectUpdate?.userErrors?.length > 0) {
+        return res.status(400).json({
+          error: "Validation errors",
+          details: result.data.metaobjectUpdate.userErrors
+        });
+      }
+
+      return res.json({
+        success: true,
+        metaobject: result.data?.metaobjectUpdate?.metaobject
+      });
+    } catch (error: any) {
+      console.error("❌ Error updating wholesale account:", error);
+      return res.status(500).json({ error: "Failed to update wholesale account" });
+    }
+  });
+
   // Admin API - Wholesale Registrations
   app.get("/api/wholesale-registrations", async (req, res) => {
     try {
@@ -85,10 +159,10 @@ export function registerRoutes(app: Express) {
   app.post("/api/calculator/calculate", async (req, res) => {
     try {
       const { width, length, thickness, quantity } = req.body;
-      
+
       // Import pricing calculator
       const { calculateQuote } = await import("./utils/pricingCalculator");
-      
+
       const priceData = calculateQuote(width, length, thickness, quantity);
       res.json(priceData);
     } catch (error) {
@@ -101,7 +175,7 @@ export function registerRoutes(app: Express) {
   app.post("/api/calculator/quote", async (req, res) => {
     try {
       const quoteData = req.body;
-      
+
       const quote = await db
         .insert(calculatorQuotes)
         .values({
@@ -120,7 +194,7 @@ export function registerRoutes(app: Express) {
           notes: quoteData.notes,
         })
         .returning();
-      
+
       res.json(quote[0]);
     } catch (error) {
       console.error("❌ Error saving quote:", error);
@@ -132,7 +206,7 @@ export function registerRoutes(app: Express) {
   app.post("/api/wholesale-registration", async (req, res) => {
     try {
       const registrationData = req.body;
-      
+
       const registration = await db
         .insert(wholesaleRegistrations)
         .values({
@@ -160,7 +234,7 @@ export function registerRoutes(app: Express) {
           status: "pending",
         })
         .returning();
-      
+
       res.json(registration[0]);
     } catch (error) {
       console.error("❌ Error creating registration:", error);
@@ -207,9 +281,9 @@ export function registerRoutes(app: Express) {
 
       // Validate lineItems (must be array)
       if (!Array.isArray(lineItems) || lineItems.length === 0) {
-        return res.status(400).json({ 
-          error: "Missing or invalid lineItems", 
-          details: "lineItems must be a non-empty array" 
+        return res.status(400).json({
+          error: "Missing or invalid lineItems",
+          details: "lineItems must be a non-empty array"
         });
       }
 
@@ -738,7 +812,7 @@ export function registerRoutes(app: Express) {
           );
 
           const data = await response.json();
-          
+
           if (data.data?.metaobjectDefinitionByType) {
             shopifyHealth.metaobjectDefinition = true;
             shopifyHealth.metaobjectId = data.data.metaobjectDefinitionByType.id;

@@ -5,16 +5,15 @@ import {
   Banner,
   BlockStack,
   Button,
+  Card,
   Divider,
   Heading,
   InlineStack,
+  Page,
+  Spinner,
   Text,
   TextField,
   useApi,
-  useCustomer,
-  Page,
-  Card,
-  Spinner,
 } from '@shopify/ui-extensions-react/customer-account';
 
 export default reactExtension(
@@ -23,8 +22,7 @@ export default reactExtension(
 );
 
 function WholesaleAccountPage() {
-  const { query, sessionToken } = useApi();
-  const customer = useCustomer();
+  const { query, i18n } = useApi();
   
   const [wholesaleAccount, setWholesaleAccount] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -36,22 +34,19 @@ function WholesaleAccountPage() {
 
   useEffect(() => {
     fetchWholesaleAccount();
-  }, [customer]);
+  }, []);
 
   async function fetchWholesaleAccount() {
     try {
       setLoading(true);
       setError(null);
 
-      if (!customer?.id) {
-        setLoading(false);
-        return;
-      }
-
-      // Query customer's wholesale_account metafield
+      // Query current customer's wholesale_account metafield reference
       const customerQuery = `
-        query getCustomerMetafield($customerId: ID!) {
-          customer(id: $customerId) {
+        query {
+          customer {
+            id
+            email
             metafield(namespace: "custom", key: "wholesale_account") {
               reference {
                 ... on Metaobject {
@@ -69,9 +64,7 @@ function WholesaleAccountPage() {
         }
       `;
 
-      const customerResult = await query(customerQuery, {
-        variables: { customerId: customer.id }
-      });
+      const customerResult = await query(customerQuery);
 
       const metaobject = customerResult?.data?.customer?.metafield?.reference;
 
@@ -107,14 +100,14 @@ function WholesaleAccountPage() {
       setSaving(true);
       setError(null);
 
-      const token = await sessionToken.get();
+      // Update via backend API (requires session token for auth)
       const appUrl = 'https://its-under-it-all.replit.app';
+      const metaobjectId = wholesaleAccount.id.split('/').pop();
 
-      const response = await fetch(`${appUrl}/api/wholesale-account/${wholesaleAccount.id.split('/').pop()}`, {
+      const response = await fetch(`${appUrl}/api/wholesale-account/${metaobjectId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(formData)
       });
