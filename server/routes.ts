@@ -944,83 +944,231 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  // Company Enrichment - Query OpenAI for business details from firm name
+  // Company Enrichment - AI-powered with Cloudflare geo + gpt-4o-search-preview strict schema
   app.post("/api/enrich-company", async (req, res) => {
     try {
-      const { firmName } = req.body;
+      const companyName = (req.body?.firmName || "").trim();
 
-      if (!firmName) {
-        return res.status(400).json({ 
-          enriched: false, 
-          error: "Missing firmName in request body" 
-        });
-      }
+      console.log("🔍 Company enrichment request for:", companyName);
 
-      console.log(`🔍 Enriching company: ${firmName}`);
-
-      // Query OpenAI for business info (uses GPT-4o-mini for speed/cost)
-      const { openai } = await import("./utils/openai");
-      
-      const completion = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
-        messages: [
-          {
-            role: "system",
-            content: `You are a business intelligence assistant. Extract or infer these fields from the company name/context:
-- website (infer domain if known brand, e.g., "Nike" → "nike.com")
-- instagram (infer handle if known brand, e.g., "Nike" → "@nike")
-- businessType (e.g., "Design Firm", "Retailer", "Manufacturer")
-- estimatedEmployees (rough guess: "1-10", "11-50", "51-200", etc.)
-
-Return ONLY valid JSON with these exact keys. If unknown, use empty string.`
-          },
-          {
-            role: "user",
-            content: `Company name: "${firmName}"`
+      if (companyName.length < 3) {
+        console.log("⏭️ Company name too short, skipping enrichment");
+        return res.json({
+          enriched: false,
+          data: {
+            website: null,
+            instagramHandle: null,
+            businessAddress: null,
+            businessAddress2: null,
+            city: null,
+            state: null,
+            zipCode: null,
+            phone: null,
           }
-        ],
-        temperature: 0.3,
-        max_tokens: 200,
-      });
-
-      const enrichedText = completion.choices[0]?.message?.content?.trim();
-
-      if (!enrichedText) {
-        return res.json({ 
-          enriched: false, 
-          message: "No enrichment data returned from OpenAI" 
         });
       }
 
-      // Parse OpenAI's JSON response
-      let enrichedData;
-      try {
-        enrichedData = JSON.parse(enrichedText);
-      } catch (parseError) {
-        console.error("❌ Failed to parse OpenAI response:", enrichedText);
-        return res.json({ 
-          enriched: false, 
-          error: "Invalid JSON from OpenAI", 
-          rawResponse: enrichedText 
+      const openaiApiKey = process.env.AI_INTEGRATIONS_OPENAI_API_KEY || process.env.OPENAI_API_KEY;
+      if (!openaiApiKey) {
+        console.error("❌ OPENAI_API_KEY not configured");
+        return res.json({
+          enriched: false,
+          data: {
+            website: null,
+            instagramHandle: null,
+            businessAddress: null,
+            businessAddress2: null,
+            city: null,
+            state: null,
+            zipCode: null,
+            phone: null,
+          }
         });
       }
 
-      console.log("✅ Company enriched:", enrichedData);
+      // Extract Cloudflare geo headers
+      const cfCountry = req.headers['cf-ipcountry'] as string || 'US';
+      const cfCity = req.headers['cf-ipcity'] as string || '';
+      const cfState = req.headers['cf-region'] as string || '';
+      const cfIp = req.headers['cf-connecting-ip'] as string || '';
 
-      res.json({
+      console.log("🌍 Cloudflare geo-context:", { ip: cfIp, city: cfCity, state: cfState, country: cfCountry });
+
+      // Build geo context for prompt (US-only prioritization)
+      const geoContext =
+        cfCountry === "US" && (cfCity || cfState)
+          ? `Approx user location: ${[cfCity, cfState].filter(Boolean).join(", ")} (US). When disambiguating similar names, prefer entities near this area.`
+          : `Approx user location unknown.`;
+      console.log("📝 Geo context for prompt:", geoContext);
+
+      // Strict system prompt for US-only enrichment
+      const systemPrompt = [
+        "Begin with a concise checklist (3–7 bullets) of what you will do; keep items conceptual, not implementation-level.",
+        "",
+        "Return a single US business profile as a JSON object conforming exactly to the provided JSON Schema and field order.",
+        "",
+        "- Search and confirm the business's existence using US sources ONLY. Do not consider companies located in other countries, regardless of name similarity.",
+        "- Rely exclusively on official and authoritative sources, with the following priority:",
+        "    1. The company's official website",
+        "    2. US state or government business registries",
+        "    3. Verified business listing platforms",
+        "- Do NOT use generic directories unless none of the above are available.",
+        "- If a company has multiple locations, use only the primary or official business address; do not include branch or subsidiary locations.",
+        "- In cases of conflicting data, select information from the most authoritative and recently updated source (prefer sources updated within the last 12 months). If no clarity is achieved, set the field to null.",
+        "- If no US business exists with the given name or no official/authoritative US sources can be found, return a JSON object with ALL fields set to null.",
+        "",
+        "Before answering:",
+        "- Think step-by-step through each source you consult, how you verify US relevance, and how you resolve ambiguous or conflicting data.",
+        '- Summarize your chain of reasoning in a "reasoning" field at the end of the object.',
+        "",
+        "After producing the JSON object, validate that all fields meet the schema and order constraints, and that no extra properties are present. If any error is detected, self-correct and reissue the output.",
+        "",
+        "The JSON response must:",
+        "- Be strictly valid per the schema: every required field present, each value matching its regex/pattern constraints, absolutely no extra properties, and the exact field order as shown below.",
+        "- Be output as a single, compact JSON object, with no comments or explanations outside of the \"reasoning\" field.",
+        "",
+        "---",
+        "",
+        "## Output Format",
+        "Format your answer as follows, maintaining this precise structure and order:",
+        "",
+        "{",
+        '  "website": "string|null (must start with https:// if not null, uri format)",',
+        '  "instagramHandle": "string|null (must start with @ if not null)",',
+        '  "businessAddress": "string|null",',
+        '  "businessAddress2": "string|null",',
+        '  "city": "string|null",',
+        '  "state": "string|null (2 upper-case letter state code, e.g., \'NY\')",',
+        '  "zipCode": "string|null (5 or 9 digit US zip: \'12345\' or \'12345-6789\')",',
+        '  "phone": "string|null (must match US phone pattern: (999) 999-9999)",',
+        '  "reasoning": "string (1–3 sentence summary explaining the sources checked, how ties or ambiguities were resolved, and noting any fields left null)"',
+        "}",
+        "",
+        "Field constraints:",
+        '- "website": null or a string starting with "https://" (valid URI format).',
+        '- "instagramHandle": null or a string starting with "@", with valid Instagram characters only and no spaces.',
+        '- "state": null or exactly two uppercase letters representing a valid US state code.',
+        '- "zipCode": null or US ZIP code: either five digits (e.g., "12345") or five-plus-four digits with hyphen (e.g., "12345-6789").',
+        '- "phone": null or a string matching the US phone format "(999) 999-9999", with correct punctuation and spacing.',
+        "- Fields must appear in the exact order shown, with no additional properties included.",
+        "",
+        'If no official or authoritative US source is found, or if the business does not exist in the US, set all fields to null and explain this in the "reasoning" field.',
+        "",
+        'Ensure "reasoning" appears as the final field in the output object.',
+        "",
+        geoContext,
+      ].join("\n");
+
+      const userPrompt = [
+        `Company to research: "${companyName}"`,
+        "Please quickly find reliable results for the business name you are given.",
+        "Return ONE US business profile as JSON that EXACTLY matches the provided JSON Schema.",
+        "Search US sources ONLY. If no US match exists, set ALL fields to null.",
+        "Prefer official sources (company site > state registries > verified platforms) over directories.",
+        "If conflicting info, pick the most authoritative AND freshest source; otherwise null.",
+        "If you encounter a non-US entity with the same/similar name, IGNORE it and keep searching for a US entity.",
+        "Search the web for current, real data. If website is found on exact name match, retrieve Google Places or Maps data from search.",
+        "Ensure address, phone, and zip are correct. Return ONLY the JSON.",
+      ].join("\n");
+
+      console.log(
+        "🚀 Calling OpenAI with gpt-4o-search-preview for real-time web search...",
+      );
+
+      const openaiResponse = await fetch(
+        "https://api.openai.com/v1/chat/completions",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${openaiApiKey}`,
+          },
+          body: JSON.stringify({
+            model: "gpt-4o-search-preview",
+            response_format: { type: "text" },
+            web_search_options: {
+              search_context_size: "low",
+              user_location: {
+                type: "approximate",
+                approximate: { country: "US" },
+              },
+            },
+            store: true,
+            messages: [
+              {
+                role: "developer",
+                content: [{ type: "text", text: systemPrompt }],
+              },
+              {
+                role: "user",
+                content: [{ type: "text", text: userPrompt }],
+              },
+            ],
+          }),
+        },
+      );
+
+      console.log("📡 OpenAI API status:", openaiResponse.status);
+
+      if (!openaiResponse.ok) {
+        const errorText = await openaiResponse.text();
+        console.error("❌ OpenAI API error:", errorText);
+        return res.json({
+          enriched: false,
+          data: {
+            website: null,
+            instagramHandle: null,
+            businessAddress: null,
+            businessAddress2: null,
+            city: null,
+            state: null,
+            zipCode: null,
+            phone: null,
+          }
+        });
+      }
+
+      const openaiData = await openaiResponse.json();
+      console.log(
+        "📦 OpenAI raw response:",
+        JSON.stringify(openaiData, null, 2),
+      );
+
+      const responseContent = openaiData.choices?.[0]?.message?.content || "{}";
+      console.log("📝 OpenAI content:", responseContent);
+
+      // Parse structured output
+      const enriched = JSON.parse(responseContent);
+      console.log("✅ Parsed enrichment data:", enriched);
+
+      // Return only the profile fields (strip reasoning)
+      return res.json({
         enriched: true,
         data: {
-          website: enrichedData.website || "",
-          instagramHandle: enrichedData.instagram || "",
-          businessType: enrichedData.businessType || "",
-          estimatedEmployees: enrichedData.estimatedEmployees || "",
+          website: enriched.website || null,
+          instagramHandle: enriched.instagramHandle || null,
+          businessAddress: enriched.businessAddress || null,
+          businessAddress2: enriched.businessAddress2 || null,
+          city: enriched.city || null,
+          state: enriched.state || null,
+          zipCode: enriched.zipCode || null,
+          phone: enriched.phone || null,
         }
       });
     } catch (error) {
-      console.error("❌ Error enriching company:", error);
-      res.status(500).json({ 
+      console.error("❌ Company enrichment error:", error);
+      return res.json({
         enriched: false,
-        error: error instanceof Error ? error.message : "Failed to enrich company" 
+        data: {
+          website: null,
+          instagramHandle: null,
+          businessAddress: null,
+          businessAddress2: null,
+          city: null,
+          state: null,
+          zipCode: null,
+          phone: null,
+        }
       });
     }
   });
