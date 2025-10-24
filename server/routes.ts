@@ -688,6 +688,236 @@ export function registerRoutes(app: Express) {
     }
   });
 
+  // CRM Duplicate Check - Search for potential conflicts before approval
+  app.post("/api/admin/check-crm-duplicates/:id", async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+
+      // Fetch registration from DB
+      const [registration] = await db
+        .select()
+        .from(wholesaleRegistrations)
+        .where(eq(wholesaleRegistrations.id, id));
+
+      if (!registration) {
+        return res.status(404).json({ error: "Registration not found" });
+      }
+
+      const crmApiKey = process.env.CRM_API_KEY;
+      if (!crmApiKey) {
+        return res.status(500).json({ error: "CRM_API_KEY not configured" });
+      }
+
+      // Build SQL filter for duplicate detection (company name, phone, or website)
+      const filters = [];
+      if (registration.firmName) {
+        filters.push(`Account = '${registration.firmName.replace(/'/g, "''")}'`);
+      }
+      if (registration.phone) {
+        filters.push(`CompanyPhone = '${registration.phone}'`);
+      }
+      if (registration.website) {
+        filters.push(`Website = '${registration.website}'`);
+      }
+
+      const sqlFilter = filters.join(" OR ");
+
+      const crmPayload = {
+        APIKey: crmApiKey,
+        Resource: "Account",
+        Operation: "Get",
+        Columns: ["Account", "AccountID", "AccountNumber", "City", "State", "CompanyPhone", "Website"],
+        SQLFilter: sqlFilter,
+        Sort: {
+          Column: "CreationDate",
+          Order: "Desc"
+        }
+      };
+
+      console.log("🔍 CRM Duplicate Check Payload:");
+      console.log(JSON.stringify(crmPayload, null, 2));
+
+      const { default: http } = await import("http");
+      const payloadString = JSON.stringify(crmPayload);
+
+      const options = {
+        hostname: "liveapi.claritysoftcrm.com",
+        port: 80,
+        path: "/api/v1",
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Content-Length": Buffer.byteLength(payloadString),
+          "Accept": "*/*",
+          "Accept-Encoding": "gzip, deflate",
+          "Connection": "keep-alive",
+          "User-Agent": "curl/7.68.0"
+        }
+      };
+
+      const crmData = await new Promise<any>((resolve, reject) => {
+        const req = http.request(options, (crmRes: any) => {
+          let data = "";
+          crmRes.on("data", (chunk: any) => (data += chunk));
+          crmRes.on("end", () => {
+            try {
+              resolve(JSON.parse(data));
+            } catch (error) {
+              reject(new Error(`Failed to parse CRM response: ${data}`));
+            }
+          });
+        });
+
+        req.on("error", reject);
+        req.write(payloadString);
+        req.end();
+      });
+
+      console.log("📤 CRM Duplicate Check Response:");
+      console.log(JSON.stringify(crmData, null, 2));
+
+      // Return potential conflicts (empty array if none found)
+      res.json({
+        conflicts: crmData?.Data || [],
+        registration: {
+          firmName: registration.firmName,
+          phone: registration.phone,
+          website: registration.website
+        }
+      });
+    } catch (error) {
+      console.error("❌ CRM duplicate check error:", error);
+      res.status(500).json({
+        error: error instanceof Error ? error.message : "Duplicate check failed"
+      });
+    }
+  });
+
+  // CRM Account Sync - Create or update CRM account (with optional AccountId for match)
+  app.post("/api/admin/sync-to-crm/:id", async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const { accountId } = req.body; // Optional: AccountId if updating existing account
+
+      // Fetch registration from DB
+      const [registration] = await db
+        .select()
+        .from(wholesaleRegistrations)
+        .where(eq(wholesaleRegistrations.id, id));
+
+      if (!registration) {
+        return res.status(404).json({ error: "Registration not found" });
+      }
+
+      const crmApiKey = process.env.CRM_API_KEY;
+      if (!crmApiKey) {
+        return res.status(500).json({ error: "CRM_API_KEY not configured" });
+      }
+
+      const { default: http } = await import("http");
+
+      const crmPayload: any = {
+        APIKey: crmApiKey,
+        Resource: "Account",
+        Operation: "Create Or Edit",
+        Data: {
+          Account: registration.firmName,
+          Owner: `${registration.firstName} ${registration.lastName}`,
+          CompanyPhone: registration.phone || "",
+          Email: registration.email,
+          Address1: registration.businessAddress,
+          Address2: registration.businessAddress2 || "",
+          City: registration.city,
+          State: registration.state,
+          ZipCode: registration.zipCode,
+          Country: "United States",
+          Note: "Created via Wholesale Registration",
+          "Account Type": registration.businessType || "",
+          "Sample Set": registration.receivedSampleSet ? "Yes" : "No",
+          Instagram: registration.instagramHandle || "",
+          Website: registration.website || "",
+          "Accepts Email Marketing": registration.acceptsEmailMarketing ? "Yes" : "No",
+          "Accepts SMS Marketing": registration.acceptsSmsMarketing ? "Yes" : "No",
+          EIN: registration.taxId || "",
+        }
+      };
+
+      // If updating existing account, include AccountId
+      if (accountId) {
+        crmPayload.AccountId = accountId;
+        console.log("🔄 Updating existing CRM Account:", accountId);
+      } else {
+        console.log("🆕 Creating new CRM Account");
+      }
+
+      console.log("📤 CRM Account Sync Payload:");
+      console.log(JSON.stringify(crmPayload, null, 2));
+
+      const payloadString = JSON.stringify(crmPayload);
+
+      const options = {
+        hostname: "liveapi.claritysoftcrm.com",
+        port: 80,
+        path: "/api/v1",
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Content-Length": Buffer.byteLength(payloadString),
+          "Accept": "*/*",
+          "Accept-Encoding": "gzip, deflate",
+          "Connection": "keep-alive",
+          "User-Agent": "curl/7.68.0"
+        }
+      };
+
+      const crmData = await new Promise<any>((resolve, reject) => {
+        const req = http.request(options, (crmRes: any) => {
+          let data = "";
+          crmRes.on("data", (chunk: any) => (data += chunk));
+          crmRes.on("end", () => {
+            try {
+              resolve(JSON.parse(data));
+            } catch (error) {
+              reject(new Error(`Failed to parse CRM response: ${data}`));
+            }
+          });
+        });
+
+        req.on("error", reject);
+        req.write(payloadString);
+        req.end();
+      });
+
+      console.log("📤 CRM Account Sync Response:");
+      console.log(JSON.stringify(crmData, null, 2));
+
+      const clarityAccountId = crmData?.Data?.AccountID || accountId;
+
+      if (!clarityAccountId) {
+        throw new Error("CRM Account sync failed - no AccountID returned");
+      }
+
+      console.log("✅ CRM Account synced with AccountID:", clarityAccountId);
+
+      // Save clarityAccountId to DB
+      await db
+        .update(wholesaleRegistrations)
+        .set({ clarityAccountId })
+        .where(eq(wholesaleRegistrations.id, id));
+
+      res.json({
+        success: true,
+        clarityAccountId,
+        isUpdate: !!accountId
+      });
+    } catch (error) {
+      console.error("❌ CRM account sync error:", error);
+      res.status(500).json({
+        error: error instanceof Error ? error.message : "CRM sync failed"
+      });
+    }
+  });
+
   // Admin Approval → Create CRM Account + Shopify Customer with wholesale_clarity_id
   app.post("/api/admin/approve-registration/:id", async (req: Request, res: Response) => {
     try {
@@ -703,95 +933,20 @@ export function registerRoutes(app: Express) {
         return res.status(404).json({ error: "Registration not found" });
       }
 
-      // Step 1: Create Clarity CRM Account with proper field mapping
-      const crmBaseUrl = process.env.CRM_BASE_URL || "http://liveapi.claritysoftcrm.com";
-      const crmApiKey = process.env.CRM_API_KEY;
+      // CRM Account should already be created via /api/admin/sync-to-crm
+      const clarityAccountId = registration.clarityAccountId;
 
-      let clarityAccountId = null;
-
-      if (crmApiKey) {
-        const { default: http } = await import("http");
-
-        const crmPayload = {
-          APIKey: crmApiKey,
-          Resource: "Account",
-          Operation: "Create Or Edit",
-          Data: {
-            Account: registration.firmName,
-            CompanyPhone: registration.phone || "",
-            Website: registration.website || "",
-            Address1: registration.businessAddress,
-            Address2: registration.businessAddress2 || "",
-            City: registration.city,
-            State: registration.state,
-            ZipCode: registration.zipCode,
-            "Account Type": registration.businessType || "",
-            "Sample Set": registration.receivedSampleSet ? "Yes" : "No",
-            "Lead Source Specifics": registration.howDidYouHear || "",
-            Instagram: registration.instagramHandle || "",
-            EIN: registration.taxId || "",
-            "Accepts Email Marketing": registration.acceptsEmailMarketing ? "Yes" : "No",
-            "Accepts SMS Marketing": registration.acceptsSmsMarketing ? "Yes" : "No",
-          }
-        };
-
-        console.log("📤 CRM Account Creation Payload:");
-        console.log(JSON.stringify(crmPayload, null, 2));
-
-        const payloadString = JSON.stringify(crmPayload);
-
-        const options = {
-          hostname: "liveapi.claritysoftcrm.com",
-          port: 80,
-          path: "/api/v1",
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Content-Length": Buffer.byteLength(payloadString),
-            "Accept": "*/*",
-            "Accept-Encoding": "gzip, deflate",
-            "Connection": "keep-alive",
-            "User-Agent": "curl/7.68.0"
-          }
-        };
-
-        const crmData = await new Promise<any>((resolve, reject) => {
-          const req = http.request(options, (res: any) => {
-            let data = "";
-            res.on("data", (chunk: any) => (data += chunk));
-            res.on("end", () => {
-              try {
-                resolve(JSON.parse(data));
-              } catch (error) {
-                reject(new Error(`Failed to parse CRM response: ${data}`));
-              }
-            });
-          });
-
-          req.on("error", reject);
-          req.write(payloadString);
-          req.end();
+      if (!clarityAccountId) {
+        return res.status(400).json({ 
+          error: "CRM account not synced yet. Please sync to CRM first." 
         });
-
-        console.log("📤 CRM Account Response:");
-        console.log(JSON.stringify(crmData, null, 2));
-
-        clarityAccountId = crmData?.Data?.AccountId;
-
-        if (!clarityAccountId) {
-          throw new Error("CRM Account creation failed - no AccountId returned");
-        }
-
-        console.log("✅ CRM Account created with AccountId:", clarityAccountId);
-      } else {
-        throw new Error("CRM credentials not configured");
       }
 
-      // Step 2: Create/Update Shopify Customer + Set wholesale_clarity_id metafield
+      // Create/Update Shopify Customer + Set wholesale_clarity_id metafield
       const shopDomain = process.env.SHOPIFY_SHOP_DOMAIN;
       const adminToken = process.env.SHOPIFY_ADMIN_ACCESS_TOKEN;
 
-      if (shopDomain && adminToken && clarityAccountId) {
+      if (shopDomain && adminToken) {
         // Check if customer exists
         const customerQuery = `
           query GetCustomerByEmail($email: String!) {

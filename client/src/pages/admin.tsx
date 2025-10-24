@@ -17,9 +17,9 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -32,6 +32,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 // Global styles for inputs
 const globalInputStyles = "border-[#7e8d76] font-['Lora_Italic'] placeholder:text-[#7e8d76]/70 focus:border-[#7e8d76] focus:ring-[#7e8d76]";
@@ -43,6 +44,12 @@ export default function Admin() {
   const [rejectionReason, setRejectionReason] = useState("");
   const [actionType, setActionType] = useState<"approve" | "reject" | null>(null);
   const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
+
+  // CRM Conflict Modal States
+  const [crmConflictModalOpen, setCrmConflictModalOpen] = useState(false);
+  const [crmConflicts, setCrmConflicts] = useState<any[]>([]);
+  const [selectedConflict, setSelectedConflict] = useState<string | null>(null);
+  const [currentRegistrationId, setCurrentRegistrationId] = useState<string | null>(null);
 
   // Debug logging on mount
   useEffect(() => {
@@ -181,6 +188,91 @@ export default function Admin() {
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to create Shopify account",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // CRM Duplicate Check and Sync
+  const checkCrmDuplicates = async (id: string) => {
+    try {
+      const response = await apiRequest("POST", `/api/admin/check-crm-duplicates/${id}`, {});
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to check CRM duplicates");
+      }
+
+      const data = await response.json();
+
+      if (data.conflicts && data.conflicts.length > 0) {
+        // Show conflict modal
+        setCrmConflicts(data.conflicts);
+        setCurrentRegistrationId(id);
+        setCrmConflictModalOpen(true);
+      } else {
+        // No conflicts, proceed with new account creation
+        await syncToCrm(id, null);
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to check CRM duplicates",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const syncToCrm = async (id: string, accountId: string | null) => {
+    try {
+      const response = await apiRequest("POST", `/api/admin/sync-to-crm/${id}`, { accountId });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to sync to CRM");
+      }
+
+      const data = await response.json();
+      toast({
+        title: "CRM Account Synced",
+        description: `${data.isUpdate ? 'Updated' : 'Created'} CRM Account: ${data.clarityAccountId}`,
+      });
+
+      // Close modal and proceed to Shopify approval
+      setCrmConflictModalOpen(false);
+      setCrmConflicts([]);
+      setSelectedConflict(null);
+      await approveRegistration(id);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to sync to CRM",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Original approveRegistration function (now called after CRM sync)
+  const approveRegistration = async (id: string) => {
+    try {
+      const response = await apiRequest("POST", `/api/admin/approve-registration/${id}`, {});
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to approve registration");
+      }
+
+      const data = await response.json();
+      toast({
+        title: "Registration Approved",
+        description: `Wholesale account created successfully. Clarity Account ID: ${data.clarityAccountId}`,
+      });
+
+      refetch();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to approve registration",
         variant: "destructive",
       });
     }
@@ -549,7 +641,7 @@ export default function Admin() {
                                   <span className="font-['Vazirmatn']">Approved on {new Date(reg.approvedAt!).toLocaleDateString()}</span>
                                 </div>
                                 <Button
-                                  onClick={() => handleCreateShopifyAccount(reg.id)}
+                                  onClick={() => checkCrmDuplicates(reg.id)}
                                   className="bg-[#F2633A] hover:bg-[#F2633A]/90 text-white rounded-[11px] font-['Vazirmatn']"
                                 >
                                   <ExternalLink className="w-4 h-4 mr-2" />
@@ -721,6 +813,75 @@ export default function Admin() {
               className="bg-[#F2633A] hover:bg-[#F2633A]/90 text-white rounded-[11px] font-['Vazirmatn']"
             >
               {updateRegistrationMutation.isPending ? "Processing..." : "Confirm"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* CRM Conflict Resolution Modal */}
+      <Dialog open={crmConflictModalOpen} onOpenChange={(isOpen) => {
+        setCrmConflictModalOpen(isOpen);
+        if (!isOpen) {
+          // Reset states when modal is closed
+          setSelectedConflict(null);
+          setCrmConflicts([]);
+          setCurrentRegistrationId(null);
+        }
+      }}>
+        <DialogContent className="rounded-[16px] max-w-3xl">
+          <DialogHeader>
+            <DialogTitle className="font-['Archivo'] text-[#212227]">Potential CRM Conflicts</DialogTitle>
+            <DialogDescription className="font-['Vazirmatn'] text-[#696A6D]">
+              Please review the potential conflicts found in your CRM. Select an existing account to update or choose to create a new one.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <RadioGroup value={selectedConflict} onValueChange={setSelectedConflict}>
+              {crmConflicts.map((conflict) => (
+                <div key={conflict.AccountID} className="flex items-center space-x-3 p-3 border rounded-[11px] hover:bg-[#F9F9F7] transition-colors">
+                  <RadioGroupItem value={conflict.AccountID} id={conflict.AccountID} />
+                  <Label htmlFor={conflict.AccountID} className="flex-1 font-['Vazirmatn'] cursor-pointer">
+                    <div className="font-medium text-[#212227]">{conflict.Account}</div>
+                    <div className="text-xs text-[#696A6D]">
+                      ID: {conflict.AccountID} | Phone: {conflict.CompanyPhone} | Website: {conflict.Website || 'N/A'} | City: {conflict.City}, {conflict.State}
+                    </div>
+                  </Label>
+                </div>
+              ))}
+            </RadioGroup>
+
+            <div className="border-t border-[#E1E0DA] pt-4">
+              <p className="font-['Vazirmatn'] text-sm text-[#696A6D]">Or</p>
+              <Button
+                variant="outline"
+                onClick={() => setSelectedConflict(null)} // Deselect any previous choice to signal 'create new'
+                className="mt-2 rounded-[11px] font-['Vazirmatn']"
+              >
+                Create New CRM Account
+              </Button>
+            </div>
+          </div>
+
+          <DialogFooter className="pt-4">
+            <Button variant="outline" onClick={() => {
+              setCrmConflictModalOpen(false);
+              setSelectedConflict(null);
+              setCrmConflicts([]);
+              setCurrentRegistrationId(null);
+            }} className="rounded-[11px] font-['Vazirmatn']">
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                if (currentRegistrationId) {
+                  syncToCrm(currentRegistrationId, selectedConflict);
+                }
+              }}
+              disabled={!currentRegistrationId || (!selectedConflict && crmConflicts.length > 0)}
+              className="bg-[#F2633A] hover:bg-[#F2633A]/90 text-white rounded-[11px] font-['Vazirmatn']"
+            >
+              {selectedConflict ? "Update CRM Account" : "Create New CRM Account"}
             </Button>
           </DialogFooter>
         </DialogContent>
