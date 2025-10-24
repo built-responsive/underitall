@@ -190,7 +190,28 @@ export default function Calculator() {
   // Create draft order
   const createDraftOrderMutation = useMutation({
     mutationFn: async (quoteId: string) => {
-      const res = await apiRequest("POST", "/api/draft-order", { quoteId });
+      const values = form.getValues();
+      const lineItems = [
+        {
+          variantId: "gid://shopify/ProductVariant/REPLACE_WITH_ACTUAL_VARIANT_ID", // TODO: Use real variant ID
+          quantity: values.quantity || 1,
+          customAttributes: [
+            { key: "Width", value: `${widthFeet}'${widthInches}"` },
+            { key: "Length", value: `${lengthFeet}'${lengthInches}"` },
+            { key: "Thickness", value: values.thickness === "thin" ? "⅛ inch" : "¼ inch" },
+            { key: "Shape", value: values.shape },
+            { key: "Project Name", value: values.projectName || "N/A" },
+            { key: "Install Location", value: values.installLocation || "N/A" },
+          ],
+        },
+      ];
+
+      const res = await apiRequest("POST", "/api/draft-order", { 
+        calculatorQuoteId: quoteId,
+        lineItems,
+        customerEmail: values.clientName ? `${values.clientName.replace(/\s+/g, "").toLowerCase()}@placeholder.com` : "noreply@underitall.com",
+        note: `Calculator Quote: ${quoteId}\nPO: ${values.poNumber || "N/A"}`,
+      });
       return await res.json();
     },
     onSuccess: (data: any) => {
@@ -198,7 +219,9 @@ export default function Calculator() {
         title: "Draft Order Created",
         description: "Your Shopify draft order has been created successfully.",
       });
-      window.open(data.shopifyDraftOrderUrl, "_blank");
+      if (data.invoiceUrl) {
+        window.open(data.invoiceUrl, "_blank");
+      }
     },
   });
 

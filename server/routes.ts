@@ -205,6 +205,14 @@ export function registerRoutes(app: Express) {
         return res.status(500).json({ error: "Shopify credentials not configured" });
       }
 
+      // Validate lineItems (must be array)
+      if (!Array.isArray(lineItems) || lineItems.length === 0) {
+        return res.status(400).json({ 
+          error: "Missing or invalid lineItems", 
+          details: "lineItems must be a non-empty array" 
+        });
+      }
+
       // Create Shopify Draft Order via Admin API
       const draftOrderMutation = `
         mutation draftOrderCreate($input: DraftOrderInput!) {
@@ -224,7 +232,7 @@ export function registerRoutes(app: Express) {
 
       const variables = {
         input: {
-          email: customerEmail,
+          email: customerEmail || "noreply@underitall.com",
           note: note || "Created via UnderItAll Calculator",
           lineItems: lineItems.map((item: any) => ({
             variantId: item.variantId,
