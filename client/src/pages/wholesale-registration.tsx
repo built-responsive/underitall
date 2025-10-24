@@ -182,7 +182,7 @@ export default function WholesaleRegistration() {
 
     try {
       const res = await apiRequest("POST", "/api/enrich-company", {
-        companyName: companyName.trim(),
+        firmName: companyName.trim(),
       });
 
       console.log("📡 API Response status:", res.status);
