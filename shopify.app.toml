@@ -42,5 +42,6 @@ description = "Links customer to their wholesale account in Clarity CRM (e.g., A
   [customer.metafields.app.wholesale_clarity_id.access]
   customer_account = "read"
   admin = "merchant_read_write"
+  
 
 
