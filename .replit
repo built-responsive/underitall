@@ -28,6 +28,8 @@ outputType = "webview"
 
 [[ports]]
 localPort = 80
+externalPort = 80
+exposeLocalhost = true
 
 [[ports]]
 localPort = 3000
@@ -46,11 +48,20 @@ exposeLocalhost = true
 
 [[ports]]
 localPort = 5000
-externalPort = 80
+externalPort = 8080
 
 [[ports]]
 localPort = 9293
 externalPort = 3003
+exposeLocalhost = true
+
+[[ports]]
+localPort = 44753
+externalPort = 5000
+
+[[ports]]
+localPort = 45001
+externalPort = 4200
 exposeLocalhost = true
 
 [deployment]
