@@ -22,7 +22,7 @@ api_version = "2026-01"
 
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
-scopes = "read_all_cart_transforms,read_analytics,read_app_proxy,read_assigned_fulfillment_orders,read_channels,read_checkout_branding_settings,read_content,read_custom_pixels,read_customer_data_erasure,read_customer_events,read_customer_merge,read_customers,read_discounts,read_discovery,read_draft_orders,read_files,read_metaobject_definitions,read_metaobjects,read_online_store_navigation,read_online_store_pages,read_orders,read_packing_slip_templates,read_pixels,read_price_rules,read_product_feeds,read_product_listings,read_products,read_purchase_options,read_script_tags,read_themes,read_validations,unauthenticated_read_bulk_operations,unauthenticated_read_bundles,unauthenticated_read_checkouts,unauthenticated_read_content,unauthenticated_read_customer_tags,unauthenticated_read_customers,unauthenticated_read_metaobjects,unauthenticated_read_product_inventory,unauthenticated_read_product_listings,unauthenticated_read_product_pickup_locations,unauthenticated_read_product_tags,unauthenticated_read_selling_plans,unauthenticated_read_shop_pay_installments_pricing,unauthenticated_write_bulk_operations,unauthenticated_write_checkouts,unauthenticated_write_customers,write_app_proxy,write_assigned_fulfillment_orders,write_channels,write_checkout_branding_settings,write_content,write_custom_pixels,write_customer_data_erasure,write_customer_merge,write_customers,write_discounts,write_discovery,write_draft_orders,write_files,write_metaobject_definitions,write_metaobjects,write_online_store_navigation,write_online_store_pages,write_orders,write_packing_slip_templates,write_pixels,write_price_rules,write_product_feeds,write_product_listings,write_products,write_purchase_options,write_script_tags,write_theme_code,write_themes,write_validations"
+scopes = "read_customers,write_customers,read_orders,write_orders,read_draft_orders,write_draft_orders"
 
 [auth]
 redirect_urls = [
@@ -33,132 +33,13 @@ redirect_urls = [
 [app_preferences]
 url = "https://its-under-it-all.replit.app/settings"
 
-# Wholesale Account Data (stored directly in customer metafields)
-[customer.metafields.app.wholesale_company]
-type = "single_line_text_field"
-name = "Wholesale Company Name"
-
-  [customer.metafields.app.wholesale_company.access]
-  customer_account = "read_write"
-  admin = "merchant_read_write"
-
-[customer.metafields.app.wholesale_phone]
-type = "single_line_text_field"
-name = "Wholesale Phone"
-
-  [customer.metafields.app.wholesale_phone.access]
-  customer_account = "read_write"
-  admin = "merchant_read_write"
-
-[customer.metafields.app.wholesale_website]
-type = "single_line_text_field"
-name = "Wholesale Website"
-
-  [customer.metafields.app.wholesale_website.access]
-  customer_account = "read_write"
-  admin = "merchant_read_write"
-
-[customer.metafields.app.wholesale_instagram]
-type = "single_line_text_field"
-name = "Wholesale Instagram Handle"
-
-  [customer.metafields.app.wholesale_instagram.access]
-  customer_account = "read_write"
-  admin = "merchant_read_write"
-
-[customer.metafields.app.wholesale_address]
-type = "single_line_text_field"
-name = "Wholesale Address"
-
-  [customer.metafields.app.wholesale_address.access]
-  customer_account = "read_write"
-  admin = "merchant_read_write"
-
-[customer.metafields.app.wholesale_address2]
-type = "single_line_text_field"
-name = "Wholesale Address Line 2"
-
-  [customer.metafields.app.wholesale_address2.access]
-  customer_account = "read_write"
-  admin = "merchant_read_write"
-
-[customer.metafields.app.wholesale_city]
-type = "single_line_text_field"
-name = "Wholesale City"
-
-  [customer.metafields.app.wholesale_city.access]
-  customer_account = "read_write"
-  admin = "merchant_read_write"
-
-[customer.metafields.app.wholesale_state]
-type = "single_line_text_field"
-name = "Wholesale State"
-
-  [customer.metafields.app.wholesale_state.access]
-  customer_account = "read_write"
-  admin = "merchant_read_write"
-
-[customer.metafields.app.wholesale_zip]
-type = "single_line_text_field"
-name = "Wholesale ZIP Code"
-
-  [customer.metafields.app.wholesale_zip.access]
-  customer_account = "read_write"
-  admin = "merchant_read_write"
-
-[customer.metafields.app.wholesale_tax_exempt]
-type = "boolean"
-name = "Wholesale Tax Exempt"
-
-  [customer.metafields.app.wholesale_tax_exempt.access]
-  customer_account = "read_write"
-  admin = "merchant_read_write"
-
-[customer.metafields.app.wholesale_vat_tax_id]
-type = "single_line_text_field"
-name = "Wholesale VAT/Tax ID"
-
-  [customer.metafields.app.wholesale_vat_tax_id.access]
-  customer_account = "read_write"
-  admin = "merchant_read_write"
-
-[customer.metafields.app.wholesale_account_type]
-type = "single_line_text_field"
-name = "Wholesale Account Type"
-
-  [customer.metafields.app.wholesale_account_type.access]
-  customer_account = "read_write"
-  admin = "merchant_read_write"
-
-[customer.metafields.app.wholesale_sample_set]
-type = "boolean"
-name = "Wholesale Sample Set Received"
-
-  [customer.metafields.app.wholesale_sample_set.access]
-  customer_account = "read_write"
-  admin = "merchant_read_write"
-
+# Single Wholesale Link - Clarity CRM Account ID
 [customer.metafields.app.wholesale_clarity_id]
 type = "single_line_text_field"
-name = "Clarity CRM Account ID"
+name = "Wholesale Account ID (Clarity CRM)"
+description = "Links customer to their wholesale account in Clarity CRM (e.g., AC000930)"
 
   [customer.metafields.app.wholesale_clarity_id.access]
-  customer_account = "read"
-  admin = "merchant_read_write"
-
-[customer.metafields.app.wholesale_source]
-type = "multi_line_text_field"
-name = "How Did You Hear About Us"
-
-  [customer.metafields.app.wholesale_source.access]
-  customer_account = "read_write"
-  admin = "merchant_read_write"
-
-[customer.metafields.app.wholesale_message]
-type = "multi_line_text_field"
-name = "Wholesale Admin Notes"
-
-  [customer.metafields.app.wholesale_message.access]
   customer_account = "read"
   admin = "merchant_read_write"
 

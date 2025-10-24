@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import {
   reactExtension,
@@ -22,7 +21,7 @@ export default reactExtension(
 
 function WholesaleAccountFullPage() {
   const { query, applyMetafieldsChange } = useApi();
-  
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [editing, setEditing] = useState(false);
@@ -30,6 +29,7 @@ function WholesaleAccountFullPage() {
   const [success, setSuccess] = useState(false);
   const [formData, setFormData] = useState({});
   const [customerId, setCustomerId] = useState(null);
+  const [clarityAccountId, setClarityAccountId] = useState(null); // Added state for clarityAccountId
 
   useEffect(() => {
     fetchWholesaleAccount();
@@ -85,9 +85,26 @@ function WholesaleAccountFullPage() {
       const fieldsObj = {};
       customer.metafields.forEach(field => {
         if (field) {
-          fieldsObj[field.key] = field.value;
+          // Map old wholesale_ prefixed keys to new keys and store clarity_id
+          let key = field.key;
+          let value = field.value;
+          if (key.startsWith('wholesale_')) {
+            if (key === 'wholesale_clarity_id') {
+              setClarityAccountId(value); // Set clarityAccountId
+              key = 'clarityAccountId'; // Use clarityAccountId for internal state
+              value = value;
+            } else {
+              key = key.replace('wholesale_', ''); // Remove wholesale_ prefix
+            }
+          }
+          fieldsObj[key] = value;
         }
       });
+
+      // Ensure boolean fields are correctly parsed
+      fieldsObj.taxExempt = fieldsObj.taxExempt === 'true';
+      fieldsObj.sample_set = fieldsObj.sample_set === 'true';
+
 
       setFormData(fieldsObj);
       setLoading(false);
@@ -103,42 +120,27 @@ function WholesaleAccountFullPage() {
       setSaving(true);
       setError(null);
 
-      const metafields = Object.entries(formData)
-        .filter(([key]) => key.startsWith('wholesale_'))
-        .map(([key, value]) => {
-          // Determine type based on field
-          let type = 'single_line_text_field';
-          if (key === 'wholesale_tax_exempt' || key === 'wholesale_sample_set') {
-            type = 'boolean';
-          } else if (key === 'wholesale_source' || key === 'wholesale_message') {
-            type = 'multi_line_text_field';
-          } else if (key === 'wholesale_page') {
-            type = 'page_reference';
-          } else if (key === 'wholesale_owner' || key === 'wholesale_account_type') {
-            type = 'list.metaobject_reference';
-          }
-
-          return {
-            key,
-            namespace: 'custom',
-            type,
-            value: String(value || '')
-          };
-        });
-
-      const result = await applyMetafieldsChange({
-        type: 'updateMetafield',
-        namespace: 'custom',
-        metafields
+      // Update via our API
+      const appUrl = 'https://its-under-it-all.replit.app';
+      const response = await fetch(`${appUrl}/api/customer/wholesale-account`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          customerId,
+          clarityAccountId, // Pass clarityAccountId
+          updates: formData
+        })
       });
 
-      if (result.type === 'error') {
-        throw new Error(result.message);
+      if (!response.ok) {
+        throw new Error('Failed to update wholesale account');
       }
 
       setSuccess(true);
       setEditing(false);
-      
+
       await fetchWholesaleAccount();
 
       setTimeout(() => setSuccess(false), 5000);
@@ -170,7 +172,8 @@ function WholesaleAccountFullPage() {
     );
   }
 
-  if (!formData.wholesale_company) {
+  // Use the new field name 'company' for checking existence
+  if (!formData.company) {
     return (
       <Page title="Wholesale Account">
         <Card>
@@ -179,7 +182,7 @@ function WholesaleAccountFullPage() {
             <Text>You do not have an active wholesale account. Apply now to access wholesale pricing.</Text>
             <Button
               onPress={() => {
-                window.location.href = '/pages/wholesale-apply';
+                window.location.href = 'https://its-under-it-all.replit.app/wholesale-registration';
               }}
             >
               Apply for Wholesale Account
@@ -210,26 +213,26 @@ function WholesaleAccountFullPage() {
             <Heading level={2}>Business Information</Heading>
             <TextField
               label="Company Name"
-              value={formData.wholesale_company || ''}
-              onChange={(value) => handleFieldChange('wholesale_company', value)}
+              value={formData.company || ''}
+              onChange={(value) => handleFieldChange('company', value)}
               disabled={!editing}
             />
             <TextField
               label="Phone"
-              value={formData.wholesale_phone || ''}
-              onChange={(value) => handleFieldChange('wholesale_phone', value)}
+              value={formData.phone || ''}
+              onChange={(value) => handleFieldChange('phone', value)}
               disabled={!editing}
             />
             <TextField
               label="Website"
-              value={formData.wholesale_website || ''}
-              onChange={(value) => handleFieldChange('wholesale_website', value)}
+              value={formData.website || ''}
+              onChange={(value) => handleFieldChange('website', value)}
               disabled={!editing}
             />
             <TextField
               label="Instagram Handle"
-              value={formData.wholesale_instagram || ''}
-              onChange={(value) => handleFieldChange('wholesale_instagram', value)}
+              value={formData.instagram || ''}
+              onChange={(value) => handleFieldChange('instagram', value)}
               disabled={!editing}
             />
           </BlockStack>
@@ -240,33 +243,33 @@ function WholesaleAccountFullPage() {
             <Heading level={2}>Business Address</Heading>
             <TextField
               label="Address Line 1"
-              value={formData.wholesale_address || ''}
-              onChange={(value) => handleFieldChange('wholesale_address', value)}
+              value={formData.address || ''}
+              onChange={(value) => handleFieldChange('address', value)}
               disabled={!editing}
             />
             <TextField
               label="Address Line 2"
-              value={formData.wholesale_address2 || ''}
-              onChange={(value) => handleFieldChange('wholesale_address2', value)}
+              value={formData.address2 || ''}
+              onChange={(value) => handleFieldChange('address2', value)}
               disabled={!editing}
             />
             <InlineStack spacing="tight">
               <TextField
                 label="City"
-                value={formData.wholesale_city || ''}
-                onChange={(value) => handleFieldChange('wholesale_city', value)}
+                value={formData.city || ''}
+                onChange={(value) => handleFieldChange('city', value)}
                 disabled={!editing}
               />
               <TextField
                 label="State"
-                value={formData.wholesale_state || ''}
-                onChange={(value) => handleFieldChange('wholesale_state', value)}
+                value={formData.state || ''}
+                onChange={(value) => handleFieldChange('state', value)}
                 disabled={!editing}
               />
               <TextField
                 label="ZIP"
-                value={formData.wholesale_zip || ''}
-                onChange={(value) => handleFieldChange('wholesale_zip', value)}
+                value={formData.zip || ''}
+                onChange={(value) => handleFieldChange('zip', value)}
                 disabled={!editing}
               />
             </InlineStack>
@@ -278,13 +281,14 @@ function WholesaleAccountFullPage() {
             <Heading level={2}>Tax Information</Heading>
             <TextField
               label="VAT/Tax ID"
-              value={formData.wholesale_vat_tax_id || ''}
-              onChange={(value) => handleFieldChange('wholesale_vat_tax_id', value)}
+              value={formData.taxId || ''}
+              onChange={(value) => handleFieldChange('taxId', value)}
               disabled={!editing}
             />
             <InlineStack spacing="tight">
               <Text>Tax Exempt:</Text>
-              <Text emphasis="bold">{formData.wholesale_tax_exempt === 'true' ? 'Yes' : 'No'}</Text>
+              {/* Use the new field name 'taxExempt' and ensure correct boolean display */}
+              <Text emphasis="bold">{formData.taxExempt ? 'Yes' : 'No'}</Text>
             </InlineStack>
           </BlockStack>
         </Card>

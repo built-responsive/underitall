@@ -1,3 +1,116 @@
+
+import type { Express } from "express";
+import { createServer } from "http";
+import webhookRoutes from "./webhooks";
+import { db } from "./db";
+import { wholesaleRegistrations, calculatorQuotes, webhookLogs, draftOrders } from "@shared/schema";
+import { desc, eq } from "drizzle-orm";
+import { getShopifyConfig, executeShopifyGraphQL } from "./utils/shopifyConfig";
+
+export function registerRoutes(app: Express) {
+  // Customer Account Extension API - Fetch Wholesale Account Data
+  app.get("/api/customer/wholesale-account", async (req, res) => {
+    try {
+      // TODO: Add session token authentication here (from customer account extension)
+      // For now, accept customerId from query param (secure this in production)
+      const { customerId } = req.query;
+
+      if (!customerId) {
+        return res.status(400).json({ error: "Missing customerId" });
+      }
+
+      // Fetch customer's wholesale_clarity_id from Shopify
+      const shopDomain = process.env.SHOPIFY_SHOP_DOMAIN;
+      const adminToken = process.env.SHOPIFY_ADMIN_ACCESS_TOKEN;
+
+      if (!shopDomain || !adminToken) {
+        return res.status(500).json({ error: "Shopify credentials not configured" });
+      }
+
+      const customerQuery = `
+        query GetCustomerMetafield($customerId: ID!) {
+          customer(id: $customerId) {
+            id
+            email
+            firstName
+            lastName
+            metafield(namespace: "custom", key: "wholesale_clarity_id") {
+              value
+            }
+          }
+        }
+      `;
+
+      const customerResponse = await fetch(
+        `https://${shopDomain}/admin/api/2025-01/graphql.json`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Shopify-Access-Token": adminToken,
+          },
+          body: JSON.stringify({
+            query: customerQuery,
+            variables: { customerId }
+          }),
+        }
+      );
+
+      const customerData = await customerResponse.json();
+      const customer = customerData?.data?.customer;
+      const clarityAccountId = customer?.metafield?.value;
+
+      if (!clarityAccountId) {
+        return res.json({ 
+          hasWholesaleAccount: false,
+          message: "No wholesale account found"
+        });
+      }
+
+      // Fetch wholesale data from our DB
+      const [registration] = await db
+        .select()
+        .from(wholesaleRegistrations)
+        .where(eq(wholesaleRegistrations.clarityAccountId, clarityAccountId));
+
+      if (!registration) {
+        return res.json({ 
+          hasWholesaleAccount: false,
+          message: "Wholesale account not found in database"
+        });
+      }
+
+      // Return full wholesale account data
+      res.json({
+        hasWholesaleAccount: true,
+        clarityAccountId,
+        account: {
+          company: registration.firmName,
+          email: registration.email,
+          phone: registration.phone,
+          website: registration.website,
+          instagram: registration.instagramHandle,
+          address: registration.businessAddress,
+          address2: registration.businessAddress2,
+          city: registration.city,
+          state: registration.state,
+          zip: registration.zipCode,
+          taxExempt: registration.isTaxExempt,
+          taxId: registration.taxId,
+          accountType: registration.businessType,
+          sampleSetReceived: registration.receivedSampleSet,
+          source: registration.howDidYouHear,
+          status: registration.status
+        }
+      });
+    } catch (error) {
+      console.error("❌ Error fetching wholesale account:", error);
+      res.status(500).json({ 
+        error: error instanceof Error ? error.message : "Failed to fetch wholesale account" 
+      });
+    }
+  });
+
 import type { Express } from "express";
 import { createServer } from "http";
 import webhookRoutes from "./webhooks";
@@ -34,6 +147,72 @@ export function registerRoutes(app: Express) {
       const graphqlUrl = `https://${shopDomain}/admin/api/${version}/graphql.json`;
 
       const response = await fetch(graphqlUrl, {
+
+  // Customer Account Extension API - Update Wholesale Account Data
+  app.patch("/api/customer/wholesale-account", async (req, res) => {
+    try {
+      // TODO: Add session token authentication here
+      const { customerId, clarityAccountId, updates } = req.body;
+
+      if (!customerId || !clarityAccountId) {
+        return res.status(400).json({ error: "Missing customerId or clarityAccountId" });
+      }
+
+      // Update in our database
+      await db
+        .update(wholesaleRegistrations)
+        .set({
+          firmName: updates.company,
+          phone: updates.phone,
+          website: updates.website,
+          instagramHandle: updates.instagram,
+          businessAddress: updates.address,
+          businessAddress2: updates.address2,
+          city: updates.city,
+          state: updates.state,
+          zipCode: updates.zip,
+          taxId: updates.taxId,
+        })
+        .where(eq(wholesaleRegistrations.clarityAccountId, clarityAccountId));
+
+      // Optionally sync to CRM
+      const crmBaseUrl = process.env.CRM_BASE_URL;
+      const crmApiKey = process.env.CRM_API_KEY;
+
+      if (crmBaseUrl && crmApiKey) {
+        const crmPayload = {
+          APIKey: crmApiKey,
+          Resource: "Account",
+          Operation: "Create Or Edit",
+          Data: {
+            AccountId: clarityAccountId,
+            AccountName: updates.company,
+            Phone: updates.phone || "",
+            Website: updates.website || "",
+            Address1: updates.address,
+            Address2: updates.address2 || "",
+            City: updates.city,
+            State: updates.state,
+            ZipCode: updates.zip,
+          }
+        };
+
+        await fetch(`${crmBaseUrl}/api/v1`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(crmPayload),
+        });
+      }
+
+      res.json({ success: true, message: "Wholesale account updated" });
+    } catch (error) {
+      console.error("❌ Error updating wholesale account:", error);
+      res.status(500).json({ 
+        error: error instanceof Error ? error.message : "Failed to update wholesale account" 
+      });
+    }
+  });
+
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -243,114 +422,138 @@ export function registerRoutes(app: Express) {
       const formData = req.body;
       console.log("📝 Wholesale registration received:", formData);
 
-      // Save to database
+      // Save to database (pending approval)
       const [registration] = await db
         .insert(wholesaleRegistrations)
         .values({
           ...formData,
+          status: 'pending',
           submittedAt: new Date(),
         })
         .returning();
 
-      console.log("✅ Registration saved to database:", registration.id);
+      console.log("✅ Registration saved to database (pending):", registration.id);
 
-      // Create/fetch customer + write metafields in Shopify
+      res.json({
+        success: true,
+        registrationId: registration.id,
+        message: "Registration submitted. Awaiting admin approval."
+      });
+    } catch (error) {
+      console.error("❌ Registration error:", error);
+      res.status(500).json({
+        error: error instanceof Error ? error.message : "Registration failed",
+      });
+    }
+  });
+
+  // Admin Approval → Create CRM Account + Shopify Customer with wholesale_clarity_id
+  app.post("/api/admin/approve-registration/:id", async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+
+      // Fetch registration from DB
+      const [registration] = await db
+        .select()
+        .from(wholesaleRegistrations)
+        .where(eq(wholesaleRegistrations.id, id));
+
+      if (!registration) {
+        return res.status(404).json({ error: "Registration not found" });
+      }
+
+      // Step 1: Create Clarity CRM Account
+      const crmBaseUrl = process.env.CRM_BASE_URL;
+      const crmApiKey = process.env.CRM_API_KEY;
+
+      let clarityAccountId = null;
+
+      if (crmBaseUrl && crmApiKey) {
+        const crmPayload = {
+          APIKey: crmApiKey,
+          Resource: "Account",
+          Operation: "Create Or Edit",
+          Data: {
+            AccountName: registration.firmName,
+            Phone: registration.phone || "",
+            Website: registration.website || "",
+            Address1: registration.businessAddress,
+            Address2: registration.businessAddress2 || "",
+            City: registration.city,
+            State: registration.state,
+            ZipCode: registration.zipCode,
+            CustomFields: {
+              InstagramHandle: registration.instagramHandle || "",
+              AccountType: registration.businessType,
+              TaxExempt: registration.isTaxExempt ? "Yes" : "No",
+              TaxID: registration.taxId || "",
+              SampleSetReceived: registration.receivedSampleSet ? "Yes" : "No",
+              Source: registration.howDidYouHear || ""
+            }
+          }
+        };
+
+        const crmResponse = await fetch(`${crmBaseUrl}/api/v1`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(crmPayload),
+        });
+
+        const crmData = await crmResponse.json();
+        clarityAccountId = crmData?.Data?.AccountId;
+
+        if (!clarityAccountId) {
+          throw new Error("CRM Account creation failed - no AccountId returned");
+        }
+
+        console.log("✅ CRM Account created:", clarityAccountId);
+      } else {
+        throw new Error("CRM credentials not configured");
+      }
+
+      // Step 2: Create/Update Shopify Customer + Set wholesale_clarity_id metafield
       const shopDomain = process.env.SHOPIFY_SHOP_DOMAIN;
       const adminToken = process.env.SHOPIFY_ADMIN_ACCESS_TOKEN;
 
-      if (shopDomain && adminToken) {
-        try {
-          // Step 1: Check if customer exists by email
-          const customerQuery = `
-            query GetCustomerByEmail($email: String!) {
-              customers(first: 1, query: $email) {
-                edges {
-                  node {
-                    id
-                  }
+      if (shopDomain && adminToken && clarityAccountId) {
+        // Check if customer exists
+        const customerQuery = `
+          query GetCustomerByEmail($email: String!) {
+            customers(first: 1, query: $email) {
+              edges {
+                node {
+                  id
                 }
               }
             }
-          `;
-
-          const customerCheckResponse = await fetch(
-            `https://${shopDomain}/admin/api/2025-01/graphql.json`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                "X-Shopify-Access-Token": adminToken,
-              },
-              body: JSON.stringify({
-                query: customerQuery,
-                variables: { email: `email:${formData.email}` },
-              }),
-            }
-          );
-
-          const customerCheckData = await customerCheckResponse.json();
-          let customerId = customerCheckData?.data?.customers?.edges?.[0]?.node?.id;
-
-          // Step 2: Create customer if doesn't exist
-          if (!customerId) {
-            console.log("🆕 Creating new customer:", formData.email);
-            const customerCreateMutation = `
-              mutation CreateCustomer($input: CustomerInput!) {
-                customerCreate(input: $input) {
-                  customer {
-                    id
-                  }
-                  userErrors {
-                    field
-                    message
-                  }
-                }
-              }
-            `;
-
-            const customerInput = {
-              email: formData.email,
-              firstName: formData.firstName,
-              lastName: formData.lastName,
-              phone: formData.phone || null,
-            };
-
-            const customerCreateResponse = await fetch(
-              `https://${shopDomain}/admin/api/2025-01/graphql.json`,
-              {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  "X-Shopify-Access-Token": adminToken,
-                },
-                body: JSON.stringify({
-                  query: customerCreateMutation,
-                  variables: { input: customerInput },
-                }),
-              }
-            );
-
-            const customerCreateData = await customerCreateResponse.json();
-
-            if (customerCreateData?.data?.customerCreate?.userErrors?.length > 0) {
-              console.error("❌ Customer creation errors:", customerCreateData.data.customerCreate.userErrors);
-              throw new Error(customerCreateData.data.customerCreate.userErrors[0].message);
-            }
-
-            customerId = customerCreateData?.data?.customerCreate?.customer?.id;
-            console.log("✅ Customer created:", customerId);
-          } else {
-            console.log("✅ Customer exists:", customerId);
           }
+        `;
 
-          // Step 3: Write metafields to customer
-          const metafieldsMutation = `
-            mutation SetCustomerMetafields($metafields: [MetafieldsSetInput!]!) {
-              metafieldsSet(metafields: $metafields) {
-                metafields {
-                  key
-                  namespace
-                  value
+        const customerCheckResponse = await fetch(
+          `https://${shopDomain}/admin/api/2025-01/graphql.json`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-Shopify-Access-Token": adminToken,
+            },
+            body: JSON.stringify({
+              query: customerQuery,
+              variables: { email: `email:${registration.email}` },
+            }),
+          }
+        );
+
+        const customerCheckData = await customerCheckResponse.json();
+        let customerId = customerCheckData?.data?.customers?.edges?.[0]?.node?.id;
+
+        // Create customer if doesn't exist
+        if (!customerId) {
+          const customerCreateMutation = `
+            mutation CreateCustomer($input: CustomerInput!) {
+              customerCreate(input: $input) {
+                customer {
+                  id
                 }
                 userErrors {
                   field
@@ -360,24 +563,14 @@ export function registerRoutes(app: Express) {
             }
           `;
 
-          const metafields = [
-            { ownerId: customerId, namespace: "custom", key: "wholesale_company", value: formData.firmName, type: "single_line_text_field" },
-            { ownerId: customerId, namespace: "custom", key: "wholesale_phone", value: formData.phone || "", type: "single_line_text_field" },
-            { ownerId: customerId, namespace: "custom", key: "wholesale_website", value: formData.website || "", type: "single_line_text_field" },
-            { ownerId: customerId, namespace: "custom", key: "wholesale_instagram", value: formData.instagramHandle || "", type: "single_line_text_field" },
-            { ownerId: customerId, namespace: "custom", key: "wholesale_address", value: formData.businessAddress, type: "single_line_text_field" },
-            { ownerId: customerId, namespace: "custom", key: "wholesale_address2", value: formData.businessAddress2 || "", type: "single_line_text_field" },
-            { ownerId: customerId, namespace: "custom", key: "wholesale_city", value: formData.city, type: "single_line_text_field" },
-            { ownerId: customerId, namespace: "custom", key: "wholesale_state", value: formData.state, type: "single_line_text_field" },
-            { ownerId: customerId, namespace: "custom", key: "wholesale_zip", value: formData.zipCode, type: "single_line_text_field" },
-            { ownerId: customerId, namespace: "custom", key: "wholesale_source", value: formData.howDidYouHear || "", type: "multi_line_text_field" },
-            { ownerId: customerId, namespace: "custom", key: "wholesale_account_type", value: formData.businessType, type: "single_line_text_field" },
-            { ownerId: customerId, namespace: "custom", key: "wholesale_sample_set", value: String(formData.receivedSampleSet), type: "boolean" },
-            { ownerId: customerId, namespace: "custom", key: "wholesale_tax_exempt", value: String(formData.isTaxExempt), type: "boolean" },
-            { ownerId: customerId, namespace: "custom", key: "wholesale_vat_tax_id", value: formData.taxId || "", type: "single_line_text_field" },
-          ];
+          const customerInput = {
+            email: registration.email,
+            firstName: registration.firstName,
+            lastName: registration.lastName,
+            phone: registration.phone || null,
+          };
 
-          const metafieldsResponse = await fetch(
+          const customerCreateResponse = await fetch(
             `https://${shopDomain}/admin/api/2025-01/graphql.json`,
             {
               method: "POST",
@@ -386,33 +579,91 @@ export function registerRoutes(app: Express) {
                 "X-Shopify-Access-Token": adminToken,
               },
               body: JSON.stringify({
-                query: metafieldsMutation,
-                variables: { metafields },
+                query: customerCreateMutation,
+                variables: { input: customerInput },
               }),
             }
           );
 
-          const metafieldsResult = await metafieldsResponse.json();
-          console.log("📦 Shopify metafields response:", JSON.stringify(metafieldsResult, null, 2));
+          const customerCreateData = await customerCreateResponse.json();
 
-          if (metafieldsResult.data?.metafieldsSet?.userErrors?.length > 0) {
-            console.error("❌ Metafields write errors:", metafieldsResult.data.metafieldsSet.userErrors);
-          } else {
-            console.log("✅ Metafields written:", metafieldsResult.data?.metafieldsSet?.metafields?.length);
+          if (customerCreateData?.data?.customerCreate?.userErrors?.length > 0) {
+            throw new Error(customerCreateData.data.customerCreate.userErrors[0].message);
           }
-        } catch (error) {
-          console.error("❌ Error creating customer/metafields:", error);
+
+          customerId = customerCreateData?.data?.customerCreate?.customer?.id;
+          console.log("✅ Customer created:", customerId);
+        }
+
+        // Set wholesale_clarity_id metafield
+        const metafieldsMutation = `
+          mutation SetCustomerMetafields($metafields: [MetafieldsSetInput!]!) {
+            metafieldsSet(metafields: $metafields) {
+              metafields {
+                key
+                namespace
+                value
+              }
+              userErrors {
+                field
+                message
+              }
+            }
+          }
+        `;
+
+        const metafields = [
+          { 
+            ownerId: customerId, 
+            namespace: "custom", 
+            key: "wholesale_clarity_id", 
+            value: clarityAccountId, 
+            type: "single_line_text_field" 
+          }
+        ];
+
+        const metafieldsResponse = await fetch(
+          `https://${shopDomain}/admin/api/2025-01/graphql.json`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-Shopify-Access-Token": adminToken,
+            },
+            body: JSON.stringify({
+              query: metafieldsMutation,
+              variables: { metafields },
+            }),
+          }
+        );
+
+        const metafieldsResult = await metafieldsResponse.json();
+
+        if (metafieldsResult.data?.metafieldsSet?.userErrors?.length > 0) {
+          console.error("❌ Metafield write errors:", metafieldsResult.data.metafieldsSet.userErrors);
+        } else {
+          console.log("✅ wholesale_clarity_id metafield set:", clarityAccountId);
         }
       }
 
+      // Update registration status to approved
+      await db
+        .update(wholesaleRegistrations)
+        .set({ 
+          status: 'approved',
+          clarityAccountId: clarityAccountId 
+        })
+        .where(eq(wholesaleRegistrations.id, id));
+
       res.json({
         success: true,
-        registrationId: registration.id,
+        message: "Registration approved, CRM account created, customer linked",
+        clarityAccountId
       });
     } catch (error) {
-      console.error("❌ Registration error:", error);
+      console.error("❌ Approval error:", error);
       res.status(500).json({
-        error: error instanceof Error ? error.message : "Registration failed",
+        error: error instanceof Error ? error.message : "Approval failed",
       });
     }
   });
