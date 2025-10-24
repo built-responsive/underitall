@@ -3,7 +3,7 @@ import { createServer } from "http";
 import webhookRoutes from "./webhooks";
 import { db } from "./db";
 import { wholesaleRegistrations, calculatorQuotes, webhookLogs, draftOrders } from "@shared/schema";
-import { desc } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { getShopifyConfig, executeShopifyGraphQL } from "./utils/shopifyConfig";
 
 export function registerRoutes(app: Express) {
@@ -50,8 +50,55 @@ export function registerRoutes(app: Express) {
     }
   });
 
+  // Webhook logs endpoint (moved here to add no-cache headers)
+  app.get("/api/webhooks/logs", async (req, res) => {
+    try {
+      const logs = await db
+        .select()
+        .from(webhookLogs)
+        .orderBy(desc(webhookLogs.timestamp))
+        .limit(50);
+      
+      // Force no-cache for fresh webhook data
+      res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+      res.setHeader("Pragma", "no-cache");
+      res.setHeader("Expires", "0");
+      res.json({ total: logs.length, logs });
+    } catch (error: any) {
+      console.error("❌ Error fetching webhook logs:", error);
+      res.status(500).json({ error: "Failed to fetch webhook logs" });
+    }
+  });
+
   // Mount webhook routes
   app.use("/api/webhooks", webhookRoutes);
+
+  // Wholesale Registration Update Route (for admin dashboard)
+  app.patch("/api/wholesale-registration/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updates = req.body;
+
+      // Update in local database
+      const [updated] = await db
+        .update(wholesaleRegistrations)
+        .set(updates)
+        .where(eq(wholesaleRegistrations.id, id))
+        .returning();
+
+      if (!updated) {
+        return res.status(404).json({ error: "Registration not found" });
+      }
+
+      return res.json({
+        success: true,
+        registration: updated
+      });
+    } catch (error: any) {
+      console.error("❌ Error updating registration:", error);
+      return res.status(500).json({ error: "Failed to update registration" });
+    }
+  });
 
   // Wholesale Account Update Route (for customer account extension)
   app.patch("/api/wholesale-account/:id", async (req, res) => {
@@ -137,6 +184,8 @@ export function registerRoutes(app: Express) {
       
       // Force no-cache for fresh data on every request
       res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+      res.setHeader("Pragma", "no-cache");
+      res.setHeader("Expires", "0");
       res.json(registrations);
     } catch (error) {
       console.error("❌ Error fetching registrations:", error);
@@ -772,6 +821,110 @@ export function registerRoutes(app: Express) {
       console.error("❌ Debug metaobject error:", error);
       res.status(500).json({
         error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  // Admin API - Test Shopify Connection
+  app.post("/api/admin/test-shopify", async (req, res) => {
+    try {
+      const shopifyConfig = getShopifyConfig();
+      if (!shopifyConfig) {
+        return res.json({
+          success: false,
+          message: "Shopify credentials not configured"
+        });
+      }
+
+      const { shop, accessToken } = shopifyConfig;
+
+      // Test with a simple shop query
+      const query = `
+        query {
+          shop {
+            name
+            email
+            myshopifyDomain
+          }
+        }
+      `;
+
+      const response = await fetch(
+        `https://${shop}/admin/api/2025-01/graphql.json`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Shopify-Access-Token": accessToken,
+          },
+          body: JSON.stringify({ query }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.errors) {
+        return res.json({
+          success: false,
+          message: `Shopify API error: ${data.errors[0]?.message || 'Unknown error'}`
+        });
+      }
+
+      return res.json({
+        success: true,
+        message: `Connected to ${data.data.shop.name}`,
+        shop: data.data.shop
+      });
+    } catch (error: any) {
+      console.error("❌ Shopify test error:", error);
+      return res.json({
+        success: false,
+        message: error.message || "Failed to connect to Shopify"
+      });
+    }
+  });
+
+  // Admin API - Test CRM Connection
+  app.post("/api/admin/test-crm", async (req, res) => {
+    try {
+      const crmBaseUrl = process.env.CRM_BASE_URL;
+      const crmApiKey = process.env.CRM_API_KEY;
+
+      if (!crmBaseUrl || !crmApiKey) {
+        return res.json({
+          success: false,
+          message: "CRM credentials not configured"
+        });
+      }
+
+      // Test with a simple API call (adjust endpoint based on Clarity CRM docs)
+      const response = await fetch(`${crmBaseUrl}/api/ping`, {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${crmApiKey}`,
+          "Content-Type": "application/json"
+        }
+      });
+
+      if (!response.ok) {
+        return res.json({
+          success: false,
+          message: `CRM API returned ${response.status}: ${response.statusText}`
+        });
+      }
+
+      const data = await response.json();
+
+      return res.json({
+        success: true,
+        message: "Connected to Clarity CRM",
+        data
+      });
+    } catch (error: any) {
+      console.error("❌ CRM test error:", error);
+      return res.json({
+        success: false,
+        message: error.message || "Failed to connect to CRM"
       });
     }
   });
