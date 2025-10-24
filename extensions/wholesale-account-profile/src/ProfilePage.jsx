@@ -6,7 +6,6 @@ import {
   BlockStack,
   Button,
   Card,
-  Divider,
   Heading,
   InlineStack,
   Page,
@@ -22,15 +21,15 @@ export default reactExtension(
 );
 
 function WholesaleAccountFullPage() {
-  const { query, i18n } = useApi();
+  const { query, applyMetafieldsChange } = useApi();
   
-  const [wholesaleAccount, setWholesaleAccount] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
   const [formData, setFormData] = useState({});
+  const [customerId, setCustomerId] = useState(null);
 
   useEffect(() => {
     fetchWholesaleAccount();
@@ -46,41 +45,46 @@ function WholesaleAccountFullPage() {
           customer {
             id
             email
-            metafield(namespace: "custom", key: "wholesale_account") {
-              reference {
-                ... on Metaobject {
-                  id
-                  handle
-                  displayName
-                  fields {
-                    key
-                    value
-                  }
-                }
-              }
+            metafields(identifiers: [
+              {namespace: "custom", key: "wholesale_company"},
+              {namespace: "custom", key: "wholesale_phone"},
+              {namespace: "custom", key: "wholesale_website"},
+              {namespace: "custom", key: "wholesale_instagram"},
+              {namespace: "custom", key: "wholesale_address"},
+              {namespace: "custom", key: "wholesale_address2"},
+              {namespace: "custom", key: "wholesale_city"},
+              {namespace: "custom", key: "wholesale_state"},
+              {namespace: "custom", key: "wholesale_zip"},
+              {namespace: "custom", key: "wholesale_tax_exempt"},
+              {namespace: "custom", key: "wholesale_vat_tax_id"},
+              {namespace: "custom", key: "wholesale_account_type"},
+              {namespace: "custom", key: "wholesale_sample_set"},
+              {namespace: "custom", key: "wholesale_clarity_id"},
+              {namespace: "custom", key: "wholesale_source"},
+              {namespace: "custom", key: "wholesale_message"}
+            ]) {
+              key
+              value
             }
           }
         }
       `;
 
       const customerResult = await query(customerQuery);
-      const metaobject = customerResult?.data?.customer?.metafield?.reference;
+      const customer = customerResult?.data?.customer;
 
-      if (!metaobject) {
+      if (!customer) {
         setLoading(false);
         return;
       }
 
+      setCustomerId(customer.id);
+
       const fieldsObj = {};
-      metaobject.fields.forEach(field => {
-        fieldsObj[field.key] = field.value;
-      });
-      
-      setWholesaleAccount({
-        id: metaobject.id,
-        handle: metaobject.handle,
-        displayName: metaobject.displayName,
-        ...fieldsObj
+      customer.metafields.forEach(field => {
+        if (field) {
+          fieldsObj[field.key] = field.value;
+        }
       });
 
       setFormData(fieldsObj);
@@ -97,19 +101,25 @@ function WholesaleAccountFullPage() {
       setSaving(true);
       setError(null);
 
-      const appUrl = 'https://its-under-it-all.replit.app';
-      const metaobjectId = wholesaleAccount.id.split('/').pop();
+      const metafields = Object.entries(formData)
+        .filter(([key]) => key.startsWith('wholesale_'))
+        .map(([key, value]) => ({
+          key,
+          namespace: 'custom',
+          type: key === 'wholesale_tax_exempt' || key === 'wholesale_sample_set' ? 'boolean' : 
+                key === 'wholesale_source' || key === 'wholesale_message' ? 'multi_line_text_field' : 
+                'single_line_text_field',
+          value: String(value || '')
+        }));
 
-      const response = await fetch(`${appUrl}/api/wholesale-account/${metaobjectId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData)
+      const result = await applyMetafieldsChange({
+        type: 'updateMetafield',
+        namespace: 'custom',
+        metafields
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to update wholesale account');
+      if (result.type === 'error') {
+        throw new Error(result.message);
       }
 
       setSuccess(true);
@@ -146,7 +156,7 @@ function WholesaleAccountFullPage() {
     );
   }
 
-  if (!wholesaleAccount) {
+  if (!formData.wholesale_company) {
     return (
       <Page title="Wholesale Account">
         <Card>
@@ -186,26 +196,26 @@ function WholesaleAccountFullPage() {
             <Heading level={2}>Business Information</Heading>
             <TextField
               label="Company Name"
-              value={formData.company || ''}
-              onChange={(value) => handleFieldChange('company', value)}
-              disabled={!editing}
-            />
-            <TextField
-              label="Email"
-              value={formData.email || ''}
-              onChange={(value) => handleFieldChange('email', value)}
+              value={formData.wholesale_company || ''}
+              onChange={(value) => handleFieldChange('wholesale_company', value)}
               disabled={!editing}
             />
             <TextField
               label="Phone"
-              value={formData.phone || ''}
-              onChange={(value) => handleFieldChange('phone', value)}
+              value={formData.wholesale_phone || ''}
+              onChange={(value) => handleFieldChange('wholesale_phone', value)}
               disabled={!editing}
             />
             <TextField
               label="Website"
-              value={formData.website || ''}
-              onChange={(value) => handleFieldChange('website', value)}
+              value={formData.wholesale_website || ''}
+              onChange={(value) => handleFieldChange('wholesale_website', value)}
+              disabled={!editing}
+            />
+            <TextField
+              label="Instagram Handle"
+              value={formData.wholesale_instagram || ''}
+              onChange={(value) => handleFieldChange('wholesale_instagram', value)}
               disabled={!editing}
             />
           </BlockStack>
@@ -216,33 +226,33 @@ function WholesaleAccountFullPage() {
             <Heading level={2}>Business Address</Heading>
             <TextField
               label="Address Line 1"
-              value={formData.address || ''}
-              onChange={(value) => handleFieldChange('address', value)}
+              value={formData.wholesale_address || ''}
+              onChange={(value) => handleFieldChange('wholesale_address', value)}
               disabled={!editing}
             />
             <TextField
               label="Address Line 2"
-              value={formData.address2 || ''}
-              onChange={(value) => handleFieldChange('address2', value)}
+              value={formData.wholesale_address2 || ''}
+              onChange={(value) => handleFieldChange('wholesale_address2', value)}
               disabled={!editing}
             />
             <InlineStack spacing="tight">
               <TextField
                 label="City"
-                value={formData.city || ''}
-                onChange={(value) => handleFieldChange('city', value)}
+                value={formData.wholesale_city || ''}
+                onChange={(value) => handleFieldChange('wholesale_city', value)}
                 disabled={!editing}
               />
               <TextField
                 label="State"
-                value={formData.state || ''}
-                onChange={(value) => handleFieldChange('state', value)}
+                value={formData.wholesale_state || ''}
+                onChange={(value) => handleFieldChange('wholesale_state', value)}
                 disabled={!editing}
               />
               <TextField
                 label="ZIP"
-                value={formData.zip || ''}
-                onChange={(value) => handleFieldChange('zip', value)}
+                value={formData.wholesale_zip || ''}
+                onChange={(value) => handleFieldChange('wholesale_zip', value)}
                 disabled={!editing}
               />
             </InlineStack>
@@ -254,13 +264,13 @@ function WholesaleAccountFullPage() {
             <Heading level={2}>Tax Information</Heading>
             <TextField
               label="VAT/Tax ID"
-              value={formData.vat_tax_id || ''}
-              onChange={(value) => handleFieldChange('vat_tax_id', value)}
+              value={formData.wholesale_vat_tax_id || ''}
+              onChange={(value) => handleFieldChange('wholesale_vat_tax_id', value)}
               disabled={!editing}
             />
             <InlineStack spacing="tight">
               <Text>Tax Exempt:</Text>
-              <Text emphasis="bold">{formData.tax_exempt === 'true' ? 'Yes' : 'No'}</Text>
+              <Text emphasis="bold">{formData.wholesale_tax_exempt === 'true' ? 'Yes' : 'No'}</Text>
             </InlineStack>
           </BlockStack>
         </Card>
@@ -278,7 +288,7 @@ function WholesaleAccountFullPage() {
               <Button
                 onPress={() => {
                   setEditing(false);
-                  setFormData(wholesaleAccount);
+                  fetchWholesaleAccount();
                 }}
                 disabled={saving}
               >

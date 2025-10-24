@@ -123,12 +123,131 @@ type = "file_reference"
 name = "Clarity CRM Account ID"
 type = "single_line_text_field"
 
-[customer.metafields.app.wholesale_account]
-type = "metaobject_reference<$app:wholesale_account>"
-name = "Wholesale Account"
-description = "Link to customer's wholesale account metaobject"
+# Wholesale Account Data (stored directly in customer metafields)
+[customer.metafields.app.wholesale_company]
+type = "single_line_text_field"
+name = "Wholesale Company Name"
 
-  [customer.metafields.app.wholesale_account.access]
+  [customer.metafields.app.wholesale_company.access]
   customer_account = "read_write"
   admin = "merchant_read_write"
-  storefront = "public_read"
+
+[customer.metafields.app.wholesale_phone]
+type = "single_line_text_field"
+name = "Wholesale Phone"
+
+  [customer.metafields.app.wholesale_phone.access]
+  customer_account = "read_write"
+  admin = "merchant_read_write"
+
+[customer.metafields.app.wholesale_website]
+type = "single_line_text_field"
+name = "Wholesale Website"
+
+  [customer.metafields.app.wholesale_website.access]
+  customer_account = "read_write"
+  admin = "merchant_read_write"
+
+[customer.metafields.app.wholesale_instagram]
+type = "single_line_text_field"
+name = "Wholesale Instagram Handle"
+
+  [customer.metafields.app.wholesale_instagram.access]
+  customer_account = "read_write"
+  admin = "merchant_read_write"
+
+[customer.metafields.app.wholesale_address]
+type = "single_line_text_field"
+name = "Wholesale Address"
+
+  [customer.metafields.app.wholesale_address.access]
+  customer_account = "read_write"
+  admin = "merchant_read_write"
+
+[customer.metafields.app.wholesale_address2]
+type = "single_line_text_field"
+name = "Wholesale Address Line 2"
+
+  [customer.metafields.app.wholesale_address2.access]
+  customer_account = "read_write"
+  admin = "merchant_read_write"
+
+[customer.metafields.app.wholesale_city]
+type = "single_line_text_field"
+name = "Wholesale City"
+
+  [customer.metafields.app.wholesale_city.access]
+  customer_account = "read_write"
+  admin = "merchant_read_write"
+
+[customer.metafields.app.wholesale_state]
+type = "single_line_text_field"
+name = "Wholesale State"
+
+  [customer.metafields.app.wholesale_state.access]
+  customer_account = "read_write"
+  admin = "merchant_read_write"
+
+[customer.metafields.app.wholesale_zip]
+type = "single_line_text_field"
+name = "Wholesale ZIP Code"
+
+  [customer.metafields.app.wholesale_zip.access]
+  customer_account = "read_write"
+  admin = "merchant_read_write"
+
+[customer.metafields.app.wholesale_tax_exempt]
+type = "boolean"
+name = "Wholesale Tax Exempt"
+
+  [customer.metafields.app.wholesale_tax_exempt.access]
+  customer_account = "read_write"
+  admin = "merchant_read_write"
+
+[customer.metafields.app.wholesale_vat_tax_id]
+type = "single_line_text_field"
+name = "Wholesale VAT/Tax ID"
+
+  [customer.metafields.app.wholesale_vat_tax_id.access]
+  customer_account = "read_write"
+  admin = "merchant_read_write"
+
+[customer.metafields.app.wholesale_account_type]
+type = "single_line_text_field"
+name = "Wholesale Account Type"
+
+  [customer.metafields.app.wholesale_account_type.access]
+  customer_account = "read_write"
+  admin = "merchant_read_write"
+
+[customer.metafields.app.wholesale_sample_set]
+type = "boolean"
+name = "Wholesale Sample Set Received"
+
+  [customer.metafields.app.wholesale_sample_set.access]
+  customer_account = "read_write"
+  admin = "merchant_read_write"
+
+[customer.metafields.app.wholesale_clarity_id]
+type = "single_line_text_field"
+name = "Clarity CRM Account ID"
+
+  [customer.metafields.app.wholesale_clarity_id.access]
+  customer_account = "read"
+  admin = "merchant_read_write"
+
+[customer.metafields.app.wholesale_source]
+type = "multi_line_text_field"
+name = "How Did You Hear About Us"
+
+  [customer.metafields.app.wholesale_source.access]
+  customer_account = "read_write"
+  admin = "merchant_read_write"
+
+[customer.metafields.app.wholesale_message]
+type = "multi_line_text_field"
+name = "Wholesale Admin Notes"
+
+  [customer.metafields.app.wholesale_message.access]
+  customer_account = "read"
+  admin = "merchant_read_write"
