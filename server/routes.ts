@@ -134,6 +134,9 @@ export function registerRoutes(app: Express) {
         .select()
         .from(wholesaleRegistrations)
         .orderBy(desc(wholesaleRegistrations.createdAt));
+      
+      // Force no-cache for fresh data on every request
+      res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
       res.json(registrations);
     } catch (error) {
       console.error("❌ Error fetching registrations:", error);
@@ -148,6 +151,9 @@ export function registerRoutes(app: Express) {
         .select()
         .from(calculatorQuotes)
         .orderBy(desc(calculatorQuotes.createdAt));
+      
+      // Force no-cache for fresh data on every request
+      res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
       res.json(quotes);
     } catch (error) {
       console.error("❌ Error fetching quotes:", error);
@@ -260,6 +266,9 @@ export function registerRoutes(app: Express) {
         .select()
         .from(draftOrders)
         .orderBy(desc(draftOrders.createdAt));
+      
+      // Force no-cache for fresh data on every request
+      res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
       res.json(orders);
     } catch (error) {
       console.error("❌ Error fetching draft orders:", error);
