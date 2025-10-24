@@ -81,6 +81,99 @@ export function registerRoutes(app: Express) {
     }
   });
 
+  // Calculator - Calculate pricing (no save)
+  app.post("/api/calculator/calculate", async (req, res) => {
+    try {
+      const { width, length, thickness, quantity } = req.body;
+      
+      // Import pricing calculator
+      const { calculatePrice } = await import("./utils/pricingCalculator");
+      
+      const priceData = calculatePrice(width, length, thickness, quantity);
+      res.json(priceData);
+    } catch (error) {
+      console.error("❌ Error calculating price:", error);
+      res.status(500).json({ error: "Failed to calculate price" });
+    }
+  });
+
+  // Calculator - Save quote
+  app.post("/api/calculator/quote", async (req, res) => {
+    try {
+      const quoteData = req.body;
+      
+      const quote = await db
+        .insert(calculatorQuotes)
+        .values({
+          rugWidth: quoteData.rugWidth,
+          rugLength: quoteData.rugLength,
+          thickness: quoteData.thickness,
+          shape: quoteData.shape,
+          quantity: quoteData.quantity,
+          totalPrice: quoteData.totalPrice,
+          pricePerSqFt: quoteData.pricePerSqFt,
+          productName: quoteData.productName,
+          projectName: quoteData.projectName,
+          installLocation: quoteData.installLocation,
+          poNumber: quoteData.poNumber,
+          clientName: quoteData.clientName,
+          notes: quoteData.notes,
+        })
+        .returning();
+      
+      res.json(quote[0]);
+    } catch (error) {
+      console.error("❌ Error saving quote:", error);
+      res.status(500).json({ error: "Failed to save quote" });
+    }
+  });
+
+  // Wholesale Registration - Create new registration
+  app.post("/api/wholesale-registration", async (req, res) => {
+    try {
+      const registrationData = req.body;
+      
+      const registration = await db
+        .insert(wholesaleRegistrations)
+        .values({
+          firmName: registrationData.firmName,
+          firstName: registrationData.firstName,
+          lastName: registrationData.lastName,
+          email: registrationData.email,
+          phone: registrationData.phone,
+          website: registrationData.website,
+          instagramHandle: registrationData.instagramHandle,
+          streetAddress: registrationData.streetAddress,
+          suiteUnit: registrationData.suiteUnit,
+          city: registrationData.city,
+          state: registrationData.state,
+          zipCode: registrationData.zipCode,
+          vatTaxId: registrationData.vatTaxId,
+          taxExempt: registrationData.taxExempt,
+          source: registrationData.source,
+          additionalMessage: registrationData.additionalMessage,
+          status: "pending",
+        })
+        .returning();
+      
+      res.json(registration[0]);
+    } catch (error) {
+      console.error("❌ Error creating registration:", error);
+      res.status(500).json({ error: "Failed to create registration" });
+    }
+  });
+
+  // Company Enrichment (placeholder - implement when OpenAI/CRM integration ready)
+  app.post("/api/enrich-company", async (req, res) => {
+    try {
+      // TODO: Implement company enrichment with OpenAI/CRM
+      res.json({ enriched: false, message: "Enrichment not yet implemented" });
+    } catch (error) {
+      console.error("❌ Error enriching company:", error);
+      res.status(500).json({ error: "Failed to enrich company" });
+    }
+  });
+
   // Admin API - Draft Orders (placeholder - implement when you have the table)
   app.get("/api/draft-orders", async (req, res) => {
     try {
