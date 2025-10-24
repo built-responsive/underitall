@@ -216,6 +216,12 @@ export function registerRoutes(app: Express) {
       console.log("📤 CRM Account Response:");
       console.log(JSON.stringify(crmData, null, 2));
 
+      // Verify full payload (log field count)
+      if (crmData.Data && crmData.Data.length > 0) {
+        const fieldCount = Object.keys(crmData.Data[0]).length;
+        console.log(`✅ Account found with ${fieldCount} fields`);
+      }
+
       res.json(crmData);
     } catch (error) {
       console.error("❌ CRM account lookup error:", error);
