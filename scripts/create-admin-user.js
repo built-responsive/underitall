@@ -1,6 +1,4 @@
 
-#!/usr/bin/env node
-
 /**
  * Admin User Creation Script
  * 
