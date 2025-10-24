@@ -1,0 +1,27 @@
+| Name                    | moustache                                                         |
+| ----------------------- | ----------------------------------------------------------------- |
+| About                   | `{$about$}`                                                       |
+| AccountCoreName         | `{$accountcorename$}`                                             |
+| AccountNumber           | `{$accountnumber$}`                                               |
+| Address1                | `{$address1$}`                                                    |
+| Address2                | `{$address2$}`                                                    |
+| City                    | `{$city$}`                                                        |
+| CompanyPhone            | `{$companyphone$}`                                                |
+| Country                 | `{$country$}`                                                     |
+| Created By              | `{$created by$}`                                                  |
+| CreationDate            | `{$creationdate$}`                                                |
+| Import Date             | `{$import date$}`                                                 |
+| Import Source           | `{$import source$}`                                               |
+| Last Touch Date         | `{$last touch date$}`                                             |
+| LastEditDate            | `{$lasteditdate$}`                                                |
+| Leadsources             | `{$leadsources$}`                                                 |
+| Account                 | `{$account$}`                                                     |
+| Owner                   | `{$owner$}`                                                       |
+| QB Sync Enabled         | `{$qb sync enabled$}`                                             |
+| ShippingAddress1        | `{$shippingaddress1$}`                                            |
+| ShippingAddress2        | `{$shippingaddress2$}`                                            |
+| ShippingCity            | `{$shippingcity$}`                                                |
+| ShippingCountryName     | `{$shippingcountryname$}`                                         |
+| ShippingState           | `{$shippingstate$}`                                               |
+| ShippingZipCode         | `{$shippingzipcode$}`                                             |
+| Site                    | `{$site$}`                                                        |

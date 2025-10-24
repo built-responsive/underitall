@@ -1,0 +1,51 @@
+Here you go — **Name : moustache** (ungrouped), straight from your snippet.
+
+| Name                    | moustache                                                         |
+| ----------------------- | ----------------------------------------------------------------- |
+| About                   | `{$about$}`                                                       |
+| AccountCoreName         | `{$accountcorename$}`                                             |
+| AccountNumber           | `{$accountnumber$}`                                               |
+| Address1                | `{$address1$}`                                                    |
+| Address2                | `{$address2$}`                                                    |
+| City                    | `{$city$}`                                                        |
+| CompanyPhone            | `{$companyphone$}`                                                |
+| Country                 | `{$country$}`                                                     |
+| Created By              | `{$created by$}`                                                  |
+| CreationDate            | `{$creationdate$}`                                                |
+| Import Date             | `{$import date$}`                                                 |
+| Import Source           | `{$import source$}`                                               |
+| Last Touch Date         | `{$last touch date$}`                                             |
+| LastEditDate            | `{$lasteditdate$}`                                                |
+| Leadsources             | `{$leadsources$}`                                                 |
+| Account                 | `{$account$}`                                                     |
+| Owner                   | `{$owner$}`                                                       |
+| QB Sync Enabled         | `{$qb sync enabled$}`                                             |
+| ShippingAddress1        | `{$shippingaddress1$}`                                            |
+| ShippingAddress2        | `{$shippingaddress2$}`                                            |
+| ShippingCity            | `{$shippingcity$}`                                                |
+| ShippingCountryName     | `{$shippingcountryname$}`                                         |
+| ShippingState           | `{$shippingstate$}`                                               |
+| ShippingZipCode         | `{$shippingzipcode$}`                                             |
+| Site                    | `{$site$}`                                                        |
+| State                   | `{$state$}`                                                       |
+| Synced with QB          | `{$synced with qb$}`                                              |
+| UserType1               | `{$usertype1$}`                                                   |
+| UserType2               | `{$usertype2$}`                                                   |
+| Website                 | `{$website$}`                                                     |
+| ZipCode                 | `{$zipcode$}`                                                     |
+| Accepts Email Marketing | `{$acceptsemailmarketing$$06690b06-3b31-49fa-a003-fbceed80fa5a$}` |
+| Accepts SMS Marketing   | `{$acceptssmsmarketing$$95e77db7-ddc7-46d4-901a-c1beb50a5ebe$}`   |
+| Account Type            | `{$accounttype$$f772aadb-5e8e-4534-ae9a-9ac58966a903$}`           |
+| Annual Spend            | `{$annualspend$$d02bdfed-efbb-4829-ac95-3e133a104c9e$}`           |
+| EIN                     | `{$ein$$b69274bd-860d-4c05-b63b-4015803f66db$}`                   |
+| Email                   | `{$email$$4507f9bd-2316-4c69-a9b3-3b98f4d62104$}`                 |
+| First Name              | `{$firstname$$b493b50a-a4f2-4205-b26e-2a2d13355188$}`             |
+| Instagram               | `{$instagram$$955def1e-554d-4a9c-abcb-68405525233b$}`             |
+| Last Name               | `{$lastname$$3294bae2-718a-4df5-8dd7-4462b6ff7028$}`              |
+| Lead Source Specifics   | `{$leadsourcespecifics$$fcd29bd7-6bdf-4841-a798-cc319abbec6e$}`   |
+| Registration            | `{$registration$$6374db1c-d17e-4b83-b2fd-ddf25ab717ac$}`          |
+| Sales Representative    | `{$salesrepresentative$$f02f492f-1628-4acf-a7fa-49db852b9cf1$}`   |
+| Sample Set              | `{$sampleset$$2c27c41a-08d4-4e76-91ab-6bdbd93d8956$}`             |
+| Shopify Reference       | `{$shopifyreference$$96865ae7-5d96-40b8-8118-7431da052eed$}`      |
+| Tags                    | `{$tags$$93f2bd20-55b4-4ba6-952b-89cfabe7c3ac$}`                  |
+| UIA-ID                  | `{$uia-id$$51b93b70-16ef-4aef-a150-ead35f685380$}`                |
