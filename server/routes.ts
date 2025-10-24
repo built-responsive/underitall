@@ -1,5 +1,4 @@
 import type { Express, Request, Response } from "express";
-import { createServer } from "http";
 import webhookRoutes from "./webhooks";
 import { db } from "./db";
 import { wholesaleRegistrations, calculatorQuotes, webhookLogs, draftOrders } from "@shared/schema";
@@ -1821,6 +1820,4 @@ export function registerRoutes(app: Express) {
     // In development, let Vite middleware handle it
     next();
   });
-
-  return createServer(app);
 }

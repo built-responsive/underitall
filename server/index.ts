@@ -2,6 +2,7 @@
 // this uses the dotenv package (added to dependencies)
 import 'dotenv/config';
 import express, { type Request, Response, NextFunction } from "express";
+import { createServer } from "http";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import cors from "cors";
@@ -94,15 +95,17 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  // Register API routes FIRST before ANY middleware
-  const server = await registerRoutes(app);
-
-  // Setup Vite/static AFTER API routes - ensures /api/* never falls through to static files
+  // Setup Vite/static FIRST so assets never hit API routes
+  const server = createServer(app);
+  
   if (app.get("env") === "development") {
     await setupVite(app, server);
   } else {
     serveStatic(app);
   }
+
+  // Register API routes AFTER static middleware
+  await registerRoutes(app);
 
   // Error handler for API routes (AFTER static middleware to catch API errors only)
   app.use("/api", (err: any, _req: Request, res: Response, _next: NextFunction) => {
