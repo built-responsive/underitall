@@ -206,7 +206,7 @@ export function registerRoutes(app: Express) {
       console.log(JSON.stringify(crmPayload, null, 2));
 
       // Use native http module to mimic curl's exact behavior (HTTP/1.1, all headers)
-      const https = await import("https");
+      const http = await import("http");
       const payloadString = JSON.stringify(crmPayload);
 
       const options = {
@@ -228,7 +228,6 @@ export function registerRoutes(app: Express) {
       console.log(JSON.stringify(options, null, 2));
 
       const crmData = await new Promise<any>((resolve, reject) => {
-        const http = require("http"); // Force HTTP/1.1 (not HTTPS)
         const req = http.request(options, (res: any) => {
           let data = "";
           res.on("data", (chunk: any) => (data += chunk));
