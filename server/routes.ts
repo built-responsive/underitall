@@ -176,6 +176,55 @@ export function registerRoutes(app: Express) {
     }
   });
 
+  // CRM Account Lookup - Query by AccountNumber
+  app.post("/api/crm/account", async (req, res) => {
+    try {
+      const { accountNumber } = req.body;
+
+      if (!accountNumber) {
+        return res.status(400).json({ error: "Missing accountNumber" });
+      }
+
+      const crmBaseUrl = process.env.CRM_BASE_URL || "http://liveapi.claritysoftcrm.com";
+      const crmApiKey = process.env.CRM_API_KEY;
+
+      if (!crmApiKey) {
+        return res.status(500).json({ error: "CRM_API_KEY not configured" });
+      }
+
+      console.log(`📥 CRM Account Lookup Request: ${accountNumber}`);
+
+      const crmPayload = {
+        APIKey: crmApiKey,
+        Resource: "Account",
+        Operation: "Get",
+        SQLFilter: `AccountNumber = '${accountNumber}'`
+      };
+
+      const crmResponse = await fetch(`${crmBaseUrl}/api/v1`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(crmPayload),
+      });
+
+      if (!crmResponse.ok) {
+        throw new Error(`CRM API returned ${crmResponse.status}: ${crmResponse.statusText}`);
+      }
+
+      const crmData = await crmResponse.json();
+
+      console.log("📤 CRM Account Response:");
+      console.log(JSON.stringify(crmData, null, 2));
+
+      res.json(crmData);
+    } catch (error) {
+      console.error("❌ CRM account lookup error:", error);
+      res.status(500).json({ 
+        error: error instanceof Error ? error.message : "CRM lookup failed" 
+      });
+    }
+  });
+
   // Shopify GraphQL endpoint for client-side queries (settings, admin, etc.)
   app.post("/api/shopify/graphql", async (req, res) => {
     try {
