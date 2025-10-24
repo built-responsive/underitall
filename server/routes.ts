@@ -198,8 +198,8 @@ export function registerRoutes(app: Express) {
         APIKey: crmApiKey,
         Resource: "Account",
         Operation: "Get",
-        SQLFilter: `AccountNumber = '${accountNumber}'`,
-        Fields: "*" // Request all fields (prevents selective field return)
+        SQLFilter: `AccountNumber = '${accountNumber}'`
+        // Omit Fields parameter - CRM may default to full payload
       };
 
       const crmResponse = await fetch(`${crmBaseUrl}/api/v1`, {
