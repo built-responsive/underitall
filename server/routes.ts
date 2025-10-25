@@ -904,16 +904,21 @@ export function registerRoutes(app: Express) {
       console.log("✅ CRM Account synced with AccountID:", clarityAccountId);
 
       // Save clarityAccountId to DB
-      const [updated] = await db
-        .update(wholesaleRegistrations)
-        .set({ clarityAccountId })
-        .where(eq(wholesaleRegistrations.id, id))
-        .returning();
+      try {
+        const [updated] = await db
+          .update(wholesaleRegistrations)
+          .set({ clarityAccountId })
+          .where(eq(wholesaleRegistrations.id, id))
+          .returning();
 
-      if (!updated) {
-        console.error("⚠️ Database update failed - registration not found:", id);
-      } else {
-        console.log("✅ Database updated with clarityAccountId:", clarityAccountId);
+        if (!updated) {
+          console.error("⚠️ Database update failed - registration not found:", id);
+        } else {
+          console.log("✅ Database updated with clarityAccountId:", clarityAccountId);
+        }
+      } catch (dbError) {
+        console.error("❌ Database update error:", dbError);
+        console.log("⚠️ Continuing despite DB error - CRM sync succeeded");
       }
 
       res.json({

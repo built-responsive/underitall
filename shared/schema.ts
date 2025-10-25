@@ -57,6 +57,10 @@ export const wholesaleRegistrations = pgTable("wholesale_registrations", {
   smsConsent: boolean("sms_consent").default(false),
   acceptsEmailMarketing: boolean("accepts_email_marketing").default(false),
   acceptsSmsMarketing: boolean("accepts_sms_marketing").default(false),
+  
+  // CRM Integration
+  clarityAccountId: text("clarity_account_id"), // Clarity CRM AccountId (UUID format)
+  
   status: text("status").notNull().default("pending"), // "pending", "approved", "rejected"
   approvedBy: varchar("approved_by").references(() => adminUsers.id),
   approvedAt: timestamp("approved_at"),
