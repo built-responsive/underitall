@@ -1086,49 +1086,80 @@ export function registerRoutes(app: Express) {
 
         console.log("✅ Shopify customer created:", customerId);
 
-        // If clarityAccountId exists, set metafield linking to CRM
-        if (registration.clarityAccountId) {
-          const metafieldsMutation = `
-            mutation SetCustomerMetafields($metafields: [MetafieldsSetInput!]!) {
-              metafieldsSet(metafields: $metafields) {
-                metafields {
-                  key
-                  namespace
-                  value
-                }
-                userErrors {
-                  field
-                  message
-                }
+        // Set all wholesale metafields
+        const metafieldsMutation = `
+          mutation SetCustomerMetafields($metafields: [MetafieldsSetInput!]!) {
+            metafieldsSet(metafields: $metafields) {
+              metafields {
+                key
+                namespace
+                value
+              }
+              userErrors {
+                field
+                message
               }
             }
-          `;
+          }
+        `;
 
-          const metafields = [{
+        const metafields = [
+          {
+            ownerId: `gid://shopify/Customer/${customerId}`,
+            namespace: "custom",
+            key: "wholesale_name",
+            value: registration.firmName,
+            type: "single_line_text_field",
+          },
+          {
+            ownerId: `gid://shopify/Customer/${customerId}`,
+            namespace: "custom",
+            key: "uia_id",
+            value: registration.id,
+            type: "single_line_text_field",
+          }
+        ];
+
+        if (registration.clarityAccountId) {
+          metafields.push({
             ownerId: `gid://shopify/Customer/${customerId}`,
             namespace: "custom",
             key: "wholesale_clarity_id",
             value: registration.clarityAccountId,
             type: "single_line_text_field",
-          }];
-
-          await fetch(
-            `https://${shopDomain}/admin/api/2025-01/graphql.json`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                "X-Shopify-Access-Token": adminToken,
-              },
-              body: JSON.stringify({
-                query: metafieldsMutation,
-                variables: { metafields },
-              }),
-            }
-          );
-
-          console.log("✅ wholesale_clarity_id metafield set");
+          });
+          metafields.push({
+            ownerId: `gid://shopify/Customer/${customerId}`,
+            namespace: "custom",
+            key: "clarity_account_name",
+            value: registration.firmName,
+            type: "single_line_text_field",
+          });
         }
+
+        const metafieldsResponse = await fetch(
+          `https://${shopDomain}/admin/api/2025-01/graphql.json`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-Shopify-Access-Token": adminToken,
+            },
+            body: JSON.stringify({
+              query: metafieldsMutation,
+              variables: { metafields },
+            }),
+          }
+        );
+
+        const metafieldsResult = await metafieldsResponse.json();
+        console.log("✅ Customer metafields set:", metafieldsResult);
+
+        // Update registration with Shopify customer ID
+        await db
+          .update(wholesaleRegistrations)
+          .set({ shopifyCustomerId: customerId.toString() })
+          .where(eq(wholesaleRegistrations.id, id));
 
         res.json({
           success: true,

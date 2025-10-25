@@ -51,5 +51,49 @@ description = "Links customer to their wholesale account in Clarity CRM (e.g., A
   customer_account = "read_write"
   admin = "merchant_read_write"
 
+# Wholesale Company Name
+[customer.metafields.app.wholesale_name]
+type = "single_line_text_field"
+name = "Wholesale Company Name"
+description = "The name of the wholesale company/account"
+
+  [customer.metafields.app.wholesale_name.access]
+  storefront = "public_read"
+  customer_account = "read_write"
+  admin = "merchant_read_write"
+
+# Clarity Account Name
+[customer.metafields.app.clarity_account_name]
+type = "single_line_text_field"
+name = "Clarity Account Name"
+description = "Account name from Clarity CRM"
+
+  [customer.metafields.app.clarity_account_name.access]
+  storefront = "public_read"
+  customer_account = "read_write"
+  admin = "merchant_read_write"
+
+# Clarity Contacts (JSON list)
+[customer.metafields.app.clarity_contacts]
+type = "json"
+name = "Clarity Contacts"
+description = "Customer reference list from Clarity CRM (JSON)"
+
+  [customer.metafields.app.clarity_contacts.access]
+  storefront = "public_read"
+  customer_account = "read_write"
+  admin = "merchant_read_write"
+
+# UIA-ID (Internal Registration ID)
+[customer.metafields.app.uia_id]
+type = "single_line_text_field"
+name = "UIA Registration ID"
+description = "Internal wholesale registration UUID"
+
+  [customer.metafields.app.uia_id.access]
+  storefront = "public_read"
+  customer_account = "read_write"
+  admin = "merchant_read_write"
+
 
 

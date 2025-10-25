@@ -61,6 +61,9 @@ export const wholesaleRegistrations = pgTable("wholesale_registrations", {
   // CRM Integration
   clarityAccountId: text("clarity_account_id"), // Clarity CRM AccountId (UUID format)
   
+  // Shopify Integration
+  shopifyCustomerId: text("shopify_customer_id"), // Shopify Customer ID (numeric)
+  
   status: text("status").notNull().default("pending"), // "pending", "approved", "rejected"
   approvedBy: varchar("approved_by").references(() => adminUsers.id),
   approvedAt: timestamp("approved_at"),

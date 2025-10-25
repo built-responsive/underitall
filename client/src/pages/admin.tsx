@@ -647,6 +647,36 @@ export default function Admin() {
                                 <div className="text-xs text-[#696A6D] font-['Vazirmatn']">
                                   Submitted {format(new Date(reg.createdAt), 'MMM d, yyyy h:mm a')}
                                 </div>
+
+                                {/* Customer Metafields Display */}
+                                {reg.shopifyCustomerId && (
+                                  <div className="bg-[#F9F9F7] border border-[#E1E0DA] rounded-[11px] p-3 space-y-2">
+                                    <h4 className="font-['Archivo'] text-sm font-semibold text-[#212227]">Shopify Customer Data</h4>
+                                    <div className="grid grid-cols-2 gap-2 text-xs">
+                                      <div>
+                                        <span className="text-[#696A6D] font-['Vazirmatn']">Wholesale Name:</span>
+                                        <p className="font-['Vazirmatn'] text-[#212227]">{reg.firmName}</p>
+                                      </div>
+                                      <div>
+                                        <span className="text-[#696A6D] font-['Vazirmatn']">Clarity Account:</span>
+                                        <p className="font-['Vazirmatn'] text-[#212227]">{reg.clarityAccountId || 'N/A'}</p>
+                                      </div>
+                                      <div>
+                                        <span className="text-[#696A6D] font-['Vazirmatn']">UIA-ID:</span>
+                                        <p className="font-['Vazirmatn'] text-[#212227] truncate" title={reg.id}>{reg.id}</p>
+                                      </div>
+                                    </div>
+                                    <a
+                                      href={`https://${process.env.SHOPIFY_SHOP_DOMAIN || 'underitall-redeux.myshopify.com'}/admin/customers/${reg.shopifyCustomerId}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#96bf48] hover:bg-[#85aa3d] text-white rounded-[8px] transition-colors font-['Vazirmatn'] text-sm"
+                                    >
+                                      <ExternalLink className="w-3 h-3" />
+                                      Open in Shopify Admin
+                                    </a>
+                                  </div>
+                                )}
                                 
                                 <div className="flex flex-wrap gap-2">
                                   {reg.clarityAccountId ? (
