@@ -46,13 +46,22 @@ export function GmailPanel() {
           description: `Found ${data.messages.length} unread messages`,
         });
       } else {
-        throw new Error(data.error);
+        // Display informative message about permission limitations
+        if (data.error && data.error.includes('permissions')) {
+          toast({
+            title: "Limited Permissions",
+            description: "Reading emails is not available with current permissions. Email sending is still enabled.",
+            variant: "default",
+          });
+        } else {
+          throw new Error(data.error);
+        }
       }
     } catch (error) {
       toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to fetch messages",
-        variant: "destructive",
+        title: "Note",
+        description: "Reading emails requires additional permissions. You can still send emails using the Compose tab.",
+        variant: "default",
       });
     } finally {
       setIsLoading(false);
@@ -108,7 +117,8 @@ export function GmailPanel() {
   };
 
   useEffect(() => {
-    fetchUnreadMessages();
+    // Don't fetch on mount since reading is not available with current permissions
+    // fetchUnreadMessages();
   }, []);
 
   return (
@@ -124,26 +134,34 @@ export function GmailPanel() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="inbox">
+          <Tabs defaultValue="compose">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="inbox">Inbox</TabsTrigger>
               <TabsTrigger value="compose">Compose</TabsTrigger>
             </TabsList>
             
             <TabsContent value="inbox" className="space-y-4">
+              <div className="rounded-lg bg-yellow-50 dark:bg-yellow-900/10 p-4 mb-4">
+                <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                  <strong>Note:</strong> Reading emails requires additional Gmail API permissions. 
+                  The current integration is configured for sending emails only. 
+                  Use the Compose tab to send emails.
+                </p>
+              </div>
               <div className="flex justify-between items-center">
                 <h3 className="text-lg font-semibold">Unread Messages</h3>
                 <Button 
                   onClick={fetchUnreadMessages} 
                   disabled={isLoading}
                   size="sm"
+                  variant="outline"
                 >
                   {isLoading ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
                     <RefreshCw className="h-4 w-4" />
                   )}
-                  Refresh
+                  Check Permissions
                 </Button>
               </div>
               

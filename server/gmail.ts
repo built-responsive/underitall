@@ -53,55 +53,18 @@ async function getUncachableGmailClient() {
 // Get unread messages
 export async function getUnreadMessages() {
   try {
-    const gmail = await getUncachableGmailClient();
+    // The current Gmail integration scopes only support:
+    // - Sending emails (gmail.send)
+    // - Gmail add-on specific actions (addon scopes)
+    // 
+    // Reading messages requires 'gmail.readonly' scope which is not available.
+    // Return an informative message instead of trying to fetch messages.
     
-    // List unread messages
-    const response = await gmail.users.messages.list({
-      userId: 'me',
-      q: 'is:unread',
-      maxResults: 10
-    });
-
-    if (!response.data.messages || response.data.messages.length === 0) {
-      return [];
-    }
-
-    // Get details for each message
-    const messages = await Promise.all(
-      response.data.messages.map(async (message) => {
-        const msg = await gmail.users.messages.get({
-          userId: 'me',
-          id: message.id!
-        });
-
-        const headers = msg.data.payload?.headers || [];
-        const subject = headers.find(h => h.name === 'Subject')?.value || 'No Subject';
-        const from = headers.find(h => h.name === 'From')?.value || 'Unknown';
-        const date = headers.find(h => h.name === 'Date')?.value || '';
-        
-        // Extract body
-        let body = '';
-        if (msg.data.payload?.parts) {
-          const textPart = msg.data.payload.parts.find(part => part.mimeType === 'text/plain');
-          if (textPart?.body?.data) {
-            body = Buffer.from(textPart.body.data, 'base64').toString('utf-8');
-          }
-        } else if (msg.data.payload?.body?.data) {
-          body = Buffer.from(msg.data.payload.body.data, 'base64').toString('utf-8');
-        }
-
-        return {
-          id: message.id,
-          subject,
-          from,
-          date,
-          snippet: msg.data.snippet || '',
-          body: body.substring(0, 500) // Limit body length
-        };
-      })
+    throw new Error(
+      'Reading emails is not available with the current Gmail integration permissions. ' +
+      'The integration is configured for sending emails only. ' +
+      'To read emails, the Gmail connection would need to be reconfigured with additional permissions.'
     );
-
-    return messages;
   } catch (error) {
     console.error('Error fetching unread messages:', error);
     throw error;
