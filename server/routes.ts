@@ -1006,6 +1006,145 @@ export function registerRoutes(app: Express) {
     },
   );
 
+  // Create Shopify Customer for approved registration
+  app.post(
+    "/api/wholesale-registration/:id/create-shopify-account",
+    async (req: Request, res: Response) => {
+      try {
+        const { id } = req.params;
+
+        // Fetch registration from DB
+        const [registration] = await db
+          .select()
+          .from(wholesaleRegistrations)
+          .where(eq(wholesaleRegistrations.id, id));
+
+        if (!registration) {
+          return res.status(404).json({ error: "Registration not found" });
+        }
+
+        if (registration.status !== "approved") {
+          return res.status(400).json({ 
+            error: "Registration must be approved before creating Shopify account" 
+          });
+        }
+
+        const shopDomain = process.env.SHOPIFY_SHOP_DOMAIN;
+        const adminToken = process.env.SHOPIFY_ADMIN_ACCESS_TOKEN;
+
+        if (!shopDomain || !adminToken) {
+          return res.status(500).json({ 
+            error: "Shopify credentials not configured" 
+          });
+        }
+
+        // Create customer via REST API (Basic plan compatible)
+        const customerPayload = {
+          customer: {
+            email: registration.email,
+            first_name: registration.firstName,
+            last_name: registration.lastName,
+            phone: registration.phone || null,
+            tags: `wholesale, ${registration.businessType}`,
+            note: `Wholesale account - ${registration.firmName}`,
+            tax_exempt: registration.isTaxExempt,
+            addresses: [{
+              address1: registration.businessAddress,
+              address2: registration.businessAddress2 || "",
+              city: registration.city,
+              province: registration.state,
+              zip: registration.zipCode,
+              country: "United States",
+              company: registration.firmName,
+            }],
+          },
+        };
+
+        const customerResponse = await fetch(
+          `https://${shopDomain}/admin/api/2025-01/customers.json`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-Shopify-Access-Token": adminToken,
+            },
+            body: JSON.stringify(customerPayload),
+          }
+        );
+
+        if (!customerResponse.ok) {
+          const errorText = await customerResponse.text();
+          console.error("❌ Shopify customer creation failed:", errorText);
+          return res.status(500).json({ 
+            error: "Failed to create Shopify customer",
+            details: errorText 
+          });
+        }
+
+        const customerData = await customerResponse.json();
+        const customerId = customerData.customer.id;
+
+        console.log("✅ Shopify customer created:", customerId);
+
+        // If clarityAccountId exists, set metafield linking to CRM
+        if (registration.clarityAccountId) {
+          const metafieldsMutation = `
+            mutation SetCustomerMetafields($metafields: [MetafieldsSetInput!]!) {
+              metafieldsSet(metafields: $metafields) {
+                metafields {
+                  key
+                  namespace
+                  value
+                }
+                userErrors {
+                  field
+                  message
+                }
+              }
+            }
+          `;
+
+          const metafields = [{
+            ownerId: `gid://shopify/Customer/${customerId}`,
+            namespace: "custom",
+            key: "wholesale_clarity_id",
+            value: registration.clarityAccountId,
+            type: "single_line_text_field",
+          }];
+
+          await fetch(
+            `https://${shopDomain}/admin/api/2025-01/graphql.json`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "X-Shopify-Access-Token": adminToken,
+              },
+              body: JSON.stringify({
+                query: metafieldsMutation,
+                variables: { metafields },
+              }),
+            }
+          );
+
+          console.log("✅ wholesale_clarity_id metafield set");
+        }
+
+        res.json({
+          success: true,
+          customerId,
+          customerUrl: `https://${shopDomain}/admin/customers/${customerId}`,
+          clarityAccountId: registration.clarityAccountId,
+        });
+      } catch (error) {
+        console.error("❌ Error creating Shopify customer:", error);
+        res.status(500).json({
+          error: error instanceof Error ? error.message : "Failed to create Shopify customer",
+        });
+      }
+    }
+  );
+
   // Admin Approval → Create CRM Account + Shopify Customer with wholesale_clarity_id
   app.post(
     "/api/admin/approve-registration/:id",
