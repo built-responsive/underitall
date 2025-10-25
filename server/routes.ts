@@ -1445,10 +1445,38 @@ export function registerRoutes(app: Express) {
           })
           .where(eq(wholesaleRegistrations.id, id));
 
+        // Send Gmail notification to admins
+        try {
+          const { sendWholesaleAccountEmail } = await import("./utils/gmail");
+          await sendWholesaleAccountEmail({
+            to: ["sales@itsunderitall.com", "admin@itsunderitall.com"], // Admin emails
+            subject: `New Wholesale Account: ${registration.firmName}`,
+            company: registration.firmName,
+            contact: {
+              firstName: registration.firstName,
+              lastName: registration.lastName,
+              email: registration.email,
+              phone: registration.phone || undefined,
+            },
+            address: {
+              address1: registration.businessAddress,
+              city: registration.city,
+              state: registration.state,
+              zip: registration.zipCode,
+            },
+            clarityAccountId,
+            shopifyCustomerId: customerId?.toString(),
+          });
+          console.log("✅ Gmail notification sent to admins");
+        } catch (emailError) {
+          console.error("⚠️ Gmail notification failed (non-blocking):", emailError);
+          // Don't fail the approval—email is non-critical
+        }
+
         res.json({
           success: true,
           message:
-            "Registration approved, CRM account created, customer linked",
+            "Registration approved, CRM account created, customer linked, notification sent",
           clarityAccountId,
         });
       } catch (error) {
