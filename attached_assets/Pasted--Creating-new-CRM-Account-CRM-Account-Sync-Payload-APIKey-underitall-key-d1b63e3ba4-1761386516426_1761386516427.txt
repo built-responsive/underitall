@@ -1,0 +1,54 @@
+🆕 Creating new CRM Account
+📤 CRM Account Sync Payload:
+{
+  "APIKey": "underitall-key-d1b63e3ba4f94b6cb4f0435e7bd0ddea",
+  "Resource": "Account",
+  "Operation": "Create Or Edit",
+  "Data": {
+    "Name": "Testies",
+    "First Name": "Tester",
+    "Last Name": "McTesterson",
+    "CompanyPhone": "3862445990",
+    "Email": "devops@builtresponsive.com",
+    "Address1": "300 East Street",
+    "Address2": "Suite 1",
+    "City": "Saint Augustine",
+    "State": "FL",
+    "ZipCode": "32080",
+    "Country": "United States",
+    "Note": "Created via Wholesale Registration",
+    "Account Type": "trade_showroom",
+    "Sample Set": "Yes",
+    "Instagram": "@responsivewebsolutions",
+    "Website": "https://www.testicuzzi.com",
+    "Accepts Email Marketing": "Yes",
+    "Accepts SMS Marketing": "Yes",
+    "EIN": "93-1805911",
+    "UIA-ID": "9de3ddce-1aea-48b4-9e38-fa0a25162301",
+    "Representative": "John Thompson",
+    "leadsourceid": "85927b21-38b2-49dd-8b15-c9b43e41925b",
+    "leadsources": "Partner",
+    "Sales Representative": "John Thompson",
+    "Registration": "Registered but no documentation",
+    "Lead Source Specifics": "UIA WHOLESALE APP",
+    "Tags": "UIA-FORM",
+    "Shopify Reference": "its-under-it-all"
+  }
+}
+📤 CRM Account Sync Response:
+{
+  "Status": "Success",
+  "ErrorCode": 0,
+  "Message": "",
+  "Data": {
+    "AccountId": "83f0a8b9-d4fb-4f43-afa5-d7009ff55f5e",
+    "Status": "Created"
+  }
+}
+✅ CRM Account synced with AccountID: 83f0a8b9-d4fb-4f43-afa5-d7009ff55f5e
+✅ Database updated with clarityAccountId: 83f0a8b9-d4fb-4f43-afa5-d7009ff55f5e
+9:59:11 AM [express] POST /api/admin/sync-to-crm/9de3ddce-1aea-48b4-9e38-fa0a25162301 200 in 1839ms …
+❌ Approval error: Error: Phone has already been taken
+    at <anonymous> (/home/runner/workspace/server/routes.ts:1332:21)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+9:59:12 AM [express] POST /api/admin/approve-registration/9de3ddce-1aea-48b4-9e38-fa0a25162301 500 i…
