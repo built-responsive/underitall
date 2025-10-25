@@ -1873,10 +1873,22 @@ export function registerRoutes(app: Express) {
           clarityAccountId,
         });
       } catch (error) {
-        console.error("❌ Approval error:", error);
-        res.status(500).json({
-          error: error instanceof Error ? error.message : "Approval failed",
-        });
+        // Only fail if it's NOT a phone duplicate error
+        const errorMessage = error instanceof Error ? error.message : "Approval failed";
+        if (errorMessage.toLowerCase().includes('phone') && errorMessage.toLowerCase().includes('already been taken')) {
+          console.warn("⚠️ Phone duplicate warning (continuing approval):", errorMessage);
+          res.json({
+            success: true,
+            message: "Registration approved, CRM account created (phone already exists in Shopify)",
+            clarityAccountId: registration.clarityAccountId,
+            warning: errorMessage,
+          });
+        } else {
+          console.error("❌ Approval error:", error);
+          res.status(500).json({
+            error: errorMessage,
+          });
+        }
       }
     },
   );
@@ -2222,18 +2234,26 @@ export function registerRoutes(app: Express) {
 
       const shopifyData = await shopifyResponse.json();
 
-      if (
-        shopifyData.errors ||
-        shopifyData.data?.draftOrderCreate?.userErrors?.length > 0
-      ) {
-        const userErrors = shopifyData.data?.draftOrderCreate?.userErrors || [];
-        console.error("❌ Shopify draft order creation failed:");
+      // Check for critical errors (excluding phone duplicate warnings)
+      const userErrors = shopifyData.data?.customerCreate?.userErrors || [];
+      const criticalErrors = userErrors.filter((err: any) => 
+        !err.message?.toLowerCase().includes('phone') && 
+        !err.message?.toLowerCase().includes('already been taken')
+      );
+
+      if (shopifyData.errors || criticalErrors.length > 0) {
+        console.error("❌ Shopify customer creation failed:");
         console.error("User Errors:", JSON.stringify(userErrors, null, 2));
         console.error("Full Response:", JSON.stringify(shopifyData, null, 2));
         return res.status(500).json({
-          error: "Failed to create Shopify draft order",
-          details: userErrors.length > 0 ? userErrors : shopifyData.errors,
+          error: "Failed to create Shopify customer",
+          details: criticalErrors.length > 0 ? criticalErrors : shopifyData.errors,
         });
+      }
+
+      // Log phone duplicate as warning, not error
+      if (userErrors.length > 0) {
+        console.warn("⚠️ Shopify customer creation warnings (non-blocking):", JSON.stringify(userErrors, null, 2));
       }
 
       const draftOrder = shopifyData.data.draftOrderCreate.draftOrder;

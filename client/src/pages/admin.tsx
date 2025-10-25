@@ -347,16 +347,22 @@ export default function Admin() {
     if (ordersError) console.error("🔴 Orders error:", ordersError);
   }, [regError, quotesError, ordersError]);
 
-  // Auto-open modal when ID is in URL
+  // Scroll to registration card when ID is in URL (no modal auto-open)
   useEffect(() => {
-    if (params?.id && registrations && registrations.length > 0 && !selectedRegistration) {
+    if (params?.id && registrations && registrations.length > 0) {
       const registration = registrations.find(r => r.id === params.id);
       if (registration) {
-        console.log('🔍 Auto-opening registration from URL:', params.id);
-        setSelectedRegistration(registration);
+        console.log('🔍 Found registration from URL, scrolling to card:', params.id);
+        // Scroll to the card element
+        setTimeout(() => {
+          const element = document.getElementById(`registration-${params.id}`);
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }, 100);
       }
     }
-  }, [params?.id, registrations, selectedRegistration]);
+  }, [params?.id, registrations]);
 
   const pendingCount = registrations.filter((r: any) => r.status === "pending").length;
   const approvedCount = registrations.filter((r: any) => r.status === "approved").length;
@@ -442,6 +448,7 @@ export default function Admin() {
                 registrations.map((reg: any) => (
                   <Card
                     key={reg.id}
+                    id={`registration-${reg.id}`}
                     className="rounded-[11px] overflow-hidden transition-all hover:shadow-lg cursor-pointer"
                     onClick={() => setSelectedRegistration(reg)}
                   >
