@@ -1,0 +1,140 @@
+2025-10-25 05:46:51.21
+01e893b3
+User
+"Resource": "Account",
+2025-10-25 05:46:51.21
+01e893b3
+User
+"Operation": "Get",
+2025-10-25 05:46:51.21
+01e893b3
+User
+"Columns": [
+2025-10-25 05:46:51.21
+01e893b3
+User
+"Account",
+2025-10-25 05:46:51.21
+01e893b3
+User
+"AccountID",
+2025-10-25 05:46:51.21
+01e893b3
+User
+"AccountNumber",
+2025-10-25 05:46:51.21
+01e893b3
+User
+"City",
+2025-10-25 05:46:51.21
+01e893b3
+User
+"State",
+2025-10-25 05:46:51.21
+01e893b3
+User
+"CompanyPhone",
+2025-10-25 05:46:51.21
+01e893b3
+User
+"Website"
+2025-10-25 05:46:51.21
+01e893b3
+User
+],
+2025-10-25 05:46:51.21
+01e893b3
+User
+"SQLFilter": "Account = 'Testies' OR CompanyPhone = '3862445990' OR Website = 'https://www.testicuzzi.com'",
+2025-10-25 05:46:51.21
+01e893b3
+User
+"Sort": {
+2025-10-25 05:46:51.21
+01e893b3
+User
+"Column": "CreationDate",
+2025-10-25 05:46:51.21
+01e893b3
+User
+"Order": "Desc"
+2025-10-25 05:46:51.21
+01e893b3
+User
+}
+2025-10-25 05:46:51.21
+01e893b3
+User
+}
+2025-10-25 05:46:51.56
+01e893b3
+User
+📤 CRM Duplicate Check Response:
+2025-10-25 05:46:51.56
+01e893b3
+User
+{
+2025-10-25 05:46:51.56
+01e893b3
+User
+"Status": "Success",
+2025-10-25 05:46:51.56
+01e893b3
+User
+"ErrorCode": 0,
+2025-10-25 05:46:51.56
+01e893b3
+User
+"Message": "",
+2025-10-25 05:46:51.56
+01e893b3
+User
+"Data": [
+2025-10-25 05:46:51.56
+01e893b3
+User
+{
+2025-10-25 05:46:51.56
+01e893b3
+User
+"Account": "Responsive Web Solutions",
+2025-10-25 05:46:51.56
+01e893b3
+User
+"AccountID": "f47d9cb1-2d8f-4fb9-9228-f098d2d80af5",
+2025-10-25 05:46:51.56
+01e893b3
+User
+"AccountNumber": "AC000940",
+2025-10-25 05:46:51.56
+01e893b3
+User
+"City": "Saint Augustine",
+2025-10-25 05:46:51.56
+01e893b3
+User
+"State": "FL",
+2025-10-25 05:46:51.56
+01e893b3
+User
+"CompanyPhone": "3862445990",
+2025-10-25 05:46:51.56
+01e893b3
+User
+"Website": "https://builtresponsive.com/"
+2025-10-25 05:46:51.56
+01e893b3
+User
+}
+2025-10-25 05:46:51.56
+01e893b3
+User
+]
+2025-10-25 05:46:51.56
+01e893b3
+User
+}
+2025-10-25 05:46:51.57
+01e893b3
+User
+9:46:51 AM [express] POST /api/admin/check-crm-duplicates/9de3ddce-1aea-48b4-9e38-fa0a25162301 200 i…
