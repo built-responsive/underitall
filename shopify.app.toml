@@ -40,5 +40,145 @@ url = "https://join.itsunderitall.com"
 subpath = "wholesale"
 prefix = "apps"
 
+[metaobjects.app.customer_record]
+name = "Customer Record"
+access.admin = "merchant_read_write"
+access.storefront = "public_read"
+capabilities.publishable = true
 
+[metaobjects.app.customer_record.fields.firm_name]
+name = "Firm name"
+type = "single_line_text_field"
+
+[metaobjects.app.customer_record.fields.first_name]
+name = "First name"
+type = "single_line_text_field"
+
+[metaobjects.app.customer_record.fields.last_name]
+name = "Last name"
+type = "single_line_text_field"
+
+[metaobjects.app.customer_record.fields.title]
+name = "Title"
+type = "single_line_text_field"
+
+[metaobjects.app.customer_record.fields.email]
+name = "Email"
+type = "single_line_text_field"
+
+[metaobjects.app.customer_record.fields.phone]
+name = "Phone"
+type = "single_line_text_field"
+
+[metaobjects.app.customer_record.fields.website]
+name = "Website"
+type = "url"
+
+[metaobjects.app.customer_record.fields.business_address]
+name = "Business address"
+type = "single_line_text_field"
+
+[metaobjects.app.customer_record.fields.business_address2]
+name = "Business address 2"
+type = "single_line_text_field"
+
+[metaobjects.app.customer_record.fields.city]
+name = "City"
+type = "single_line_text_field"
+
+[metaobjects.app.customer_record.fields.state]
+name = "State"
+type = "single_line_text_field"
+
+[metaobjects.app.customer_record.fields.zip_code]
+name = "ZIP code"
+type = "single_line_text_field"
+
+[metaobjects.app.customer_record.fields.instagram_handle]
+name = "Instagram handle"
+type = "single_line_text_field"
+
+[metaobjects.app.customer_record.fields.certification_url]
+name = "Certification URL"
+type = "url"
+
+[metaobjects.app.customer_record.fields.business_type]
+name = "Business type"
+type = "single_line_text_field"
+
+[metaobjects.app.customer_record.fields.years_in_business]
+name = "Years in business"
+type = "number_integer"
+
+[metaobjects.app.customer_record.fields.is_tax_exempt]
+name = "Is tax exempt"
+type = "boolean"
+
+[metaobjects.app.customer_record.fields.tax_id]
+name = "Tax ID"
+type = "single_line_text_field"
+
+[metaobjects.app.customer_record.fields.tax_id_proof_url]
+name = "Tax ID proof file"
+type = "file_reference"
+
+[metaobjects.app.customer_record.fields.how_did_you_hear]
+name = "How did you hear?"
+type = "multi_line_text_field"
+
+[metaobjects.app.customer_record.fields.received_sample_set]
+name = "Received sample set"
+type = "boolean"
+
+[metaobjects.app.customer_record.fields.status]
+name = "Status"
+type = "single_line_text_field"
+
+[metaobjects.app.customer_record.fields.approved_by]
+name = "Approved by"
+type = "single_line_text_field"
+
+[metaobjects.app.customer_record.fields.approved_at]
+name = "Approved at"
+type = "date_time"
+
+[metaobjects.app.customer_record.fields.rejection_reason]
+name = "Rejection reason"
+type = "multi_line_text_field"
+
+[metaobjects.app.customer_record.fields.admin_notes]
+name = "Admin notes"
+type = "multi_line_text_field"
+
+[metaobjects.app.customer_record.fields.marketing_opt_in]
+name = "Marketing opt-in"
+type = "boolean"
+
+[metaobjects.app.customer_record.fields.terms_accepted]
+name = "Terms accepted"
+type = "boolean"
+
+[metaobjects.app.customer_record.fields.sms_consent]
+name = "SMS consent"
+type = "boolean"
+
+[metaobjects.app.customer_record.fields.accepts_email_marketing]
+name = "Accepts email marketing"
+type = "boolean"
+
+[metaobjects.app.customer_record.fields.accepts_sms_marketing]
+name = "Accepts SMS marketing"
+type = "boolean"
+
+[metaobjects.app.customer_record.fields.clarity_account_id]
+name = "Clarity account ID"
+type = "single_line_text_field"
+
+[metaobjects.app.customer_record.fields.shopify_customer_id]
+name = "Shopify customer ID"
+type = "single_line_text_field"
+
+[metaobjects.app.customer_record.fields.customers]
+name = "Customers"
+type = "list.customer_reference"
 
