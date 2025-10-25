@@ -1,0 +1,66 @@
+🔄 Updating existing CRM Account: f47d9cb1-2d8f-4fb9-9228-f098d2d80af5
+📤 CRM Account Sync Payload:
+{
+  "APIKey": "underitall-key-d1b63e3ba4f94b6cb4f0435e7bd0ddea",
+  "Resource": "Account",
+  "Operation": "Create Or Edit",
+  "Data": {
+    "Name": "Responsive Web Solutions",
+    "First Name": "Paul",
+    "Last Name": "Smith",
+    "CompanyPhone": "3862445990",
+    "Email": "dev@builtresponsive.com",
+    "Address1": "300 East Street",
+    "Address2": "Suite 1",
+    "City": "Saint Augustine",
+    "State": "FL",
+    "ZipCode": "32080",
+    "Country": "United States",
+    "Note": "Created via Wholesale Registration",
+    "Account Type": "ecommerce",
+    "Sample Set": "Yes",
+    "Instagram": "builtresponsive",
+    "Website": "https://builtresponsive.com/",
+    "Accepts Email Marketing": "Yes",
+    "Accepts SMS Marketing": "Yes",
+    "EIN": "93-1805911",
+    "Shopify Reference": "",
+    "UIA-ID": "6a25ff8a-c30f-44c5-8ab2-6a3658a537c6",
+    "Representative": "John Thompson"
+  },
+  "AccountId": "f47d9cb1-2d8f-4fb9-9228-f098d2d80af5"
+}
+📤 CRM Account Sync Response:
+{
+  "Status": "Success",
+  "ErrorCode": 0,
+  "Message": "",
+  "Data": {
+    "AccountId": "f47d9cb1-2d8f-4fb9-9228-f098d2d80af5",
+    "Status": "Updated"
+  }
+}
+✅ CRM Account synced with AccountID: f47d9cb1-2d8f-4fb9-9228-f098d2d80af5
+❌ CRM account sync error: error: syntax error at or near "where"
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:907:7) {
+  length: 94,
+  severity: 'ERROR',
+  code: '42601',
+  detail: undefined,
+  hint: undefined,
+  position: '39',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'scan.l',
+  line: '1244',
+  routine: 'scanner_yyerror'
+}
+6:37:04 AM [express] POST /api/admin/sync-to-crm/6a25ff8a-c30f-44c5-8ab2-6a3658a537c6 500 in 5056ms …
