@@ -895,10 +895,10 @@ export function registerRoutes(app: Express) {
       console.log("📤 CRM Account Sync Response:");
       console.log(JSON.stringify(crmData, null, 2));
 
-      const clarityAccountId = crmData?.Data?.AccountID || accountId;
+      const clarityAccountId = crmData?.Data?.AccountId || accountId;
 
       if (!clarityAccountId) {
-        throw new Error("CRM Account sync failed - no AccountID returned");
+        throw new Error("CRM Account sync failed - no AccountId returned");
       }
 
       console.log("✅ CRM Account synced with AccountID:", clarityAccountId);
