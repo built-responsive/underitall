@@ -719,7 +719,7 @@ export default function Admin() {
             {selectedRegistration?.status === "approved" && (
               <div className="flex flex-wrap gap-2 w-full">
                 {selectedRegistration.shopifyCustomerId && (
-                  <a href={`https://underitall-redeux.myshopify.com/admin/customers/${selectedRegistration.shopifyCustomerId}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#96bf48] hover:bg-[#85aa3d] text-white rounded-[8px] transition-colors font-['Vazirmatn'] text-sm">
+                  <a href={`https://admin.shopify.com/store/${process.env.SHOPIFY_SHOP_DOMAIN?.replace('.myshopify.com', '') || 'its-under-it-all'}/customers/${selectedRegistration.shopifyCustomerId}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#96bf48] hover:bg-[#85aa3d] text-white rounded-[8px] transition-colors font-['Vazirmatn'] text-sm">
                     <ExternalLink className="w-3 h-3" />
                     Shopify Admin
                   </a>
