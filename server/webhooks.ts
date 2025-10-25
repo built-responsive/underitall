@@ -2,8 +2,8 @@
 import { Router, Request, Response } from "express";
 import crypto from "crypto";
 import { db } from "./db";
-import { webhookLogs } from "@shared/schema";
-import { desc } from "drizzle-orm";
+import { webhookLogs, wholesaleRegistrations } from "@shared/schema";
+import { desc, eq } from "drizzle-orm";
 
 const router = Router();
 
@@ -57,7 +57,7 @@ function verifyShopifyWebhook(req: Request): boolean {
   return isValid;
 }
 
-// Customer creation webhook
+// Customer creation webhook - Sync Shopify customer ID to wholesale registration
 router.post("/customers/create", async (req: Request, res: Response) => {
   try {
     // Verify webhook authenticity
@@ -78,6 +78,37 @@ router.post("/customers/create", async (req: Request, res: Response) => {
       source: "shopify",
       payload: customer,
     });
+
+    // Sync Shopify customer ID to wholesale registration (if email match exists)
+    if (customer.email) {
+      try {
+        // Extract numeric customer ID from GID
+        const customerGid = customer.admin_graphql_api_id || "";
+        const customerId = customerGid.split('/').pop() || "";
+
+        // Find wholesale registration with matching email
+        const [registration] = await db
+          .select()
+          .from(wholesaleRegistrations)
+          .where(eq(wholesaleRegistrations.email, customer.email))
+          .limit(1);
+
+        if (registration && customerId) {
+          // Update registration with Shopify customer ID
+          await db
+            .update(wholesaleRegistrations)
+            .set({ shopifyCustomerId: customerId })
+            .where(eq(wholesaleRegistrations.id, registration.id));
+
+          console.log(`✅ Synced Shopify customer ${customerId} to registration ${registration.id}`);
+        } else {
+          console.log(`⚠️ No wholesale registration found for email: ${customer.email}`);
+        }
+      } catch (syncError) {
+        console.error("❌ Error syncing customer ID to registration:", syncError);
+        // Don't fail the webhook - log and continue
+      }
+    }
 
     res.status(200).json({ success: true });
   } catch (error) {
