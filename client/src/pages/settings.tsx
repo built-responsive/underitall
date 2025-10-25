@@ -196,7 +196,7 @@ function EmailTemplateTestPanel() {
   return (
     <div className="space-y-4 border-t pt-4">
       <h3 className="font-['Archivo'] text-lg text-[#212227]">Test Email Template</h3>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label className="font-['Vazirmatn'] text-[#212227]">Select Template</Label>
@@ -262,7 +262,7 @@ function EmailTemplateTestPanel() {
         >
           {showPreview ? "Hide Preview" : "Show Preview"}
         </Button>
-        
+
         <Button
           onClick={() => {
             if (!testEmail || !testEmail.includes('@')) {
@@ -297,11 +297,52 @@ function EmailTemplateTestPanel() {
       </div>
 
       {showPreview && customHtml && (
-        <div className="border rounded-[11px] p-4 bg-white">
-          <p className="text-sm text-[#696A6D] mb-2 font-['Vazirmatn']">Preview:</p>
+        <div className="mt-4 border rounded-[11px] p-4 bg-white">
+          <h4 className="font-['Vazirmatn'] text-sm text-[#696A6D] mb-2">Preview:</h4>
           <iframe
-            srcDoc={customHtml}
-            className="w-full h-[400px] border-0"
+            srcDoc={(() => {
+              // Replace template variables with sample data for preview
+              let preview = customHtml;
+              const sampleData: any = {
+                firstName: 'John',
+                lastName: 'Doe',
+                firmName: 'Acme Design Studio',
+                email: 'john@acmedesign.com',
+                phone: '555-0123',
+                businessType: 'Interior Designer',
+                clarityAccountId: 'AC000123',
+                applicationDate: new Date().toLocaleDateString(),
+                applicationNumber: 'APP-2024-001',
+                orderNumber: 'DO-2024-001',
+                orderDate: new Date().toLocaleDateString(),
+                customerName: 'Acme Design Studio',
+                customerEmail: 'orders@acmedesign.com',
+                totalPrice: '$545.00',
+                subtotal: '$500.00',
+                tax: '$45.00',
+                timestamp: new Date().toLocaleString(),
+                environment: 'Production',
+                errorType: 'DatabaseConnectionError',
+                errorMessage: 'Failed to connect to database',
+                service: 'API',
+                critical: true,
+                currentYear: new Date().getFullYear()
+              };
+
+              // Replace simple variables
+              Object.keys(sampleData).forEach(key => {
+                const regex = new RegExp(`{{${key}}}`, 'g');
+                preview = preview.replace(regex, sampleData[key] || '');
+              });
+
+              // Handle conditionals
+              preview = preview.replace(/{{#if\s+(\w+)}}([\s\S]*?){{\/if}}/g, (match, variable, content) => {
+                return sampleData[variable] ? content : '';
+              });
+
+              return preview;
+            })()}
+            className="w-full h-[400px] border rounded"
             title="Email Preview"
           />
         </div>
@@ -737,7 +778,7 @@ export default function Settings() {
                     </Button>
                   </div>
 
-                  
+
                 </CardContent>
               </Card>
 
