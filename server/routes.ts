@@ -904,10 +904,17 @@ export function registerRoutes(app: Express) {
       console.log("✅ CRM Account synced with AccountID:", clarityAccountId);
 
       // Save clarityAccountId to DB
-      await db
+      const [updated] = await db
         .update(wholesaleRegistrations)
         .set({ clarityAccountId })
-        .where(eq(wholesaleRegistrations.id, id));
+        .where(eq(wholesaleRegistrations.id, id))
+        .returning();
+
+      if (!updated) {
+        console.error("⚠️ Database update failed - registration not found:", id);
+      } else {
+        console.log("✅ Database updated with clarityAccountId:", clarityAccountId);
+      }
 
       res.json({
         success: true,
