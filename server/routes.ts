@@ -1044,6 +1044,44 @@ export function registerRoutes(app: Express) {
         );
         console.log("🔒 CRM creation deferred until admin approval");
 
+        // Send Gmail notification to admins (non-blocking)
+        try {
+          const { sendNewWholesaleApplicationEmail } = await import("./services/emailService");
+          
+          // Get notification recipients from database
+          const recipients = await db
+            .select()
+            .from(notificationRecipients)
+            .where(eq(notificationRecipients.category, "wholesale_notifications"))
+            .where(eq(notificationRecipients.active, true));
+          
+          const recipientEmails = recipients.length > 0 
+            ? recipients.map(r => r.email)
+            : ["sales@itsunderitall.com", "admin@itsunderitall.com"]; // fallback
+
+          await sendNewWholesaleApplicationEmail({
+            to: recipientEmails,
+            registrationId: registration.id,
+            firstName: registration.firstName,
+            lastName: registration.lastName,
+            firmName: registration.firmName,
+            email: registration.email,
+            phone: registration.phone || undefined,
+            businessType: registration.businessType,
+            businessAddress: registration.businessAddress,
+            businessAddress2: registration.businessAddress2 || undefined,
+            city: registration.city,
+            state: registration.state,
+            zipCode: registration.zipCode,
+            applicationDate: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+            applicationNumber: registration.id.substring(0, 8).toUpperCase(),
+          });
+          console.log("✅ Gmail notification sent to admins");
+        } catch (emailError) {
+          console.error("⚠️ Gmail notification failed (non-blocking):", emailError);
+          // Don't fail the registration—email is non-critical
+        }
+
         res.json({
           success: true,
           registrationId: registration.id,
