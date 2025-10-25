@@ -473,9 +473,9 @@ export default function Admin() {
                     >
                       <CollapsibleTrigger asChild>
                         <CardHeader className="hover:bg-[#F3F1E9]/50 transition-colors cursor-pointer">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-4">
-                              <div className="text-left">
+                          <div className="flex items-center justify-between gap-4">
+                            <div className="flex items-center gap-4 flex-1 min-w-0">
+                              <div className="text-left flex-1 min-w-0">
                                 <CardTitle className="font-['Archivo'] text-[#212227] text-lg flex items-center gap-2">
                                   <Building2 className="w-5 h-5 text-[#F2633A]" />
                                   {reg.firmName}
@@ -485,7 +485,40 @@ export default function Admin() {
                                 </CardDescription>
                               </div>
                             </div>
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-2 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
+                              {reg.status === "pending" && (
+                                <>
+                                  <Button onClick={() => { setSelectedRegistration(reg); setActionType("approve"); }} size="sm" className="bg-[#F2633A] hover:bg-[#F2633A]/90 text-white rounded-[8px] font-['Vazirmatn']">
+                                    <CheckCircle className="w-3 h-3 mr-1" />
+                                    Approve
+                                  </Button>
+                                  <Button onClick={() => { setSelectedRegistration(reg); setActionType("reject"); }} size="sm" variant="outline" className="rounded-[8px] font-['Vazirmatn']">
+                                    <XCircle className="w-3 h-3 mr-1" />
+                                    Reject
+                                  </Button>
+                                </>
+                              )}
+                              {reg.status === "approved" && (
+                                <>
+                                  {reg.shopifyCustomerId && (
+                                    <a href={`https://admin.shopify.com/store/its-under-it-all/customers/${reg.shopifyCustomerId}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 px-2 py-1 bg-[#96bf48] hover:bg-[#85aa3d] text-white rounded-[8px] transition-colors font-['Vazirmatn'] text-xs">
+                                      <ExternalLink className="w-3 h-3" />
+                                      Shopify
+                                    </a>
+                                  )}
+                                  {reg.clarityAccountId ? (
+                                    <a href={`https://www.claritycrm.com/accounts/new4.aspx?m=e&id=${reg.clarityAccountId}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 px-2 py-1 bg-green-600 hover:bg-green-700 text-white rounded-[8px] transition-colors font-['Vazirmatn'] text-xs">
+                                      <CheckCircle2 className="w-3 h-3" />
+                                      CRM
+                                    </a>
+                                  ) : (
+                                    <Button onClick={() => { checkCrmDuplicates(reg.id); }} size="sm" className="bg-[#F2633A] hover:bg-[#F2633A]/90 text-white rounded-[8px] font-['Vazirmatn'] text-xs">
+                                      <ExternalLink className="w-3 h-3 mr-1" />
+                                      Sync CRM
+                                    </Button>
+                                  )}
+                                </>
+                              )}
                               {getStatusBadge(reg.status)}
                               <ChevronDown className={`w-5 h-5 text-[#696A6D] transition-transform ${expandedCards.has(reg.id) ? 'rotate-180' : ''}`} />
                             </div>
@@ -631,44 +664,7 @@ export default function Admin() {
                             </>
                           )}
 
-                          <div className="border-t border-[#E1E0DA]" />
-
-                          {/* Actions */}
-                          <div className="flex flex-wrap gap-2">
-                            {reg.status === "pending" && (
-                              <>
-                                <Button onClick={() => { setSelectedRegistration(reg); setActionType("approve"); }} className="bg-[#F2633A] hover:bg-[#F2633A]/90 text-white rounded-[11px] font-['Vazirmatn']">
-                                  <CheckCircle className="w-4 h-4 mr-2" />
-                                  Approve
-                                </Button>
-                                <Button onClick={() => { setSelectedRegistration(reg); setActionType("reject"); }} variant="outline" className="rounded-[11px] font-['Vazirmatn']">
-                                  <XCircle className="w-4 h-4 mr-2" />
-                                  Reject
-                                </Button>
-                              </>
-                            )}
-                            {reg.status === "approved" && (
-                              <>
-                                {reg.shopifyCustomerId && (
-                                  <a href={`https://admin.shopify.com/store/its-under-it-all/customers/${reg.shopifyCustomerId}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#96bf48] hover:bg-[#85aa3d] text-white rounded-[8px] transition-colors font-['Vazirmatn'] text-sm">
-                                    <ExternalLink className="w-3 h-3" />
-                                    Shopify Admin
-                                  </a>
-                                )}
-                                {reg.clarityAccountId ? (
-                                  <a href={`https://www.claritycrm.com/accounts/new4.aspx?m=e&id=${reg.clarityAccountId}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-[8px] transition-colors font-['Vazirmatn'] text-sm">
-                                    <CheckCircle2 className="w-3 h-3" />
-                                    CRM Synced
-                                  </a>
-                                ) : (
-                                  <Button onClick={() => { checkCrmDuplicates(reg.id); }} className="bg-[#F2633A] hover:bg-[#F2633A]/90 text-white rounded-[11px] font-['Vazirmatn'] text-sm">
-                                    <ExternalLink className="w-4 h-4 mr-2" />
-                                    Sync to CRM
-                                  </Button>
-                                )}
-                              </>
-                            )}
-                          </div>
+                          
                         </CardContent>
                       </CollapsibleContent>
                     </Card>
