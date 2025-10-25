@@ -533,24 +533,30 @@ export default function Admin() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {draftOrders.map((order: any) => (
-                        <TableRow key={order.id}>
-                          <TableCell className="font-mono text-sm font-['Vazirmatn'] text-[#212227]">{order.shopifyDraftOrderId}</TableCell>
-                          <TableCell className="font-medium font-['Vazirmatn'] text-[#212227]">${order.totalPrice}</TableCell>
-                          <TableCell className="font-['Vazirmatn'] text-[#696A6D]">{format(new Date(order.createdAt), "MMM d, yyyy")}</TableCell>
-                          <TableCell>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => window.open(order.shopifyDraftOrderUrl, "_blank")}
-                              className="rounded-[11px] font-['Vazirmatn']"
-                            >
-                              <ExternalLink className="w-3 h-3 mr-1" />
-                              View in Shopify
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
+                      {draftOrders.map((order: any) => {
+                        // Extract numeric ID from Shopify GID (e.g., "gid://shopify/DraftOrder/123" -> "123")
+                        const draftOrderId = order.shopifyDraftOrderId.split('/').pop();
+                        const shopifyAdminUrl = `https://admin.shopify.com/store/its-under-it-all/draft_orders/${draftOrderId}`;
+                        
+                        return (
+                          <TableRow key={order.id}>
+                            <TableCell className="font-mono text-sm font-['Vazirmatn'] text-[#212227]">{order.shopifyDraftOrderId}</TableCell>
+                            <TableCell className="font-medium font-['Vazirmatn'] text-[#212227]">${order.totalPrice}</TableCell>
+                            <TableCell className="font-['Vazirmatn'] text-[#696A6D]">{format(new Date(order.createdAt), "MMM d, yyyy")}</TableCell>
+                            <TableCell>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => window.open(shopifyAdminUrl, "_blank")}
+                                className="rounded-[11px] font-['Vazirmatn']"
+                              >
+                                <ExternalLink className="w-3 h-3 mr-1" />
+                                View in Shopify
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
                     </TableBody>
                   </Table>
                 )}
