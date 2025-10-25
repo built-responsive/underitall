@@ -57,14 +57,11 @@ export const wholesaleRegistrations = pgTable("wholesale_registrations", {
   smsConsent: boolean("sms_consent").default(false),
   acceptsEmailMarketing: boolean("accepts_email_marketing").default(false),
   acceptsSmsMarketing: boolean("accepts_sms_marketing").default(false),
-  
+
   // CRM Integration
-  clarityAccountId: text("clarity_account_id"), // Clarity CRM AccountId (UUID format)
-  
-  // Shopify Integration
-  shopifyCustomerId: text("shopify_customer_id"), // Shopify Customer ID (numeric)
-  
-  status: text("status").notNull().default("pending"), // "pending", "approved", "rejected"
+  clarityAccountId: text("clarity_account_id"), // CRM Account ID (e.g., "AC000930")
+  shopifyCustomerId: text("shopify_customer_id"), // Shopify Customer ID (numeric, stored as text)
+  status: text("status").notNull().default("pending"), // pending, approved, rejected
   approvedBy: varchar("approved_by").references(() => adminUsers.id),
   approvedAt: timestamp("approved_at"),
   rejectionReason: text("rejection_reason"),
