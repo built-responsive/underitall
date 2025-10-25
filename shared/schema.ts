@@ -3,6 +3,7 @@ import { pgTable, text, varchar, timestamp, integer, decimal, boolean, jsonb, se
 import { relations } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
+import { uuid } from "drizzle-orm/pg-core";
 
 // Admin Users (for admin dashboard authentication)
 export const adminUsers = pgTable("admin_users", {
@@ -302,14 +303,22 @@ export type EmailTemplate = typeof emailTemplates.$inferSelect;
 
 // Email Send Log
 export const emailSendLog = pgTable("email_send_log", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  templateId: varchar("template_id").references(() => emailTemplates.id),
+  id: uuid("id").primaryKey().defaultRandom(),
+  templateId: text("template_id").notNull(),
   recipient: text("recipient").notNull(),
   subject: text("subject").notNull(),
-  status: text("status").notNull(), // "sent", "failed", "pending"
+  status: text("status").notNull(), // 'sent' | 'failed' | 'pending'
   errorMessage: text("error_message"),
-  metadata: jsonb("metadata"), // Additional data about the send
+  metadata: jsonb("metadata"),
   sentAt: timestamp("sent_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const notificationRecipients = pgTable("notification_recipients", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  email: text("email").notNull().unique(),
+  category: text("category").notNull().default("wholesale_notifications"), // e.g., "wholesale_notifications", "error_alerts"
+  active: boolean("active").notNull().default(true),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

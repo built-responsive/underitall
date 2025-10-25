@@ -23,6 +23,293 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const globalInputStyles = "border-[#7e8d76] font-['Lora_Italic'] placeholder:text-[#7e8d76]/70 focus:border-[#7e8d76] focus:ring-[#7e8d76]";
 
+// Notification Recipients Manager Component
+function NotificationRecipientsManager() {
+  const { toast } = useToast();
+  const [newRecipientEmail, setNewRecipientEmail] = useState("");
+
+  const { data: recipientsData, refetch } = useQuery({
+    queryKey: ["/api/notification-recipients"],
+    queryFn: async () => {
+      const res = await fetch("/api/notification-recipients?category=wholesale_notifications");
+      if (!res.ok) throw new Error("Failed to fetch recipients");
+      return await res.json();
+    },
+  });
+
+  const addRecipientMutation = useMutation({
+    mutationFn: async (email: string) => {
+      const res = await apiRequest("POST", "/api/notification-recipients", { 
+        email, 
+        category: "wholesale_notifications" 
+      });
+      if (!res.ok) throw new Error("Failed to add recipient");
+      return await res.json();
+    },
+    onSuccess: () => {
+      toast({ title: "Recipient Added", description: "Email address added to notifications" });
+      setNewRecipientEmail("");
+      refetch();
+    },
+    onError: (error: any) => {
+      toast({ 
+        title: "Error", 
+        description: error.message || "Failed to add recipient", 
+        variant: "destructive" 
+      });
+    },
+  });
+
+  const removeRecipientMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const res = await apiRequest("DELETE", `/api/notification-recipients/${id}`);
+      if (!res.ok) throw new Error("Failed to remove recipient");
+      return await res.json();
+    },
+    onSuccess: () => {
+      toast({ title: "Recipient Removed", description: "Email address removed from notifications" });
+      refetch();
+    },
+    onError: (error: any) => {
+      toast({ 
+        title: "Error", 
+        description: error.message || "Failed to remove recipient", 
+        variant: "destructive" 
+      });
+    },
+  });
+
+  const recipients = recipientsData?.recipients || [];
+
+  return (
+    <div className="space-y-4">
+      <div className="space-y-2">
+        <Label htmlFor="notificationRecipients" className="font-['Vazirmatn'] text-[#212227]">
+          Notification Recipients
+        </Label>
+        <div className="flex gap-2">
+          <Input
+            id="newRecipient"
+            type="email"
+            placeholder="admin@example.com"
+            value={newRecipientEmail}
+            onChange={(e) => setNewRecipientEmail(e.target.value)}
+            className={`rounded-[11px] font-['Vazirmatn'] ${globalInputStyles}`}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && newRecipientEmail) {
+                addRecipientMutation.mutate(newRecipientEmail);
+              }
+            }}
+          />
+          <Button
+            onClick={() => {
+              if (newRecipientEmail && newRecipientEmail.includes('@')) {
+                addRecipientMutation.mutate(newRecipientEmail);
+              } else {
+                toast({ 
+                  title: "Invalid Email", 
+                  description: "Please enter a valid email address", 
+                  variant: "destructive" 
+                });
+              }
+            }}
+            disabled={addRecipientMutation.isPending}
+            className="bg-[#F2633A] hover:bg-[#F2633A]/90 text-white rounded-[11px] font-['Vazirmatn']"
+          >
+            Add
+          </Button>
+        </div>
+
+        <div className="space-y-2 mt-4">
+          <p className="text-sm text-[#696A6D]">Current Recipients ({recipients.length}):</p>
+          <div className="flex flex-wrap gap-2">
+            {recipients.map((recipient: any) => (
+              <Badge key={recipient.id} variant="secondary" className="font-['Vazirmatn']">
+                {recipient.email}
+                <button 
+                  onClick={() => removeRecipientMutation.mutate(recipient.id)}
+                  className="ml-2 text-red-500 hover:text-red-700"
+                  disabled={removeRecipientMutation.isPending}
+                >
+                  ×
+                </button>
+              </Badge>
+            ))}
+            {recipients.length === 0 && (
+              <p className="text-sm text-[#696A6D] italic">No recipients configured</p>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-[#F3F1E9] border border-[#E1E0DA] p-4 rounded-[11px] text-sm font-['Vazirmatn'] text-[#696A6D]">
+        <p className="font-semibold text-[#212227] mb-2">Gmail Integration Status:</p>
+        <div className="flex items-center gap-2">
+          <CheckCircle2 className="w-4 h-4 text-green-600" />
+          <span>Connected via Replit Gmail Connector</span>
+        </div>
+        <p className="text-xs mt-2">Emails will be sent from: noreply@itsunderitall.com</p>
+      </div>
+    </div>
+  );
+}
+
+// Email Template Test Panel with WYSIWYG Editor
+function EmailTemplateTestPanel() {
+  const { toast } = useToast();
+  const [selectedTemplateId, setSelectedTemplateId] = useState("");
+  const [testEmail, setTestEmail] = useState("");
+  const [customHtml, setCustomHtml] = useState("");
+  const [subject, setSubject] = useState("");
+  const [showPreview, setShowPreview] = useState(false);
+
+  const { data: templatesData } = useQuery({
+    queryKey: ["/api/email-templates"],
+    queryFn: async () => {
+      const res = await fetch("/api/email-templates");
+      if (!res.ok) throw new Error("Failed to fetch templates");
+      return await res.json();
+    },
+  });
+
+  const sendTestMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const res = await apiRequest("POST", "/api/gmail/send-test", data);
+      if (!res.ok) throw new Error("Failed to send test email");
+      return await res.json();
+    },
+    onSuccess: () => {
+      toast({ title: "Test Email Sent", description: "Check your inbox for the HTML-formatted test email" });
+    },
+    onError: (error: any) => {
+      toast({ 
+        title: "Send Failed", 
+        description: error.message || "Failed to send test email", 
+        variant: "destructive" 
+      });
+    },
+  });
+
+  const templates = templatesData || [];
+  const selectedTemplate = templates.find((t: any) => t.id === selectedTemplateId);
+
+  return (
+    <div className="space-y-4 border-t pt-4">
+      <h3 className="font-['Archivo'] text-lg text-[#212227]">Test Email Template</h3>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label className="font-['Vazirmatn'] text-[#212227]">Select Template</Label>
+          <select
+            value={selectedTemplateId}
+            onChange={(e) => {
+              setSelectedTemplateId(e.target.value);
+              const template = templates.find((t: any) => t.id === e.target.value);
+              if (template) {
+                setSubject(template.subject);
+                setCustomHtml(template.htmlContent);
+              }
+            }}
+            className={`w-full rounded-[11px] p-2 border font-['Vazirmatn'] ${globalInputStyles}`}
+          >
+            <option value="">-- Select Template --</option>
+            {templates.map((template: any) => (
+              <option key={template.id} value={template.id}>
+                {template.name} ({template.category})
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="space-y-2">
+          <Label className="font-['Vazirmatn'] text-[#212227]">Test Recipient</Label>
+          <Input
+            type="email"
+            placeholder="test@example.com"
+            value={testEmail}
+            onChange={(e) => setTestEmail(e.target.value)}
+            className={`rounded-[11px] font-['Vazirmatn'] ${globalInputStyles}`}
+          />
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label className="font-['Vazirmatn'] text-[#212227]">Subject Line</Label>
+        <Input
+          value={subject}
+          onChange={(e) => setSubject(e.target.value)}
+          placeholder="Email subject..."
+          className={`rounded-[11px] font-['Vazirmatn'] ${globalInputStyles}`}
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label className="font-['Vazirmatn'] text-[#212227]">HTML Content</Label>
+        <textarea
+          value={customHtml}
+          onChange={(e) => setCustomHtml(e.target.value)}
+          placeholder="<p>HTML content here...</p>"
+          rows={10}
+          className={`w-full rounded-[11px] p-3 border font-mono text-sm ${globalInputStyles}`}
+        />
+      </div>
+
+      <div className="flex gap-2">
+        <Button
+          onClick={() => setShowPreview(!showPreview)}
+          variant="outline"
+          className="rounded-[11px] font-['Vazirmatn']"
+        >
+          {showPreview ? "Hide Preview" : "Show Preview"}
+        </Button>
+        
+        <Button
+          onClick={() => {
+            if (!testEmail || !testEmail.includes('@')) {
+              toast({ 
+                title: "Invalid Email", 
+                description: "Please enter a valid test email address", 
+                variant: "destructive" 
+              });
+              return;
+            }
+            if (!subject || !customHtml) {
+              toast({ 
+                title: "Missing Content", 
+                description: "Subject and HTML content are required", 
+                variant: "destructive" 
+              });
+              return;
+            }
+            sendTestMutation.mutate({
+              to: testEmail,
+              subject,
+              htmlContent: customHtml,
+              templateId: selectedTemplateId || undefined,
+            });
+          }}
+          disabled={sendTestMutation.isPending}
+          className="bg-[#F2633A] hover:bg-[#F2633A]/90 text-white rounded-[11px] font-['Vazirmatn']"
+        >
+          <RefreshCw className="w-4 h-4 mr-2" />
+          {sendTestMutation.isPending ? "Sending..." : "Send Test Email"}
+        </Button>
+      </div>
+
+      {showPreview && customHtml && (
+        <div className="border rounded-[11px] p-4 bg-white">
+          <p className="text-sm text-[#696A6D] mb-2 font-['Vazirmatn']">Preview:</p>
+          <iframe
+            srcDoc={customHtml}
+            className="w-full h-[400px] border-0"
+            title="Email Preview"
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function Settings() {
   const { toast } = useToast();
   const [thinCsvUrl, setThinCsvUrl] = useState("https://docs.google.com/spreadsheets/d/e/2PACX-1vSdjr_ZWgEOAfDH0c9bAxhRe-fDuc_Z9DAdCW3b4pSUgGjWtOhaVXUW7lWxlBN7eN9F_Z0M-I5X2N85/pub?gid=71970597&single=true&output=csv");
@@ -531,103 +818,8 @@ export default function Settings() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label className="font-['Vazirmatn'] text-[#212227]">Enable Notifications</Label>
-                      <p className="text-sm text-[#696A6D]">Send email alerts when new wholesale applications are submitted</p>
-                    </div>
-                    <input type="checkbox" className="toggle" defaultChecked />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="notificationRecipients" className="font-['Vazirmatn'] text-[#212227]">
-                      Notification Recipients
-                    </Label>
-                    <div className="space-y-2">
-                      <div className="flex gap-2">
-                        <Input
-                          id="newRecipient"
-                          type="email"
-                          placeholder="admin@example.com"
-                          className={`rounded-[11px] font-['Vazirmatn'] ${globalInputStyles}`}
-                        />
-                        <Button
-                          onClick={() => {
-                            const input = document.getElementById('newRecipient') as HTMLInputElement;
-                            if (input?.value) {
-                              // Add recipient logic here
-                              toast({
-                                title: "Recipient Added",
-                                description: `${input.value} will receive notifications`,
-                              });
-                              input.value = '';
-                            }
-                          }}
-                          className="bg-[#F2633A] hover:bg-[#F2633A]/90 text-white rounded-[11px] font-['Vazirmatn']"
-                        >
-                          Add
-                        </Button>
-                      </div>
-
-                      <div className="space-y-2 mt-4">
-                        <p className="text-sm text-[#696A6D]">Current Recipients:</p>
-                        <div className="flex flex-wrap gap-2">
-                          <Badge variant="secondary" className="font-['Vazirmatn']">
-                            sales@itsunderitall.com
-                            <button className="ml-2 text-red-500 hover:text-red-700">×</button>
-                          </Badge>
-                          <Badge variant="secondary" className="font-['Vazirmatn']">
-                            admin@itsunderitall.com
-                            <button className="ml-2 text-red-500 hover:text-red-700">×</button>
-                          </Badge>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="bg-[#F3F1E9] border border-[#E1E0DA] p-4 rounded-[11px] text-sm font-['Vazirmatn'] text-[#696A6D]">
-                    <p className="font-semibold text-[#212227] mb-2">Gmail Integration Status:</p>
-                    <div className="flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-green-600" />
-                      <span>Connected via Replit Gmail Connector</span>
-                    </div>
-                    <p className="text-xs mt-2">Emails will be sent from: noreply@itsunderitall.com</p>
-                  </div>
-
-                  <Button
-                    onClick={async () => {
-                      try {
-                        const res = await fetch('/api/gmail/send', {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({
-                            to: 'sales@itsunderitall.com',
-                            subject: 'Test Notification from UnderItAll',
-                            body: 'This is a test notification from your wholesale notification system.',
-                          }),
-                        });
-                        const data = await res.json();
-                        toast({
-                          title: data.success ? "Test Email Sent" : "Send Failed",
-                          description: data.success ? "Check your inbox!" : data.error,
-                          variant: data.success ? "default" : "destructive",
-                        });
-                      } catch (error) {
-                        toast({
-                          title: "Error",
-                          description: "Failed to send test email",
-                          variant: "destructive",
-                        });
-                      }
-                    }}
-                    variant="outline"
-                    className="rounded-[11px] font-['Vazirmatn']"
-                  >
-                    <RefreshCw className="w-4 h-4 mr-2" />
-                    Send Test Email
-                  </Button>
-                </div>
+                <NotificationRecipientsManager />
+                <EmailTemplateTestPanel />
               </CardContent>
             </Card>
           </TabsContent>

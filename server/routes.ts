@@ -7,6 +7,7 @@ import {
   calculatorQuotes,
   webhookLogs,
   draftOrders,
+  notificationRecipients,
 } from "@shared/schema";
 import { desc, eq } from "drizzle-orm";
 import { getShopifyConfig, executeShopifyGraphQL } from "./utils/shopifyConfig";
@@ -422,11 +423,12 @@ export function registerRoutes(app: Express) {
   // Notification Recipients Management
   app.get("/api/notification-recipients", async (req, res) => {
     try {
-      // For now, return hardcoded recipients (you can store in DB later)
-      const recipients = [
-        "sales@itsunderitall.com",
-        "admin@itsunderitall.com"
-      ];
+      const { category } = req.query;
+      const query = category 
+        ? db.select().from(notificationRecipients).where(eq(notificationRecipients.category, category as string))
+        : db.select().from(notificationRecipients);
+      
+      const recipients = await query;
       res.json({ recipients });
     } catch (error) {
       console.error("❌ Error fetching recipients:", error);
@@ -436,26 +438,171 @@ export function registerRoutes(app: Express) {
 
   app.post("/api/notification-recipients", async (req, res) => {
     try {
-      const { email } = req.body;
+      const { email, category } = req.body;
       if (!email || !email.includes('@')) {
         return res.status(400).json({ error: "Invalid email address" });
       }
-      // Store in DB or env var (for now, just acknowledge)
-      res.json({ success: true, message: `Recipient ${email} added` });
+      
+      const [recipient] = await db
+        .insert(notificationRecipients)
+        .values({
+          email,
+          category: category || "wholesale_notifications",
+          active: true,
+        })
+        .onConflictDoNothing()
+        .returning();
+      
+      res.json({ success: true, recipient });
     } catch (error) {
       console.error("❌ Error adding recipient:", error);
       res.status(500).json({ error: "Failed to add recipient" });
     }
   });
 
-  app.delete("/api/notification-recipients/:email", async (req, res) => {
+  app.delete("/api/notification-recipients/:id", async (req, res) => {
     try {
-      const { email } = req.params;
-      // Remove from DB or env var
-      res.json({ success: true, message: `Recipient ${email} removed` });
+      const { id } = req.params;
+      await db
+        .delete(notificationRecipients)
+        .where(eq(notificationRecipients.id, id));
+      
+      res.json({ success: true, message: "Recipient removed" });
     } catch (error) {
       console.error("❌ Error removing recipient:", error);
       res.status(500).json({ error: "Failed to remove recipient" });
+    }
+  });
+
+  // Enhanced test-send with template rendering + HTML support
+  app.post("/api/gmail/send-test", async (req, res) => {
+    try {
+      const { to, templateId, subject, htmlContent, variables } = req.body;
+      
+      if (!to || !subject || (!htmlContent && !templateId)) {
+        return res.status(400).json({ 
+          success: false, 
+          error: "Missing required fields: to, subject, and (htmlContent or templateId)" 
+        });
+      }
+
+      let finalHtml = htmlContent;
+      let finalSubject = subject;
+
+      // If templateId provided, render from template
+      if (templateId) {
+        const [template] = await db
+          .select()
+          .from(emailTemplates)
+          .where(eq(emailTemplates.id, templateId))
+          .limit(1);
+        
+        if (!template) {
+          return res.status(404).json({ success: false, error: "Template not found" });
+        }
+
+        // Simple variable replacement (same as emailService.ts)
+        finalHtml = template.htmlContent;
+        finalSubject = template.subject;
+        
+        if (variables) {
+          Object.keys(variables).forEach(key => {
+            const regex = new RegExp(`{{${key}}}`, 'g');
+            finalHtml = finalHtml.replace(regex, variables[key] || '');
+            finalSubject = finalSubject.replace(regex, variables[key] || '');
+          });
+        }
+      }
+
+      // Convert HTML to plain text fallback
+      const plainText = finalHtml
+        .replace(/<[^>]*>/g, '')
+        .replace(/&nbsp;/g, ' ')
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'")
+        .replace(/\s+/g, ' ')
+        .trim();
+
+      // Send via Gmail API with HTML support
+      const { google } = await import('googleapis');
+      const { default: http } = await import("http");
+      
+      // Get fresh access token
+      const hostname = process.env.REPLIT_CONNECTORS_HOSTNAME;
+      const xReplitToken = process.env.REPL_IDENTITY 
+        ? 'repl ' + process.env.REPL_IDENTITY 
+        : process.env.WEB_REPL_RENEWAL 
+        ? 'depl ' + process.env.WEB_REPL_RENEWAL 
+        : null;
+
+      if (!xReplitToken) {
+        throw new Error('Gmail connection not available');
+      }
+
+      const connectionSettings = await fetch(
+        'https://' + hostname + '/api/v2/connection?include_secrets=true&connector_names=google-mail',
+        {
+          headers: {
+            'Accept': 'application/json',
+            'X_REPLIT_TOKEN': xReplitToken
+          }
+        }
+      ).then(res => res.json()).then(data => data.items?.[0]);
+
+      const accessToken = connectionSettings?.settings?.access_token || connectionSettings.settings?.oauth?.credentials?.access_token;
+
+      if (!accessToken) {
+        throw new Error('Gmail access token not available');
+      }
+
+      const oauth2Client = new google.auth.OAuth2();
+      oauth2Client.setCredentials({ access_token: accessToken });
+      const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
+
+      // Build MIME message with HTML + plain text
+      const message = [
+        `From: UnderItAll <noreply@itsunderitall.com>`,
+        `To: ${to}`,
+        `Subject: ${finalSubject}`,
+        `MIME-Version: 1.0`,
+        `Content-Type: multipart/alternative; boundary="boundary123"`,
+        '',
+        '--boundary123',
+        'Content-Type: text/plain; charset=UTF-8',
+        '',
+        plainText,
+        '--boundary123',
+        'Content-Type: text/html; charset=UTF-8',
+        '',
+        finalHtml,
+        '--boundary123--',
+      ].join('\n');
+
+      const encodedMessage = Buffer.from(message)
+        .toString('base64')
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_')
+        .replace(/=+$/, '');
+
+      const result = await gmail.users.messages.send({
+        userId: 'me',
+        requestBody: { raw: encodedMessage },
+      });
+
+      res.json({ 
+        success: true, 
+        messageId: result.data.id,
+        message: "Test email sent successfully with HTML formatting"
+      });
+    } catch (error) {
+      console.error("Error sending test email:", error);
+      res.status(500).json({ 
+        success: false, 
+        error: error instanceof Error ? error.message : "Failed to send test email" 
+      });
     }
   });
 
