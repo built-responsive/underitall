@@ -49,8 +49,9 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-Shopify-Shop-Domain', 'X-Shopify-Access-Token'],
 }));
 
-// Capture raw body for webhook HMAC verification (before JSON parsing)
-app.use("/api/webhooks", express.json({
+// Capture raw body for webhook HMAC verification (BEFORE JSON parsing)
+// Apply to ALL /api/webhooks/* routes using regex pattern
+app.use(/^\/api\/webhooks/, express.json({
   verify: (req: any, res, buf) => {
     req.rawBody = buf.toString('utf8');
   }
