@@ -667,7 +667,7 @@ export default function Admin() {
                                       </div>
                                     </div>
                                     <a
-                                      href={`https://${process.env.SHOPIFY_SHOP_DOMAIN || 'underitall-redeux.myshopify.com'}/admin/customers/${reg.shopifyCustomerId}`}
+                                      href={`https://underitall-redeux.myshopify.com/admin/customers/${reg.shopifyCustomerId}`}
                                       target="_blank"
                                       rel="noopener noreferrer"
                                       className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#96bf48] hover:bg-[#85aa3d] text-white rounded-[8px] transition-colors font-['Vazirmatn'] text-sm"
