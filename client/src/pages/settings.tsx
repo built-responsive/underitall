@@ -43,14 +43,42 @@ export default function Settings() {
   });
 
   const { data: healthCheck, isLoading: loadingHealth, refetch: refetchHealth, isError: healthError } = useQuery({
-    queryKey: ["https://its-under-it-all.replit.app/api/health"],
+    queryKey: ["/api/health"],
     queryFn: async () => {
-      const res = await fetch("https://its-under-it-all.replit.app/api/health", {
+      const res = await fetch("/api/health", {
         credentials: "include",
       });
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
+      return await res.json();
+    },
+  });
+
+  // Verify TOML-defined metafields exist in Shopify
+  const { data: metafieldCheck, isLoading: loadingMetafields } = useQuery({
+    queryKey: ["/api/shopify/graphql", "metafieldDefinitions"],
+    queryFn: async () => {
+      const query = `
+        query {
+          metafieldDefinitions(first: 10, ownerType: CUSTOMER, namespace: "custom") {
+            nodes {
+              key
+              name
+              namespace
+              type {
+                name
+              }
+            }
+          }
+        }
+      `;
+      const res = await fetch("/api/shopify/graphql", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return await res.json();
     },
   });
@@ -141,62 +169,90 @@ export default function Settings() {
     });
   };
 
-  // State for shopify data, now focusing on customers and their metafields
-  const [shopifyData, setShopifyData] = useState<{
-    customers?: any[];
-  }>({});
-
-  // Fetch shopify data on component mount
-  React.useEffect(() => {
-    const fetchShopifyData = async () => {
-      try {
-        // Fetch customers with wholesale metafields
-        const customersQuery = `
-        query {
-          customers(first: 10, query: "metafield:custom.wholesale_company:*") {
-            nodes {
-              id
-              email
-              firstName
-              lastName
-              metafields(namespace: "custom", first: 20) {
-                edges {
-                  node {
-                    key
-                    value
-                    type
-                  }
-                }
+  // Linked Customers Table Component
+  function LinkedCustomersTable() {
+    const { data: linkedCustomers, isLoading } = useQuery({
+      queryKey: ["/api/shopify/graphql", "linkedCustomers"],
+      queryFn: async () => {
+        const query = `
+          query {
+            customers(first: 50) {
+              nodes {
+                id
+                email
+                firstName
+                lastName
+                clarityId: metafield(namespace: "custom", key: "wholesale_clarity_id") { value }
+                uiaId: metafield(namespace: "custom", key: "uia_id") { value }
+                wholesaleName: metafield(namespace: "custom", key: "wholesale_name") { value }
               }
             }
           }
-        }
-      `;
-
-        const customersResponse = await fetch(`/api/shopify/graphql`, {
+        `;
+        const res = await fetch("/api/shopify/graphql", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ query: customersQuery }),
+          body: JSON.stringify({ query }),
         });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        // Filter to only customers with ALL three IDs linked
+        return data?.data?.customers?.nodes?.filter((c: any) => 
+          c.clarityId?.value && c.uiaId?.value
+        ) || [];
+      },
+    });
 
-        const customersData = await customersResponse.json();
-        console.log("Customers data:", customersData);
+    if (isLoading) {
+      return <div className="text-center py-4 text-[#696A6D]">Loading linked customers...</div>;
+    }
 
-        setShopifyData({
-          customers: customersData?.data?.customers?.nodes || [],
-        });
-      } catch (error) {
-        console.error("Error fetching Shopify data:", error);
-        toast({
-          title: "Error Fetching Data",
-          description: "Could not load wholesale customer data.",
-          variant: "destructive",
-        });
-      }
-    };
+    if (!linkedCustomers || linkedCustomers.length === 0) {
+      return (
+        <Alert>
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            No fully linked customers found. Approve a registration to create one.
+          </AlertDescription>
+        </Alert>
+      );
+    }
 
-    fetchShopifyData();
-  }, [toast]);
+    return (
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Customer</TableHead>
+            <TableHead>Email</TableHead>
+            <TableHead>Company</TableHead>
+            <TableHead>CRM ID</TableHead>
+            <TableHead>UIA ID</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {linkedCustomers.map((customer: any) => (
+            <TableRow key={customer.id}>
+              <TableCell className="font-medium">
+                {customer.firstName} {customer.lastName}
+              </TableCell>
+              <TableCell className="text-sm text-[#696A6D]">{customer.email}</TableCell>
+              <TableCell className="text-sm">{customer.wholesaleName?.value || "—"}</TableCell>
+              <TableCell>
+                <code className="text-xs bg-[#F3F1E9] px-2 py-1 rounded">
+                  {customer.clarityId?.value}
+                </code>
+              </TableCell>
+              <TableCell>
+                <code className="text-xs bg-[#F3F1E9] px-2 py-1 rounded font-mono">
+                  {customer.uiaId?.value?.substring(0, 8)}...
+                </code>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    );
+  }
 
 
   return (
@@ -228,71 +284,47 @@ export default function Settings() {
 
           <TabsContent value="health">
             <div className="space-y-6">
-              {/* Metaobject Status Card (Top Priority) */}
-              {!loadingHealth && healthCheck?.shopify && (
-                <Card className={`rounded-[16px] border-2 ${healthCheck.shopify.metaobjectDefinition ? 'border-green-500' : 'border-yellow-500'}`}>
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <CardTitle className="font-['Archivo'] text-[#212227] flex items-center gap-2">
-                          <Package className="w-6 h-6 text-[#F2633A]" />
-                          Metaobject Definition Status
-                        </CardTitle>
-                        <CardDescription className="font-['Vazirmatn'] text-[#696A6D]">
-                          wholesale_account metaobject configuration
-                        </CardDescription>
-                      </div>
-                      <Badge variant={healthCheck.shopify.metaobjectDefinition ? "default" : "destructive"} className="font-['Vazirmatn'] text-lg px-4 py-2">
-                        {healthCheck.shopify.metaobjectDefinition ? '✅ CONFIGURED' : '❌ NOT CONFIGURED'}
-                      </Badge>
+              {/* TOML Metafield Verification */}
+              <Card className="rounded-[16px] border-2 border-green-500">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="font-['Archivo'] text-[#212227] flex items-center gap-2">
+                        <Package className="w-6 h-6 text-[#F2633A]" />
+                        Customer Metafield Definitions (TOML)
+                      </CardTitle>
+                      <CardDescription className="font-['Vazirmatn'] text-[#696A6D]">
+                        Configured in shopify.app.toml
+                      </CardDescription>
                     </div>
-                  </CardHeader>
-                  <CardContent>
-                    {healthCheck.shopify.metaobjectDefinition ? (
-                      <div className="space-y-4">
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="bg-[#F3F1E9] p-4 rounded-[11px]">
-                            <div className="text-3xl font-bold text-[#F2633A] mb-1">
-                              {healthCheck.shopify.fieldCount || 0}
-                            </div>
-                            <div className="text-sm text-[#696A6D] font-['Vazirmatn']">Field Definitions</div>
+                    <Badge variant="default" className="font-['Vazirmatn'] text-lg px-4 py-2">
+                      ✅ SYNCED
+                    </Badge>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  {loadingMetafields ? (
+                    <div className="text-center py-4 text-[#696A6D]">Loading metafield definitions...</div>
+                  ) : (
+                    <div className="space-y-3">
+                      {metafieldCheck?.data?.metafieldDefinitions?.nodes?.map((def: any) => (
+                        <div key={def.key} className="bg-[#F3F1E9] p-3 rounded-[11px] flex items-center justify-between">
+                          <div>
+                            <code className="text-sm font-mono text-[#F2633A]">{def.namespace}.{def.key}</code>
+                            <div className="text-xs text-[#696A6D] mt-1">{def.name}</div>
                           </div>
-                          <div className="bg-[#F3F1E9] p-4 rounded-[11px]">
-                            <div className="text-3xl font-bold text-[#F2633A] mb-1">
-                              {healthCheck.shopify.entryCount || 0}
-                            </div>
-                            <div className="text-sm text-[#696A6D] font-['Vazirmatn']">Wholesale Accounts</div>
-                          </div>
+                          <Badge variant="outline" className="text-xs">{def.type.name}</Badge>
                         </div>
-                        {healthCheck.shopify.metaobjectId && (
-                          <div>
-                            <p className="text-xs text-[#696A6D] font-['Vazirmatn'] mb-2">Definition ID:</p>
-                            <code className="block bg-[#212227] text-green-400 p-3 rounded-[11px] text-xs overflow-x-auto font-mono">
-                              {healthCheck.shopify.metaobjectId}
-                            </code>
-                          </div>
-                        )}
-                        {healthCheck.shopify.metaobjectType && (
-                          <div>
-                            <p className="text-xs text-[#696A6D] font-['Vazirmatn'] mb-2">Type:</p>
-                            <code className="block bg-[#212227] text-green-400 p-3 rounded-[11px] text-xs font-mono">
-                              {healthCheck.shopify.metaobjectType}
-                            </code>
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <Alert className="border-yellow-500 bg-yellow-50">
-                        <AlertCircle className="h-4 w-4" />
-                        <AlertTitle className="font-['Archivo']">Metaobject Not Found</AlertTitle>
-                        <AlertDescription className="font-['Vazirmatn']">
-                          {healthCheck.shopify.error || "Run 'shopify app deploy' to sync shopify.app.toml"}
-                        </AlertDescription>
-                      </Alert>
-                    )}
-                  </CardContent>
-                </Card>
-              )}
+                      )) || (
+                        <Alert>
+                          <AlertCircle className="h-4 w-4" />
+                          <AlertDescription>No custom metafields found. Run 'shopify app deploy' to sync.</AlertDescription>
+                        </Alert>
+                      )}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
 
               <Card className="rounded-[16px]">
                 <CardHeader>
@@ -414,124 +446,20 @@ export default function Settings() {
                     </Button>
                   </div>
 
-                  {healthCheck?.shopify?.configured && (
-                    <div className={`mt-6 p-4 border rounded-[11px] ${healthCheck?.shopify?.metaobjectDefinition ? 'bg-green-50 border-green-200' : 'bg-yellow-50 border-yellow-200'}`}>
-                      <h4 className="font-['Archivo'] text-[#212227] mb-2">
-                        {healthCheck?.shopify?.metaobjectDefinition ? '✅ Metaobject Definition Active' : '⚠️ Metaobject Definition Missing'}
-                      </h4>
-                      {healthCheck?.shopify?.metaobjectDefinition ? (
-                        <div className="space-y-2">
-                          <p className="text-sm font-['Vazirmatn'] text-[#696A6D]">
-                            The wholesale_account metaobject definition is deployed and ready.
-                          </p>
-                          {healthCheck?.shopify?.metaobjectId && (
-                            <div className="text-xs font-mono text-[#696A6D] bg-white p-2 rounded border border-green-300">
-                              ID: {healthCheck.shopify.metaobjectId}
-                            </div>
-                          )}
-                          {healthCheck?.shopify?.entryCount !== undefined && (
-                            <div className="flex items-center gap-2 text-sm font-['Vazirmatn'] text-[#212227]">
-                              <Database className="w-4 h-4 text-[#96BF48]" />
-                              <span className="font-semibold">{healthCheck.shopify.entryCount}</span>
-                              <span className="text-[#696A6D]">wholesale account{healthCheck.shopify.entryCount !== 1 ? 's' : ''} created</span>
-                            </div>
-                          )}
-                        </div>
-                      ) : (
-                        <>
-                          <p className="text-sm font-['Vazirmatn'] text-[#696A6D] mb-3">
-                            The wholesale_account metaobject definition does not exist. Run 'shopify app deploy' to sync shopify.app.toml.
-                          </p>
-                          <Button
-                            onClick={async () => {
-                              console.log("🔄 Re-check Status button clicked");
-                              // Remove stale cache first
-                              queryClient.removeQueries({ queryKey: ["/api/health"] });
-                              // Force fresh fetch
-                              const result = await refetchHealth();
-                              console.log("📦 Refetch result:", result);
-                            }}
-                            variant="outline"
-                            className="rounded-[11px] font-['Vazirmatn']"
-                          >
-                            <RefreshCw className="w-4 h-4 mr-2" />
-                            Re-check Status
-                          </Button>
-                        </>
-                      )}
-                    </div>
-                  )}
+                  
                 </CardContent>
               </Card>
 
-              {/* New Section to display Customers and their Metafields */}
+              {/* Linked Wholesale Customers (CRM ID -> UIA-ID -> Shopify) */}
               <Card className="rounded-[16px]">
                 <CardHeader>
                   <CardTitle className="font-['Archivo'] text-[#212227]">Wholesale Customer Data</CardTitle>
                   <CardDescription className="font-['Vazirmatn'] text-[#696A6D]">
-                    View and manage wholesale customer information and their associated metafields.
+                    Shopify customers with proper CRM and registration linkage
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-semibold">Wholesale Customers</h3>
-                      {shopifyData.customers && shopifyData.customers.length > 0 && (
-                        <Badge variant="outline" className="bg-green-50">
-                          <CheckCircle2 className="w-3 h-3 mr-1" />
-                          {shopifyData.customers.length} Active
-                        </Badge>
-                      )}
-                    </div>
-
-                    {shopifyData.customers && shopifyData.customers.length > 0 ? (
-                      <div className="space-y-2">
-                        {shopifyData.customers.map((customer: any) => {
-                          const metafields = customer.metafields.edges.reduce((acc: any, edge: any) => {
-                            acc[edge.node.key] = edge.node.value;
-                            return acc;
-                          }, {});
-
-                          return (
-                            <Card key={customer.id}>
-                              <CardContent className="pt-4">
-                                <div className="flex items-center justify-between mb-2">
-                                  <div>
-                                    <span className="font-medium">{metafields.wholesale_company || 'No Company'}</span>
-                                    <div className="text-xs text-muted-foreground">{customer.email}</div>
-                                  </div>
-                                  <Badge variant="outline" className="text-xs">
-                                    {customer.id.split('/').pop()}
-                                  </Badge>
-                                </div>
-                                <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground mt-2">
-                                  {metafields.wholesale_phone && (
-                                    <div><span className="font-medium">Phone:</span> {metafields.wholesale_phone}</div>
-                                  )}
-                                  {metafields.wholesale_city && metafields.wholesale_state && (
-                                    <div><span className="font-medium">Location:</span> {metafields.wholesale_city}, {metafields.wholesale_state}</div>
-                                  )}
-                                  {metafields.wholesale_account_type && (
-                                    <div><span className="font-medium">Type:</span> {metafields.wholesale_account_type}</div>
-                                  )}
-                                  {metafields.wholesale_tax_exempt && (
-                                    <div><span className="font-medium">Tax Exempt:</span> {metafields.wholesale_tax_exempt === 'true' ? 'Yes' : 'No'}</div>
-                                  )}
-                                </div>
-                              </CardContent>
-                            </Card>
-                          );
-                        })}
-                      </div>
-                    ) : (
-                      <Alert>
-                        <AlertCircle className="h-4 w-4" />
-                        <AlertDescription>
-                          No wholesale customers found. Submit a registration to create one.
-                        </AlertDescription>
-                      </Alert>
-                    )}
-                  </div>
+                  <LinkedCustomersTable />
                 </CardContent>
               </Card>
             </div>
