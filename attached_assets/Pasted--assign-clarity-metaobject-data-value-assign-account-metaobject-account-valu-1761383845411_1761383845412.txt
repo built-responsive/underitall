@@ -1,0 +1,326 @@
+{%- assign clarity     = metaobject.data.value -%}
+{%- assign account     = metaobject.account.value      | default: metaobject.account      | default: '' -%}
+{%- assign account_id  = metaobject.account_id.value   | default: metaobject.account_id   | default: '' -%}
+{%- assign contact_id  = metaobject.contact_id.value   | default: metaobject.contact_id   | default: '' -%}
+{%- assign email       = metaobject.email.value        | default: metaobject.email        | default: '' -%}
+
+<section id="uia-trade-form" data-endpoint="{{ endpoint | escape }}">==
+    <div class="uia-card">
+
+<form id="tradeForm" novalidate style="max-width:672px;margin:24px auto;padding:24px;border:1px solid #E1E0DA;border-radius:16px;background:#FFFFFF;font-family:'Vazirmatn',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#1E1F23;">
+  <div style="text-align:center;margin-bottom:24px;">
+    <img src="https://join.itsunderitall.com/brand/logo-main.png" alt="UnderItAll" style="height:64px;margin:0 auto 16px;display:block;">
+    <h1 style="margin:0 0 8px;font:700 32px/40px 'Archivo',system-ui,sans-serif;color:#1E1F23;">Join Our Trade Program</h1>
+    <p style="margin:0 auto;max-width:560px;font:400 16px/24px 'Vazirmatn',sans-serif;color:#4B4D50;">Becoming a trade member takes less than one minute and unlocks exclusive pricing and trade-only tools.</p>
+  </div>
+
+  <div style="margin-bottom:24px;">
+    <div style="margin:0 0 8px 0;font:600 20px/28px 'Archivo',sans-serif;color:#1E1F23;">Business Information</div>
+
+    <div style="display:grid;gap:16px;">
+      <div>
+        <label for="firmName" style="display:block;margin:0 0 8px 0;font:500 14px/20px 'Vazirmatn',sans-serif;color:#1E1F23;">Company Name</label>
+        <input id="firmName" name="firmName" placeholder="Your Company Name" value="{{ account | escape }}"
+               onfocus="this.style.borderColor='#F2633A'" onblur="this.style.borderColor='#E1E0DA'"
+               style="width:100%;height:48px;border:1px solid #E1E0DA;border-radius:16px;padding:0 12px;background:#FFF;font:400 16px/24px 'Vazirmatn',sans-serif;outline:0;transition:border-color .15s ease-out;">
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div>
+          <label for="firstName" style="display:block;margin:0 0 8px 0;font:500 14px/20px 'Vazirmatn',sans-serif;color:#1E1F23;">First Name</label>
+          <input id="firstName" name="firstName" placeholder="John"
+value="{{ customer.first_name | default: '' | escape }}"                 onfocus="this.style.borderColor='#F2633A'" onblur="this.style.borderColor='#E1E0DA'"
+                 style="width:100%;height:48px;border:1px solid #E1E0DA;border-radius:16px;padding:0 12px;background:#FFF;font:400 16px/24px 'Vazirmatn',sans-serif;outline:0;">
+        </div>
+        <div>
+          <label for="lastName" style="display:block;margin:0 0 8px 0;font:500 14px/20px 'Vazirmatn',sans-serif;color:#1E1F23;">Last Name</label>
+          <input id="lastName" name="lastName" placeholder="Doe"
+value="{{ customer.last_name | default: '' | escape }}"                  onfocus="this.style.borderColor='#F2633A'" onblur="this.style.borderColor='#E1E0DA'"
+                 style="width:100%;height:48px;border:1px solid #E1E0DA;border-radius:16px;padding:0 12px;background:#FFF;font:400 16px/24px 'Vazirmatn',sans-serif;outline:0;">
+        </div>
+      </div>
+
+      <div>
+        <label for="title" style="display:block;margin:0 0 8px 0;font:500 14px/20px 'Vazirmatn',sans-serif;color:#1E1F23;">Title (Optional)</label>
+        <input id="title" name="title" placeholder="e.g. CEO, Sales Director"
+               onfocus="this.style.borderColor='#F2633A'" onblur="this.style.borderColor='#E1E0DA'"
+               style="width:100%;height:48px;border:1px solid #E1E0DA;border-radius:16px;padding:0 12px;background:#FFF;font:400 16px/24px 'Vazirmatn',sans-serif;outline:0;">
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div>
+          <label for="email" style="display:block;margin:0 0 8px 0;font:500 14px/20px 'Vazirmatn',sans-serif;color:#1E1F23;">Email</label>
+          <input id="email" name="email" type="email" placeholder="john@yourcompany.com" value="{{ email | escape }}"
+                 pattern="^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
+                 onfocus="this.style.borderColor='#F2633A'" onblur="this.style.borderColor='#E1E0DA'"
+                 style="width:100%;height:48px;border:1px solid #E1E0DA;border-radius:16px;padding:0 12px;background:#FFF;font:400 16px/24px 'Vazirmatn',sans-serif;outline:0;">
+        </div>
+        <div>
+          <label for="phone" style="display:block;margin:0 0 8px 0;font:500 14px/20px 'Vazirmatn',sans-serif;color:#1E1F23;">Phone</label>
+          <input id="phone" name="phone" placeholder="(555) 123-4567" value="{{ clarity.CompanyPhone | default: '' | escape }}"
+                 onfocus="this.style.borderColor='#F2633A'" onblur="this.style.borderColor='#E1E0DA'"
+                 style="width:100%;height:48px;border:1px solid #E1E0DA;border-radius:16px;padding:0 12px;background:#FFF;font:400 16px/24px 'Vazirmatn',sans-serif;outline:0;">
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div>
+          <label for="website" style="display:block;margin:0 0 8px 0;font:500 14px/20px 'Vazirmatn',sans-serif;color:#1E1F23;">Website (Optional)</label>
+          <input id="website" name="website" placeholder="https://yourcompany.com" value="{{ clarity.Website | default: '' | escape }}"
+                 onfocus="this.style.borderColor='#F2633A'" onblur="this.style.borderColor='#E1E0DA'"
+                 style="width:100%;height:48px;border:1px solid #E1E0DA;border-radius:16px;padding:0 12px;background:#FFF;font:400 16px/24px 'Vazirmatn',sans-serif;outline:0;">
+        </div>
+        <div>
+          <label for="instagramHandle" style="display:block;margin:0 0 8px 0;font:500 14px/20px 'Vazirmatn',sans-serif;color:#1E1F23;">Instagram Handle (Optional)</label>
+          <input id="instagramHandle" name="instagramHandle" placeholder="@yourcompany" value="{{ clarity.Instagram | default: '' | escape }}"
+                 onfocus="this.style.borderColor='#F2633A'" onblur="this.style.borderColor='#E1E0DA'"
+                 style="width:100%;height:48px;border:1px solid #E1E0DA;border-radius:16px;padding:0 12px;background:#FFF;font:400 16px/24px 'Vazirmatn',sans-serif;outline:0;">
+        </div>
+      </div>
+
+      <div>
+        <label for="businessAddress" style="display:block;margin:0 0 8px 0;font:500 14px/20px 'Vazirmatn',sans-serif;color:#1E1F23;">Business Address</label>
+        <input id="businessAddress" name="businessAddress" placeholder="123 Main Street" value="{{ clarity.Address1 | default: '' | escape }}"
+               onfocus="this.style.borderColor='#F2633A'" onblur="this.style.borderColor='#E1E0DA'"
+               style="width:100%;height:48px;border:1px solid #E1E0DA;border-radius:16px;padding:0 12px;background:#FFF;font:400 16px/24px 'Vazirmatn',sans-serif;outline:0;">
+      </div>
+
+      <div>
+        <label for="businessAddress2" style="display:block;margin:0 0 8px 0;font:500 14px/20px 'Vazirmatn',sans-serif;color:#1E1F23;">Suite / Unit # (Optional)</label>
+        <input id="businessAddress2" name="businessAddress2" placeholder="Suite 100" value="{{ clarity.Address2 | default: '' | escape }}"
+               onfocus="this.style.borderColor='#F2633A'" onblur="this.style.borderColor='#E1E0DA'"
+               style="width:100%;height:48px;border:1px solid #E1E0DA;border-radius:16px;padding:0 12px;background:#FFF;font:400 16px/24px 'Vazirmatn',sans-serif;outline:0;">
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;">
+        <div>
+          <label for="city" style="display:block;margin:0 0 8px 0;font:500 14px/20px 'Vazirmatn',sans-serif;color:#1E1F23;">City</label>
+          <input id="city" name="city" placeholder="New York" value="{{ clarity.City | default: '' | escape }}"
+                 onfocus="this.style.borderColor='#F2633A'" onblur="this.style.borderColor='#E1E0DA'"
+                 style="width:100%;height:48px;border:1px solid #E1E0DA;border-radius:16px;padding:0 12px;background:#FFF;font:400 16px/24px 'Vazirmatn',sans-serif;outline:0;">
+        </div>
+        <div>
+          <label for="state" style="display:block;margin:0 0 8px 0;font:500 14px/20px 'Vazirmatn',sans-serif;color:#1E1F23;">State</label>
+          <input id="state" name="state" placeholder="NY" value="{{ clarity.State | default: '' | escape }}"
+                 onfocus="this.style.borderColor='#F2633A'" onblur="this.style.borderColor='#E1E0DA'"
+                 style="width:100%;height:48px;border:1px solid #E1E0DA;border-radius:16px;padding:0 12px;background:#FFF;font:400 16px/24px 'Vazirmatn',sans-serif;outline:0;">
+        </div>
+        <div>
+          <label for="zipCode" style="display:block;margin:0 0 8px 0;font:500 14px/20px 'Vazirmatn',sans-serif;color:#1E1F23;">ZIP Code</label>
+          <input id="zipCode" name="zipCode" placeholder="10001" value="{{ clarity.ZipCode | default: '' | escape }}"
+                 onfocus="this.style.borderColor='#F2633A'" onblur="this.style.borderColor='#E1E0DA'"
+                 style="width:100%;height:48px;border:1px solid #E1E0DA;border-radius:16px;padding:0 12px;background:#FFF;font:400 16px/24px 'Vazirmatn',sans-serif;outline:0;">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-bottom:24px;">
+    <div style="margin:0 0 8px 0;font:600 20px/28px 'Archivo',sans-serif;color:#1E1F23;">Trade Credentials</div>
+
+    <div style="display:grid;gap:16px;">
+      <div>
+        <label for="businessType" style="display:block;margin:0 0 8px 0;font:500 14px/20px 'Vazirmatn',sans-serif;color:#1E1F23;">Business Type</label>
+        <select id="businessType" name="businessType"
+                onfocus="this.style.borderColor='#F2633A'" onblur="this.style.borderColor='#E1E0DA'"
+                style="width:100%;height:48px;border:1px solid #E1E0DA;border-radius:16px;padding:0 12px;background:#FFF;font:500 14px/20px 'Vazirmatn',sans-serif;outline:0;">
+          {%- assign bt = clarity['Account Type'] | default: '' -%}
+          <option value="" {% if bt == '' %}selected{% endif %}>Select business type</option>
+          <option value="interior_designer_solo"      {% if bt == 'Interior Designer - Solopreneur' %}selected{% endif %}>Interior Designer - Solopreneur</option>
+          <option value="interior_design_firm_2_5"    {% if bt == 'Interior Design Firm - 2-5 ppl' %}selected{% endif %}>Interior Design Firm - 2-5 ppl</option>
+          <option value="interior_design_firm_5_plus" {% if bt == 'Interior Design Firm - 5+ ppl' %}selected{% endif %}>Interior Design Firm - 5+ ppl</option>
+          <option value="design_with_retail"          {% if bt == 'Design with Retail' %}selected{% endif %}>Design with Retail</option>
+          <option value="trade_showroom"              {% if bt == 'To-the-Trade Multi-Line Showroom' %}selected{% endif %}>To-the-Trade Multi-Line Showroom</option>
+          <option value="architecture_firm"           {% if bt == 'Architecture Firm (A&D)' %}selected{% endif %}>Architecture Firm (A&amp;D)</option>
+          <option value="furniture_retailer"          {% if bt == 'Furniture Retailer - Brick & Mortar' %}selected{% endif %}>Furniture Retailer - Brick &amp; Mortar</option>
+          <option value="ecommerce"                   {% if bt == 'E-Comm' %}selected{% endif %}>E-Comm</option>
+          <option value="home_stager"                 {% if bt == 'Home Stager / Staging Company' %}selected{% endif %}>Home Stager / Staging Company</option>
+          <option value="specialty_rug_retail"        {% if bt == 'Specialty Retail Location - Rugs' %}selected{% endif %}>Specialty Retail Location - Rugs</option>
+          <option value="receiving_warehousing"       {% if bt == 'Recieving / Warehousing / White-Glove Install' %}selected{% endif %}>Recieving / Warehousing / White-Glove Install</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="taxId" style="display:block;margin:0 0 8px 0;font:500 14px/20px 'Vazirmatn',sans-serif;color:#1E1F23;">VAT / Tax ID (EIN)</label>
+        <input id="taxId" name="taxId" placeholder="Enter your EIN or VAT ID, or type 'NA' if not applicable" value="{{ clarity.EIN | default: '' | escape }}"
+               onfocus="this.style.borderColor='#F2633A'" onblur="this.style.borderColor='#E1E0DA'"
+               style="width:100%;height:48px;border:1px solid #E1E0DA;border-radius:16px;padding:0 12px;background:#FFF;font:400 16px/24px 'Vazirmatn',sans-serif;outline:0;">
+      </div>
+
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin:0 0 8px 0;">
+          <label style="font:500 14px/20px 'Vazirmatn',sans-serif;color:#1E1F23;">Sales Tax Exemption</label>
+          <label for="tax-proof-upload"
+                 style="display:inline-flex;align-items:center;justify-content:center;padding:12px 16px;background:#7E8D76;color:#FFF;border:1px solid #7E8D76;border-radius:16px;font:600 14px/20px 'Vazirmatn',sans-serif;cursor:pointer;transition:transform .2s ease;">
+            Choose File
+          </label>
+        </div>
+        <input type="file" id="tax-proof-upload" accept=".pdf,.jpg,.jpeg,.png" style="display:none;">
+        <p style="margin:8px 0 0 0;font:400 14px/20px 'Vazirmatn',sans-serif;color:#696A6D;">Upload a resale certificate (PDF, JPG, or PNG) 50MB max</p>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-bottom:24px;">
+    <div style="margin:0 0 8px 0;font:600 20px/28px 'Archivo',sans-serif;color:#1E1F23;">Additional Information</div>
+
+    <div style="display:grid;gap:16px;">
+      <div>
+        <label for="howDidYouHear" style="display:block;margin:0 0 8px 0;font:500 14px/20px 'Vazirmatn',sans-serif;color:#1E1F23;">How did you hear about us?</label>
+        <textarea id="howDidYouHear" name="howDidYouHear" placeholder="Tell us how you discovered UnderItAll... Sales Rep, Online Search, Social Media, etc."
+                  style="width:100%;min-height:100px;border:1px solid #E1E0DA;border-radius:16px;padding:12px;background:#FFF;font:400 16px/24px 'Vazirmatn',sans-serif;outline:0;resize:vertical;">{{ clarity['Lead Source Specifics'] | default: '' | escape }}</textarea>
+      </div>
+
+      <div>
+        <span style="display:block;margin:0 0 8px 0;font:500 14px/20px 'Vazirmatn',sans-serif;color:#1E1F23;">Did you receive a sample set from your representative?</span>
+        {%- assign sample = clarity['Sample Set'] | default: 'No' -%}
+        <div style="display:flex;gap:16px;align-items:center;">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font:400 16px/24px 'Vazirmatn',sans-serif;">
+            <input type="radio" name="sampleSet" value="Yes" {% if sample == 'Yes' %}checked{% endif %} style="width:16px;height:16px;">
+            <span>Yes</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font:400 16px/24px 'Vazirmatn',sans-serif;">
+            <input type="radio" name="sampleSet" value="No" {% if sample == 'No' %}checked{% endif %} style="width:16px;height:16px;">
+            <span>No</span>
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <input type="hidden" name="account_id" value="{{ account_id | escape }}">
+  <input type="hidden" name="contact_id" value="{{ contact_id | escape }}">
+  <input type="hidden" name="AccountId" value="{{ clarity.AccountId | default: '' | escape }}">
+  <input type="hidden" name="OwnerId" value="{{ clarity.OwnerId | default: '' | escape }}">
+  <input type="hidden" name="Owner" value="{{ clarity.Owner | default: '' | escape }}">
+  <input type="hidden" name="Shopify Reference" value="{{ clarity['Shopify Reference'] | default: '' | escape }}">
+
+  <button type="submit"
+          style="display:inline-flex;align-items:center;justify-content:center;width:100%;min-height:48px;padding:12px 16px;border-radius:16px;background:#F2633A;color:#FFF;border:1px solid #7E8D76;font:600 16px/24px 'Vazirmatn',sans-serif;cursor:pointer;transition:transform .2s ease;">
+    Submit Application
+  </button>
+
+  <output id="uiaStatus" style="display:block;text-align:center;margin-top:12px;min-height:20px;font:400 14px/20px 'Vazirmatn',sans-serif;color:#696A6D;"></output>
+</form>
+
+    </div>
+  </div>
+</section>
+
+<script>
+(function(){
+  var root = document.getElementById('uia-trade-form');
+  if(!root) return;
+
+  var endpoint = root.getAttribute('data-endpoint') || '';
+  var form = document.getElementById('tradeForm');
+  var statusEl = document.getElementById('uiaStatus');
+  var taxFileInput = document.getElementById('tax-proof-upload');
+
+  function setStatus(msg, ok){
+    statusEl.textContent = msg || '';
+    statusEl.style.color = ok ? '#166534' : '#b91c1c';
+  }
+
+  function businessTypeToLabel(v){
+    switch(v){
+      case 'interior_designer_solo': return 'Interior Designer - Solopreneur';
+      case 'interior_design_firm_2_5': return 'Interior Design Firm - 2-5 ppl';
+      case 'interior_design_firm_5_plus': return 'Interior Design Firm - 5+ ppl';
+      case 'design_with_retail': return 'Design with Retail';
+      case 'trade_showroom': return 'To-the-Trade Multi-Line Showroom';
+      case 'architecture_firm': return 'Architecture Firm (A&D)';
+      case 'furniture_retailer': return 'Furniture Retailer - Brick & Mortar';
+      case 'ecommerce': return 'E-Comm';
+      case 'home_stager': return 'Home Stager / Staging Company';
+      case 'specialty_rug_retail': return 'Specialty Retail Location - Rugs';
+      case 'receiving_warehousing': return 'Recieving / Warehousing / White-Glove Install';
+      default: return '';
+    }
+  }
+
+  function readFileAsBase64(file){
+    return new Promise(function(resolve, reject){
+      var reader = new FileReader();
+      reader.onload = function(){ resolve(reader.result.split(',')[1]); };
+      reader.onerror = function(){ reject(reader.error); };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  form.addEventListener('submit', async function(e){
+    e.preventDefault();
+
+    var email = form.email.value.trim();
+    if (email && !/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/.test(email)){
+      setStatus('Please enter a valid email address.', false);
+      form.email.focus();
+      return;
+    }
+
+    setStatus('Saving…', true);
+
+    var salesTax = null;
+    var file = taxFileInput && taxFileInput.files && taxFileInput.files[0];
+    if (file) {
+      try{
+        var base64 = await readFileAsBase64(file);
+        salesTax = { filename: file.name, mimeType: file.type || 'application/octet-stream', base64 };
+      }catch(err){
+        setStatus('File read error.', false);
+        return;
+      }
+    }
+
+    var accountTypeLabel = businessTypeToLabel(form.businessType.value);
+
+    var data = {
+      AccountId: form['AccountId'].value,
+      Account: form['firmName'].value.trim(),
+      OwnerId: form['OwnerId'].value,
+      Owner: form['Owner'].value,
+      CompanyPhone: form['phone'].value.trim(),
+      Website: form['website'].value.trim(),
+      Address1: form['businessAddress'].value.trim(),
+      Address2: form['businessAddress2'].value.trim(),
+      City: form['city'].value.trim(),
+      State: form['state'].value.trim(),
+      ZipCode: form['zipCode'].value.trim(),
+      Country: 'United States',
+      ShippingAddress1: '', ShippingAddress2: '', ShippingCity: '', ShippingState: '',
+      ShippingZipCode: '', ShippingCountryName: '',
+      Instagram: form['instagramHandle'].value.trim(),
+      'Account Type': accountTypeLabel,
+      EIN: form['taxId'].value.trim() || null,
+      'Sample Set': (form['sampleSet'].value || 'No'),
+      'Lead Source Specifics': form['howDidYouHear'].value.trim() || '',
+      'Shopify Reference': form['Shopify Reference'].value
+    };
+
+    if (salesTax){
+      data.SalesTaxExemption = salesTax;
+    }
+
+    var payload = {
+      account: form['firmName'].value.trim(),
+      account_id: form['account_id'] ? form['account_id'].value.trim() : "{{ account_id | escape }}",
+      contact_id: form['contact_id'] ? form['contact_id'].value.trim() : "{{ contact_id | escape }}",
+      email,
+      data
+    };
+
+    fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      credentials: 'same-origin'
+    })
+    .then(function(res){ return res.json().catch(function(){return{};}).then(function(j){return{ok:res.ok,status:res.status,json:j};}); })
+    .then(function(r){
+      if(r.ok){ setStatus(r.json.message || r.json.status || 'Saved.', true); }
+      else{ setStatus(r.json.error || r.json.message || ('Save failed (HTTP '+r.status+').'), false); }
+    })
+    .catch(function(){ setStatus('Network error while saving.', false); });
+  });
+})();
+</script>
