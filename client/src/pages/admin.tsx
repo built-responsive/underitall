@@ -440,8 +440,7 @@ export default function Admin() {
                         
                 ))
               )}
-            </div>
-          </TabsContent>
+            </TabsContent>
 
           <TabsContent value="quotes">
             <Card className="rounded-[11px]">

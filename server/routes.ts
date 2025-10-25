@@ -10,6 +10,7 @@ import {
 } from "@shared/schema";
 import { desc, eq } from "drizzle-orm";
 import { getShopifyConfig, executeShopifyGraphQL } from "./utils/shopifyConfig";
+import path from "path";
 
 export function registerRoutes(app: Express) {
   // Customer Account Extension API - Fetch Wholesale Account Data (from CRM)
@@ -1024,8 +1025,8 @@ export function registerRoutes(app: Express) {
         }
 
         if (registration.status !== "approved") {
-          return res.status(400).json({ 
-            error: "Registration must be approved before creating Shopify account" 
+          return res.status(400).json({
+            error: "Registration must be approved before creating Shopify account",
           });
         }
 
@@ -1033,8 +1034,8 @@ export function registerRoutes(app: Express) {
         const adminToken = process.env.SHOPIFY_ADMIN_ACCESS_TOKEN;
 
         if (!shopDomain || !adminToken) {
-          return res.status(500).json({ 
-            error: "Shopify credentials not configured" 
+          return res.status(500).json({
+            error: "Shopify credentials not configured",
           });
         }
 
@@ -1067,7 +1068,7 @@ export function registerRoutes(app: Express) {
               query: searchQuery,
               variables: { query: `email:${registration.email}` },
             }),
-          }
+          },
         );
 
         const searchData = await searchResponse.json();
@@ -1111,15 +1112,15 @@ export function registerRoutes(app: Express) {
                 "X-Shopify-Access-Token": adminToken,
               },
               body: JSON.stringify(customerPayload),
-            }
+            },
           );
 
           if (!customerResponse.ok) {
             const errorText = await customerResponse.text();
             console.error("❌ Shopify customer creation failed:", errorText);
-            return res.status(500).json({ 
+            return res.status(500).json({
               error: "Failed to create Shopify customer",
-              details: errorText 
+              details: errorText,
             });
           }
 
@@ -1159,7 +1160,7 @@ export function registerRoutes(app: Express) {
             key: "uia_id",
             value: registration.id,
             type: "single_line_text_field",
-          }
+          },
         ];
 
         if (registration.clarityAccountId) {
@@ -1191,7 +1192,7 @@ export function registerRoutes(app: Express) {
               query: metafieldsMutation,
               variables: { metafields },
             }),
-          }
+          },
         );
 
         const metafieldsResult = await metafieldsResponse.json();
@@ -1209,8 +1210,8 @@ export function registerRoutes(app: Express) {
           customerUrl: `https://${shopDomain}/admin/customers/${customerId}`,
           clarityAccountId: registration.clarityAccountId,
           customerExists,
-          message: customerExists 
-            ? "Updated existing customer with wholesale metafields" 
+          message: customerExists
+            ? "Updated existing customer with wholesale metafields"
             : "Created new customer with wholesale metafields",
         });
       } catch (error) {
@@ -1219,7 +1220,7 @@ export function registerRoutes(app: Express) {
           error: error instanceof Error ? error.message : "Failed to create Shopify customer",
         });
       }
-    }
+    },
   );
 
   // Admin Approval → Create CRM Account + Shopify Customer with wholesale_clarity_id
@@ -2605,6 +2606,16 @@ export function registerRoutes(app: Express) {
         error: error instanceof Error ? error.message : "Health check failed",
       });
     }
+  });
+
+  // Admin dashboard
+  app.get("/admin", (_req, res) => {
+    res.sendFile(path.join(process.cwd(), 'dist', 'public', 'index.html'));
+  });
+
+  // Shopify Admin customer modal
+  app.get("/shopify-admin-customer-modal", (_req, res) => {
+    res.sendFile(path.join(process.cwd(), 'dist', 'public', 'index.html'));
   });
 
   // Catch-all route for React Router (must be LAST, after all API routes)
