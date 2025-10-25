@@ -3,148 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>New Wholesale Account Created</title>
+    <title>Welcome to UnderItAll Wholesale</title>
 </head>
 <body style="margin:0;padding:0;font-family:'Vazirmatn',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:linear-gradient(135deg,#F3F1E9 0%,#E1E0DA 100%);color:#212227;">
     <div style="max-width:100%;background:linear-gradient(135deg,#F3F1E9 0%,#E1E0DA 100%);padding:40px 20px;">
-        <div style="max-width:600px;margin:0 auto;background:white;border-radius:16px;overflow:hidden;box-shadow:0 4px 6px rgba(0,0,0,0.07);">
-            
+        <div style="max-width:640px;margin:0 auto;background:#FFFFFF;border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,0.08);overflow:hidden;">
+
             <!-- Header -->
-            <div style="background:linear-gradient(135deg,#212227 0%,#3A3B40 100%);padding:40px 30px;text-align:center;">
-                <h1 style="color:white;margin:0;font-size:28px;font-weight:500;letter-spacing:-0.5px;">
-                    UNDER IT ALL
+            <div style="padding:40px 40px 20px;text-align:center;background:#FFFFFF;">
+                <img src="https://join.itsunderitall.com/brand/logo-main.png" alt="UnderItAll Logo" style="height:64px;margin-bottom:24px;">
+                <h1 style="font-family:'Archivo',sans-serif;font-size:32px;color:#F2633A;margin:0 0 12px;font-weight:700;">
+                    Welcome to UnderItAll
                 </h1>
-                <p style="color:#E1E0DA;margin:10px 0 0 0;font-size:14px;text-transform:uppercase;letter-spacing:1px;">
-                    Wholesale Account Created
+                <p style="font-family:'Lora',serif;font-style:italic;font-size:16px;color:#696A6D;margin:0;">
+                    Your wholesale account is now active
                 </p>
             </div>
 
-            <!-- Main Content -->
-            <div style="padding:40px 30px;">
-                
-                <!-- Success Badge -->
-                <div style="text-align:center;margin-bottom:30px;">
-                    <div style="display:inline-block;background:#4CAF50;color:white;padding:8px 20px;border-radius:20px;font-size:14px;font-weight:500;">
-                        ✓ Account Successfully Created
-                    </div>
+            <!-- Success Badge -->
+            <div style="padding:0 40px 30px;text-align:center;">
+                <div style="display:inline-block;background:#F2633A;color:#FFFFFF;padding:12px 24px;border-radius:11px;font-family:'Vazirmatn',sans-serif;font-weight:600;font-size:16px;">
+                    {{firmName}}
                 </div>
+            </div>
 
-                <!-- Welcome Message -->
-                <h2 style="color:#212227;font-size:24px;margin:0 0 10px 0;font-weight:500;">
+            <!-- Welcome Message -->
+            <div style="padding:0 40px 20px;">
+                <h2 style="color:#212227;font-size:24px;margin:0 0 10px;font-weight:500;">
                     Welcome {{firstName}} {{lastName}}!
                 </h2>
-                <p style="color:#5A5C63;font-size:16px;line-height:1.6;margin:0 0 30px 0;">
-                    Your wholesale account has been created and approved. You now have access to exclusive wholesale pricing and benefits.
+                <p style="color:#696A6D;font-size:16px;line-height:1.6;margin:0 0 30px;">
+                    Your wholesale account has been created and approved. You now have access to exclusive wholesale pricing and custom perforated rug pads designed for professionals like you.
                 </p>
+            </div>
 
-                <!-- Account Details Box -->
-                <div style="background:#F9F8F5;border-radius:12px;padding:25px;margin-bottom:30px;">
-                    <h3 style="color:#212227;font-size:18px;margin:0 0 20px 0;font-weight:500;">
-                        Account Details
-                    </h3>
-                    
-                    <table style="width:100%;border:0;border-spacing:0;">
-                        <tr>
-                            <td style="padding:8px 0;color:#5A5C63;font-size:14px;vertical-align:top;width:40%;">
-                                Company:
-                            </td>
-                            <td style="padding:8px 0;color:#212227;font-size:14px;font-weight:500;">
-                                {{firmName}}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="padding:8px 0;color:#5A5C63;font-size:14px;vertical-align:top;">
-                                Account ID:
-                            </td>
-                            <td style="padding:8px 0;color:#212227;font-size:14px;font-weight:500;font-family:monospace;">
-                                {{clarityAccountId}}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="padding:8px 0;color:#5A5C63;font-size:14px;vertical-align:top;">
-                                Email:
-                            </td>
-                            <td style="padding:8px 0;color:#212227;font-size:14px;">
-                                {{email}}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="padding:8px 0;color:#5A5C63;font-size:14px;vertical-align:top;">
-                                Phone:
-                            </td>
-                            <td style="padding:8px 0;color:#212227;font-size:14px;">
-                                {{phone}}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="padding:8px 0;color:#5A5C63;font-size:14px;vertical-align:top;">
-                                Business Type:
-                            </td>
-                            <td style="padding:8px 0;color:#212227;font-size:14px;text-transform:capitalize;">
-                                {{businessType}}
-                            </td>
-                        </tr>
-                    </table>
+            <!-- Account Details -->
+            <div style="padding:0 40px 20px;">
+                <div style="background:#F3F1E9;border-radius:12px;padding:20px;">
+                    <h3 style="color:#212227;font-size:18px;margin:0 0 15px;font-weight:600;">Account Details</h3>
+
+                    <div style="margin-bottom:12px;">
+                        <span style="display:inline-block;width:45%;color:#696A6D;font-size:14px;font-weight:600;vertical-align:top;">Company:</span>
+                        <span style="display:inline-block;width:54%;color:#212227;font-size:14px;vertical-align:top;">{{firmName}}</span>
+                    </div>
+                    <div style="margin-bottom:12px;">
+                        <span style="display:inline-block;width:45%;color:#696A6D;font-size:14px;font-weight:600;vertical-align:top;">Account ID:</span>
+                        <span style="display:inline-block;width:54%;color:#212227;font-size:14px;font-family:monospace;vertical-align:top;">{{clarityAccountId}}</span>
+                    </div>
+                    <div style="margin-bottom:12px;">
+                        <span style="display:inline-block;width:45%;color:#696A6D;font-size:14px;font-weight:600;vertical-align:top;">Email:</span>
+                        <span style="display:inline-block;width:54%;color:#212227;font-size:14px;vertical-align:top;">{{email}}</span>
+                    </div>
+                    {{#if phone}}
+                    <div style="margin-bottom:12px;">
+                        <span style="display:inline-block;width:45%;color:#696A6D;font-size:14px;font-weight:600;vertical-align:top;">Phone:</span>
+                        <span style="display:inline-block;width:54%;color:#212227;font-size:14px;vertical-align:top;">{{phone}}</span>
+                    </div>
+                    {{/if}}
+                    <div style="margin-bottom:12px;">
+                        <span style="display:inline-block;width:45%;color:#696A6D;font-size:14px;font-weight:600;vertical-align:top;">Business Type:</span>
+                        <span style="display:inline-block;width:54%;color:#212227;font-size:14px;text-transform:capitalize;vertical-align:top;">{{businessType}}</span>
+                    </div>
                 </div>
+            </div>
 
-                <!-- Address Box -->
-                <div style="background:#F9F8F5;border-radius:12px;padding:25px;margin-bottom:30px;">
-                    <h3 style="color:#212227;font-size:18px;margin:0 0 15px 0;font-weight:500;">
-                        Business Address
-                    </h3>
-                    <p style="color:#212227;font-size:14px;line-height:1.6;margin:0;">
+            <!-- Address -->
+            <div style="padding:0 40px 20px;">
+                <div style="margin-bottom:12px;">
+                    <span style="display:inline-block;width:45%;color:#696A6D;font-size:14px;font-weight:600;vertical-align:top;">Address:</span>
+                    <span style="display:inline-block;width:54%;color:#212227;font-size:14px;vertical-align:top;">
                         {{businessAddress}}<br>
                         {{#if businessAddress2}}{{businessAddress2}}<br>{{/if}}
                         {{city}}, {{state}} {{zipCode}}
-                    </p>
+                    </span>
                 </div>
+            </div>
 
-                <!-- Benefits Section -->
-                <div style="background:linear-gradient(135deg,#F3F1E9 0%,#E1E0DA 50%);border-radius:12px;padding:25px;margin-bottom:30px;">
-                    <h3 style="color:#212227;font-size:18px;margin:0 0 15px 0;font-weight:500;">
-                        Your Wholesale Benefits
-                    </h3>
+            <!-- Benefits -->
+            <div style="padding:0 40px 30px;">
+                <div style="background:#F3F1E9;border-radius:12px;padding:20px;">
+                    <h3 style="color:#212227;font-size:18px;margin:0 0 15px;font-weight:600;">Your Wholesale Benefits</h3>
                     <ul style="color:#212227;font-size:14px;line-height:1.8;margin:0;padding-left:20px;">
                         <li>Exclusive wholesale pricing on all products</li>
+                        <li>Custom perforated rug pads for scissorless install</li>
                         <li>Priority access to new collections</li>
                         <li>Dedicated account support</li>
-                        <li>Volume discounts available</li>
                         {{#if isTaxExempt}}<li>Tax-exempt status approved</li>{{/if}}
                     </ul>
                 </div>
+            </div>
 
-                <!-- CTA Buttons -->
-                <div style="text-align:center;margin:30px 0;">
-                    <a href="https://www.itsunderitall.com/account" style="display:inline-block;background:#212227;color:white;padding:14px 32px;border-radius:8px;text-decoration:none;font-size:16px;font-weight:500;margin:0 10px 10px 0;">
-                        Access Your Account
-                    </a>
-                    <a href="https://www.itsunderitall.com/wholesale-catalog" style="display:inline-block;background:white;color:#212227;padding:14px 32px;border-radius:8px;text-decoration:none;font-size:16px;font-weight:500;border:2px solid #212227;">
-                        View Catalog
-                    </a>
-                </div>
-
-                <!-- Support Section -->
-                <div style="background:#F9F8F5;border-radius:12px;padding:20px;text-align:center;">
-                    <p style="color:#5A5C63;font-size:14px;margin:0 0 10px 0;">
-                        Need assistance? Our wholesale team is here to help.
-                    </p>
-                    <p style="color:#212227;font-size:14px;margin:0;">
-                        <strong>Email:</strong> sales@itsunderitall.com<br>
-                        <strong>Phone:</strong> 1-800-XXX-XXXX
-                    </p>
-                </div>
-
+            <!-- CTA Buttons -->
+            <div style="padding:0 40px 30px;text-align:center;">
+                <a href="https://www.itsunderitall.com/account" style="display:inline-block;background:#F2633A;color:#FFFFFF;padding:14px 32px;border-radius:16px;text-decoration:none;font-size:16px;font-weight:600;margin:0 10px 10px 0;">
+                    Access Your Account
+                </a>
             </div>
 
             <!-- Footer -->
-            <div style="background:#212227;padding:30px;text-align:center;">
-                <p style="color:#E1E0DA;font-size:12px;margin:0 0 10px 0;">
-                    © {{currentYear}} Under It All. All rights reserved.
+            <div style="padding:30px 40px;background:#F3F1E9;text-align:center;">
+                <p style="font-family:'Vazirmatn',sans-serif;font-size:12px;color:#696A6D;margin:0 0 8px;">
+                    Wholesale account notification · UnderItAll
                 </p>
-                <p style="color:#E1E0DA;font-size:12px;margin:0;">
-                    <a href="https://www.itsunderitall.com" style="color:#E1E0DA;text-decoration:underline;">Website</a> | 
-                    <a href="https://www.itsunderitall.com/wholesale-terms" style="color:#E1E0DA;text-decoration:underline;">Terms</a> | 
-                    <a href="https://www.itsunderitall.com/privacy" style="color:#E1E0DA;text-decoration:underline;">Privacy</a>
+                <p style="font-family:'Vazirmatn',sans-serif;font-size:12px;color:#696A6D;margin:0;">
+                    © {{currentYear}} UnderItAll Holdings LLC
                 </p>
             </div>
 
