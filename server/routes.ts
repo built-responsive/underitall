@@ -2,7 +2,12 @@ import type { Express, Request, Response } from "express";
 import { createServer } from "http";
 import webhookRoutes from "./webhooks";
 import { db } from "./db";
-import { wholesaleRegistrations, calculatorQuotes, webhookLogs, draftOrders } from "@shared/schema";
+import {
+  wholesaleRegistrations,
+  calculatorQuotes,
+  webhookLogs,
+  draftOrders,
+} from "@shared/schema";
 import { desc, eq } from "drizzle-orm";
 import { getShopifyConfig, executeShopifyGraphQL } from "./utils/shopifyConfig";
 
@@ -23,7 +28,9 @@ export function registerRoutes(app: Express) {
       const adminToken = process.env.SHOPIFY_ADMIN_ACCESS_TOKEN;
 
       if (!shopDomain || !adminToken) {
-        return res.status(500).json({ error: "Shopify credentials not configured" });
+        return res
+          .status(500)
+          .json({ error: "Shopify credentials not configured" });
       }
 
       const customerQuery = `
@@ -50,9 +57,9 @@ export function registerRoutes(app: Express) {
           },
           body: JSON.stringify({
             query: customerQuery,
-            variables: { customerId }
+            variables: { customerId },
           }),
-        }
+        },
       );
 
       const customerData = await customerResponse.json();
@@ -60,14 +67,15 @@ export function registerRoutes(app: Express) {
       const clarityAccountId = customer?.metafield?.value;
 
       if (!clarityAccountId) {
-        return res.json({ 
+        return res.json({
           hasWholesaleAccount: false,
-          message: "No wholesale account found"
+          message: "No wholesale account found",
         });
       }
 
       // Fetch CRM account data using AccountNumber (clarityAccountId is like "AC000931")
-      const crmBaseUrl = process.env.CRM_BASE_URL || "http://liveapi.claritysoftcrm.com";
+      const crmBaseUrl =
+        process.env.CRM_BASE_URL || "http://liveapi.claritysoftcrm.com";
       const crmApiKey = process.env.CRM_API_KEY;
 
       if (!crmApiKey) {
@@ -79,7 +87,7 @@ export function registerRoutes(app: Express) {
         APIKey: crmApiKey,
         Resource: "Account",
         Operation: "Get",
-        SQLFilter: `AccountNumber = '${clarityAccountId}'`
+        SQLFilter: `AccountNumber = '${clarityAccountId}'`,
       };
       const payloadString = JSON.stringify(crmPayload);
 
@@ -91,11 +99,11 @@ export function registerRoutes(app: Express) {
         headers: {
           "Content-Type": "application/json",
           "Content-Length": Buffer.byteLength(payloadString),
-          "Accept": "*/*",
+          Accept: "*/*",
           "Accept-Encoding": "gzip, deflate",
-          "Connection": "keep-alive",
-          "User-Agent": "curl/7.68.0"
-        }
+          Connection: "keep-alive",
+          "User-Agent": "curl/7.68.0",
+        },
       };
 
       const crmData = await new Promise<any>((resolve, reject) => {
@@ -117,9 +125,9 @@ export function registerRoutes(app: Express) {
       });
 
       if (!crmData.Data || crmData.Data.length === 0) {
-        return res.json({ 
+        return res.json({
           hasWholesaleAccount: false,
-          message: "CRM account not found"
+          message: "CRM account not found",
         });
       }
 
@@ -149,13 +157,16 @@ export function registerRoutes(app: Express) {
           owner: crmAccount.Owner || "",
           createdDate: crmAccount.CreationDate,
           // Include ALL 50+ fields for debugging
-          _raw: crmAccount
-        }
+          _raw: crmAccount,
+        },
       });
     } catch (error) {
       console.error("❌ Error fetching wholesale account:", error);
-      res.status(500).json({ 
-        error: error instanceof Error ? error.message : "Failed to fetch wholesale account" 
+      res.status(500).json({
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to fetch wholesale account",
       });
     }
   });
@@ -167,11 +178,14 @@ export function registerRoutes(app: Express) {
       const { customerId, clarityAccountId, updates } = req.body;
 
       if (!customerId || !clarityAccountId) {
-        return res.status(400).json({ error: "Missing customerId or clarityAccountId" });
+        return res
+          .status(400)
+          .json({ error: "Missing customerId or clarityAccountId" });
       }
 
       // Update CRM Account via "Create Or Edit" operation
-      const crmBaseUrl = process.env.CRM_BASE_URL || "http://liveapi.claritysoftcrm.com";
+      const crmBaseUrl =
+        process.env.CRM_BASE_URL || "http://liveapi.claritysoftcrm.com";
       const crmApiKey = process.env.CRM_API_KEY;
 
       if (!crmApiKey) {
@@ -194,7 +208,7 @@ export function registerRoutes(app: Express) {
           State: updates.state,
           ZipCode: updates.zip,
           Instagram: updates.instagram || "",
-        }
+        },
       };
       const payloadString = JSON.stringify(crmPayload);
 
@@ -206,11 +220,11 @@ export function registerRoutes(app: Express) {
         headers: {
           "Content-Type": "application/json",
           "Content-Length": Buffer.byteLength(payloadString),
-          "Accept": "*/*",
+          Accept: "*/*",
           "Accept-Encoding": "gzip, deflate",
-          "Connection": "keep-alive",
-          "User-Agent": "curl/7.68.0"
-        }
+          Connection: "keep-alive",
+          "User-Agent": "curl/7.68.0",
+        },
       };
 
       const crmData = await new Promise<any>((resolve, reject) => {
@@ -252,8 +266,11 @@ export function registerRoutes(app: Express) {
       res.json({ success: true, message: "Wholesale account updated in CRM" });
     } catch (error) {
       console.error("❌ Error updating wholesale account:", error);
-      res.status(500).json({ 
-        error: error instanceof Error ? error.message : "Failed to update wholesale account" 
+      res.status(500).json({
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to update wholesale account",
       });
     }
   });
@@ -281,8 +298,8 @@ export function registerRoutes(app: Express) {
           <title>Wholesale Profile</title>
           <script type="text/javascript">
             // Inject Shopify params for App Bridge from query string
-            window.__SHOPIFY_SHOP__ = "${shop || ''}";
-            window.__SHOPIFY_CUSTOMER_ID__ = "${logged_in_customer_id || ''}";
+            window.__SHOPIFY_SHOP__ = "${shop || ""}";
+            window.__SHOPIFY_CUSTOMER_ID__ = "${logged_in_customer_id || ""}";
             window.__SHOPIFY_EMBEDDED__ = false; // App Proxy runs outside admin iframe
           </script>
           <!-- Load App Bridge (optional for proxy, but safe to include) -->
@@ -317,7 +334,8 @@ export function registerRoutes(app: Express) {
         return res.status(400).json({ error: "Missing accountId" });
       }
 
-      const crmBaseUrl = process.env.CRM_BASE_URL || "http://liveapi.claritysoftcrm.com";
+      const crmBaseUrl =
+        process.env.CRM_BASE_URL || "http://liveapi.claritysoftcrm.com";
       const crmApiKey = process.env.CRM_API_KEY;
 
       if (!crmApiKey) {
@@ -330,7 +348,7 @@ export function registerRoutes(app: Express) {
         APIKey: crmApiKey,
         Resource: "Account",
         Operation: "Get",
-        AccountId: accountId
+        AccountId: accountId,
       };
 
       console.log("📤 Exact CRM Payload:");
@@ -348,11 +366,11 @@ export function registerRoutes(app: Express) {
         headers: {
           "Content-Type": "application/json",
           "Content-Length": Buffer.byteLength(payloadString),
-          "Accept": "*/*",
+          Accept: "*/*",
           "Accept-Encoding": "gzip, deflate",
-          "Connection": "keep-alive",
-          "User-Agent": "curl/7.68.0"
-        }
+          Connection: "keep-alive",
+          "User-Agent": "curl/7.68.0",
+        },
       };
 
       console.log("📤 Request Options (curl-like):");
@@ -388,8 +406,8 @@ export function registerRoutes(app: Express) {
       res.json(crmData);
     } catch (error) {
       console.error("❌ CRM account lookup error:", error);
-      res.status(500).json({ 
-        error: error instanceof Error ? error.message : "CRM lookup failed" 
+      res.status(500).json({
+        error: error instanceof Error ? error.message : "CRM lookup failed",
       });
     }
   });
@@ -415,8 +433,8 @@ export function registerRoutes(app: Express) {
       res.json(data);
     } catch (error) {
       console.error("❌ Shopify GraphQL error:", error);
-      res.status(500).json({ 
-        error: error instanceof Error ? error.message : "GraphQL query failed" 
+      res.status(500).json({
+        error: error instanceof Error ? error.message : "GraphQL query failed",
       });
     }
   });
@@ -425,7 +443,10 @@ export function registerRoutes(app: Express) {
   app.options("/graphiql/graphql.json", (req, res) => {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Methods", "POST, OPTIONS");
-    res.header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With");
+    res.header(
+      "Access-Control-Allow-Headers",
+      "Content-Type, Authorization, X-Requested-With",
+    );
     res.sendStatus(200);
   });
 
@@ -433,7 +454,10 @@ export function registerRoutes(app: Express) {
     // Explicit CORS headers for cross-origin Shopify CLI requests
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Methods", "POST, OPTIONS");
-    res.header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With");
+    res.header(
+      "Access-Control-Allow-Headers",
+      "Content-Type, Authorization, X-Requested-With",
+    );
 
     try {
       const { api_version } = req.query;
@@ -441,7 +465,9 @@ export function registerRoutes(app: Express) {
       const adminToken = process.env.SHOPIFY_ADMIN_ACCESS_TOKEN;
 
       if (!shopDomain || !adminToken) {
-        return res.status(500).json({ error: "Shopify credentials not configured" });
+        return res
+          .status(500)
+          .json({ error: "Shopify credentials not configured" });
       }
 
       const version = api_version || "2025-01";
@@ -486,7 +512,7 @@ export function registerRoutes(app: Express) {
 
       return res.json({
         success: true,
-        registration: updated
+        registration: updated,
       });
     } catch (error: any) {
       console.error("❌ Error updating registration:", error);
@@ -502,7 +528,9 @@ export function registerRoutes(app: Express) {
 
       const shopifyConfig = getShopifyConfig();
       if (!shopifyConfig) {
-        return res.status(500).json({ error: "Shopify credentials not configured" });
+        return res
+          .status(500)
+          .json({ error: "Shopify credentials not configured" });
       }
 
       const { shop, accessToken } = shopifyConfig;
@@ -527,44 +555,49 @@ export function registerRoutes(app: Express) {
       // Convert flat updates to fields array format
       const fields = Object.entries(updates).map(([key, value]) => ({
         key,
-        value: String(value)
+        value: String(value),
       }));
 
       const variables = {
         id: `gid://shopify/Metaobject/${id}`,
         metaobject: {
-          fields
-        }
+          fields,
+        },
       };
 
-      const shopifyResponse = await fetch(`https://${shop}/admin/api/2025-01/graphql.json`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Shopify-Access-Token": accessToken,
+      const shopifyResponse = await fetch(
+        `https://${shop}/admin/api/2025-01/graphql.json`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Shopify-Access-Token": accessToken,
+          },
+          body: JSON.stringify({
+            query: metaobjectMutation,
+            variables,
+          }),
         },
-        body: JSON.stringify({
-          query: metaobjectMutation,
-          variables,
-        }),
-      });
+      );
 
       const result = await shopifyResponse.json();
 
       if (result.data?.metaobjectUpdate?.userErrors?.length > 0) {
         return res.status(400).json({
           error: "Validation errors",
-          details: result.data.metaobjectUpdate.userErrors
+          details: result.data.metaobjectUpdate.userErrors,
         });
       }
 
       return res.json({
         success: true,
-        metaobject: result.data?.metaobjectUpdate?.metaobject
+        metaobject: result.data?.metaobjectUpdate?.metaobject,
       });
     } catch (error: any) {
       console.error("❌ Error updating wholesale account:", error);
-      return res.status(500).json({ error: "Failed to update wholesale account" });
+      return res
+        .status(500)
+        .json({ error: "Failed to update wholesale account" });
     }
   });
 
@@ -652,319 +685,360 @@ export function registerRoutes(app: Express) {
   });
 
   // Wholesale registration submission (only save to DB as pending, no CRM creation yet)
-  app.post("/api/wholesale-registration", async (req: Request, res: Response) => {
-    try {
-      const formData = req.body;
-      console.log("📝 Wholesale registration received:", formData);
-
-      // Map marketingOptIn and smsConsent to CRM-compatible fields
-      const registrationData = {
-        ...formData,
-        acceptsEmailMarketing: formData.marketingOptIn || false,
-        acceptsSmsMarketing: formData.smsConsent || false,
-        status: 'pending',
-        submittedAt: new Date(),
-      };
-
-      // Save to database (pending approval)
-      const [registration] = await db
-        .insert(wholesaleRegistrations)
-        .values(registrationData)
-        .returning();
-
-      console.log("✅ Registration saved to database (pending):", registration.id);
-      console.log("🔒 CRM creation deferred until admin approval");
-
-      res.json({
-        success: true,
-        registrationId: registration.id,
-        message: "Registration submitted. Awaiting admin approval."
-      });
-    } catch (error) {
-      console.error("❌ Registration error:", error);
-      res.status(500).json({
-        error: error instanceof Error ? error.message : "Registration failed",
-      });
-    }
-  });
-
-  // CRM Duplicate Check - Search for potential conflicts before approval
-  app.post("/api/admin/check-crm-duplicates/:id", async (req: Request, res: Response) => {
-    try {
-      const { id } = req.params;
-
-      // Fetch registration from DB
-      const [registration] = await db
-        .select()
-        .from(wholesaleRegistrations)
-        .where(eq(wholesaleRegistrations.id, id));
-
-      if (!registration) {
-        return res.status(404).json({ error: "Registration not found" });
-      }
-
-      const crmApiKey = process.env.CRM_API_KEY;
-      if (!crmApiKey) {
-        return res.status(500).json({ error: "CRM_API_KEY not configured" });
-      }
-
-      // Build SQL filter for duplicate detection (company name, phone, or website)
-      const filters = [];
-      if (registration.firmName) {
-        filters.push(`Account = '${registration.firmName.replace(/'/g, "''")}'`);
-      }
-      if (registration.phone) {
-        filters.push(`CompanyPhone = '${registration.phone}'`);
-      }
-      if (registration.website) {
-        filters.push(`Website = '${registration.website}'`);
-      }
-
-      const sqlFilter = filters.join(" OR ");
-
-      const crmPayload = {
-        APIKey: crmApiKey,
-        Resource: "Account",
-        Operation: "Get",
-        Columns: ["Account", "AccountID", "AccountNumber", "City", "State", "CompanyPhone", "Website"],
-        SQLFilter: sqlFilter,
-        Sort: {
-          Column: "CreationDate",
-          Order: "Desc"
-        }
-      };
-
-      console.log("🔍 CRM Duplicate Check Payload:");
-      console.log(JSON.stringify(crmPayload, null, 2));
-
-      const { default: http } = await import("http");
-      const payloadString = JSON.stringify(crmPayload);
-
-      const options = {
-        hostname: "liveapi.claritysoftcrm.com",
-        port: 80,
-        path: "/api/v1",
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Content-Length": Buffer.byteLength(payloadString),
-          "Accept": "*/*",
-          "Accept-Encoding": "gzip, deflate",
-          "Connection": "keep-alive",
-          "User-Agent": "curl/7.68.0"
-        }
-      };
-
-      const crmData = await new Promise<any>((resolve, reject) => {
-        const req = http.request(options, (crmRes: any) => {
-          let data = "";
-          crmRes.on("data", (chunk: any) => (data += chunk));
-          crmRes.on("end", () => {
-            try {
-              resolve(JSON.parse(data));
-            } catch (error) {
-              reject(new Error(`Failed to parse CRM response: ${data}`));
-            }
-          });
-        });
-
-        req.on("error", reject);
-        req.write(payloadString);
-        req.end();
-      });
-
-      console.log("📤 CRM Duplicate Check Response:");
-      console.log(JSON.stringify(crmData, null, 2));
-
-      // Return potential conflicts (empty array if none found)
-      res.json({
-        conflicts: crmData?.Data || [],
-        registration: {
-          firmName: registration.firmName,
-          phone: registration.phone,
-          website: registration.website
-        }
-      });
-    } catch (error) {
-      console.error("❌ CRM duplicate check error:", error);
-      res.status(500).json({
-        error: error instanceof Error ? error.message : "Duplicate check failed"
-      });
-    }
-  });
-
-  // CRM Account Sync - Create or update CRM account (with optional AccountId for match)
-  app.post("/api/admin/sync-to-crm/:id", async (req: Request, res: Response) => {
-    try {
-      const { id } = req.params;
-      const { accountId } = req.body; // Optional: AccountId if updating existing account
-
-      // Fetch registration from DB
-      const [registration] = await db
-        .select()
-        .from(wholesaleRegistrations)
-        .where(eq(wholesaleRegistrations.id, id));
-
-      if (!registration) {
-        return res.status(404).json({ error: "Registration not found" });
-      }
-
-      const crmApiKey = process.env.CRM_API_KEY;
-      if (!crmApiKey) {
-        return res.status(500).json({ error: "CRM_API_KEY not configured" });
-      }
-
-      const { default: http } = await import("http");
-
-      const crmPayload: any = {
-        APIKey: crmApiKey,
-        Resource: "Account",
-        Operation: "Create Or Edit",
-        Data: {
-          Name: registration.firmName,
-          "First Name": registration.firstName,
-          "Last Name": registration.lastName,
-          CompanyPhone: registration.phone || "",
-          Email: registration.email,
-          Address1: registration.businessAddress,
-          Address2: registration.businessAddress2 || "",
-          City: registration.city,
-          State: registration.state,
-          ZipCode: registration.zipCode,
-          Country: "United States",
-          Note: "Created via Wholesale Registration",
-          "Account Type": registration.businessType || "",
-          "Sample Set": registration.receivedSampleSet ? "Yes" : "No",
-          Instagram: registration.instagramHandle || "",
-          Website: registration.website || "",
-          "Accepts Email Marketing": registration.acceptsEmailMarketing ? "Yes" : "No",
-          "Accepts SMS Marketing": registration.acceptsSmsMarketing ? "Yes" : "No",
-          EIN: registration.taxId || "",
-          "Shopify Reference": "",
-          "UIA-ID": registration.id,
-          "Representative": "John Thompson"
-        }
-      };
-
-      // If updating existing account, include AccountId
-      if (accountId) {
-        crmPayload.AccountId = accountId;
-        console.log("🔄 Updating existing CRM Account:", accountId);
-      } else {
-        console.log("🆕 Creating new CRM Account");
-      }
-
-      console.log("📤 CRM Account Sync Payload:");
-      console.log(JSON.stringify(crmPayload, null, 2));
-
-      const payloadString = JSON.stringify(crmPayload);
-
-      const options = {
-        hostname: "liveapi.claritysoftcrm.com",
-        port: 80,
-        path: "/api/v1",
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Content-Length": Buffer.byteLength(payloadString),
-          "Accept": "*/*",
-          "Accept-Encoding": "gzip, deflate",
-          "Connection": "keep-alive",
-          "User-Agent": "curl/7.68.0"
-        }
-      };
-
-      const crmData = await new Promise<any>((resolve, reject) => {
-        const req = http.request(options, (crmRes: any) => {
-          let data = "";
-          crmRes.on("data", (chunk: any) => (data += chunk));
-          crmRes.on("end", () => {
-            try {
-              resolve(JSON.parse(data));
-            } catch (error) {
-              reject(new Error(`Failed to parse CRM response: ${data}`));
-            }
-          });
-        });
-
-        req.on("error", reject);
-        req.write(payloadString);
-        req.end();
-      });
-
-      console.log("📤 CRM Account Sync Response:");
-      console.log(JSON.stringify(crmData, null, 2));
-
-      const clarityAccountId = crmData?.Data?.AccountId || accountId;
-
-      if (!clarityAccountId) {
-        throw new Error("CRM Account sync failed - no AccountId returned");
-      }
-
-      console.log("✅ CRM Account synced with AccountID:", clarityAccountId);
-
-      // Save clarityAccountId to DB
+  app.post(
+    "/api/wholesale-registration",
+    async (req: Request, res: Response) => {
       try {
-        const [updated] = await db
-          .update(wholesaleRegistrations)
-          .set({ clarityAccountId })
-          .where(eq(wholesaleRegistrations.id, id))
+        const formData = req.body;
+        console.log("📝 Wholesale registration received:", formData);
+
+        // Map marketingOptIn and smsConsent to CRM-compatible fields
+        const registrationData = {
+          ...formData,
+          acceptsEmailMarketing: formData.marketingOptIn || false,
+          acceptsSmsMarketing: formData.smsConsent || false,
+          status: "pending",
+          submittedAt: new Date(),
+        };
+
+        // Save to database (pending approval)
+        const [registration] = await db
+          .insert(wholesaleRegistrations)
+          .values(registrationData)
           .returning();
 
-        if (!updated) {
-          console.error("⚠️ Database update failed - registration not found:", id);
-        } else {
-          console.log("✅ Database updated with clarityAccountId:", clarityAccountId);
-        }
-      } catch (dbError) {
-        console.error("❌ Database update error:", dbError);
-        console.log("⚠️ Continuing despite DB error - CRM sync succeeded");
-      }
+        console.log(
+          "✅ Registration saved to database (pending):",
+          registration.id,
+        );
+        console.log("🔒 CRM creation deferred until admin approval");
 
-      res.json({
-        success: true,
-        clarityAccountId,
-        isUpdate: !!accountId
-      });
-    } catch (error) {
-      console.error("❌ CRM account sync error:", error);
-      res.status(500).json({
-        error: error instanceof Error ? error.message : "CRM sync failed"
-      });
-    }
-  });
-
-  // Admin Approval → Create CRM Account + Shopify Customer with wholesale_clarity_id
-  app.post("/api/admin/approve-registration/:id", async (req: Request, res: Response) => {
-    try {
-      const { id } = req.params;
-
-      // Fetch registration from DB
-      const [registration] = await db
-        .select()
-        .from(wholesaleRegistrations)
-        .where(eq(wholesaleRegistrations.id, id));
-
-      if (!registration) {
-        return res.status(404).json({ error: "Registration not found" });
-      }
-
-      // CRM Account should already be created via /api/admin/sync-to-crm
-      const clarityAccountId = registration.clarityAccountId;
-
-      if (!clarityAccountId) {
-        return res.status(400).json({ 
-          error: "CRM account not synced yet. Please sync to CRM first." 
+        res.json({
+          success: true,
+          registrationId: registration.id,
+          message: "Registration submitted. Awaiting admin approval.",
+        });
+      } catch (error) {
+        console.error("❌ Registration error:", error);
+        res.status(500).json({
+          error: error instanceof Error ? error.message : "Registration failed",
         });
       }
+    },
+  );
 
-      // Create/Update Shopify Customer + Set wholesale_clarity_id metafield
-      const shopDomain = process.env.SHOPIFY_SHOP_DOMAIN;
-      const adminToken = process.env.SHOPIFY_ADMIN_ACCESS_TOKEN;
+  // CRM Duplicate Check - Search for potential conflicts before approval
+  app.post(
+    "/api/admin/check-crm-duplicates/:id",
+    async (req: Request, res: Response) => {
+      try {
+        const { id } = req.params;
 
-      if (shopDomain && adminToken) {
-        // Check if customer exists
-        const customerQuery = `
+        // Fetch registration from DB
+        const [registration] = await db
+          .select()
+          .from(wholesaleRegistrations)
+          .where(eq(wholesaleRegistrations.id, id));
+
+        if (!registration) {
+          return res.status(404).json({ error: "Registration not found" });
+        }
+
+        const crmApiKey = process.env.CRM_API_KEY;
+        if (!crmApiKey) {
+          return res.status(500).json({ error: "CRM_API_KEY not configured" });
+        }
+
+        // Build SQL filter for duplicate detection (company name, phone, or website)
+        const filters = [];
+        if (registration.firmName) {
+          filters.push(
+            `Account = '${registration.firmName.replace(/'/g, "''")}'`,
+          );
+        }
+        if (registration.phone) {
+          filters.push(`CompanyPhone = '${registration.phone}'`);
+        }
+        if (registration.website) {
+          filters.push(`Website = '${registration.website}'`);
+        }
+
+        const sqlFilter = filters.join(" OR ");
+
+        const crmPayload = {
+          APIKey: crmApiKey,
+          Resource: "Account",
+          Operation: "Get",
+          Columns: [
+            "Account",
+            "AccountID",
+            "AccountNumber",
+            "City",
+            "State",
+            "CompanyPhone",
+            "Website",
+          ],
+          SQLFilter: sqlFilter,
+          Sort: {
+            Column: "CreationDate",
+            Order: "Desc",
+          },
+        };
+
+        console.log("🔍 CRM Duplicate Check Payload:");
+        console.log(JSON.stringify(crmPayload, null, 2));
+
+        const { default: http } = await import("http");
+        const payloadString = JSON.stringify(crmPayload);
+
+        const options = {
+          hostname: "liveapi.claritysoftcrm.com",
+          port: 80,
+          path: "/api/v1",
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Content-Length": Buffer.byteLength(payloadString),
+            Accept: "*/*",
+            "Accept-Encoding": "gzip, deflate",
+            Connection: "keep-alive",
+            "User-Agent": "curl/7.68.0",
+          },
+        };
+
+        const crmData = await new Promise<any>((resolve, reject) => {
+          const req = http.request(options, (crmRes: any) => {
+            let data = "";
+            crmRes.on("data", (chunk: any) => (data += chunk));
+            crmRes.on("end", () => {
+              try {
+                resolve(JSON.parse(data));
+              } catch (error) {
+                reject(new Error(`Failed to parse CRM response: ${data}`));
+              }
+            });
+          });
+
+          req.on("error", reject);
+          req.write(payloadString);
+          req.end();
+        });
+
+        console.log("📤 CRM Duplicate Check Response:");
+        console.log(JSON.stringify(crmData, null, 2));
+
+        // Return potential conflicts (empty array if none found)
+        res.json({
+          conflicts: crmData?.Data || [],
+          registration: {
+            firmName: registration.firmName,
+            phone: registration.phone,
+            website: registration.website,
+          },
+        });
+      } catch (error) {
+        console.error("❌ CRM duplicate check error:", error);
+        res.status(500).json({
+          error:
+            error instanceof Error ? error.message : "Duplicate check failed",
+        });
+      }
+    },
+  );
+
+  // CRM Account Sync - Create or update CRM account (with optional AccountId for match)
+  app.post(
+    "/api/admin/sync-to-crm/:id",
+    async (req: Request, res: Response) => {
+      try {
+        const { id } = req.params;
+        const { accountId } = req.body; // Optional: AccountId if updating existing account
+
+        // Fetch registration from DB
+        const [registration] = await db
+          .select()
+          .from(wholesaleRegistrations)
+          .where(eq(wholesaleRegistrations.id, id));
+
+        if (!registration) {
+          return res.status(404).json({ error: "Registration not found" });
+        }
+
+        const crmApiKey = process.env.CRM_API_KEY;
+        if (!crmApiKey) {
+          return res.status(500).json({ error: "CRM_API_KEY not configured" });
+        }
+
+        const { default: http } = await import("http");
+
+        const crmPayload: any = {
+          APIKey: crmApiKey,
+          Resource: "Account",
+          Operation: "Create Or Edit",
+          Data: {
+            Name: registration.firmName,
+            "First Name": registration.firstName,
+            "Last Name": registration.lastName,
+            CompanyPhone: registration.phone || "",
+            Email: registration.email,
+            Address1: registration.businessAddress,
+            Address2: registration.businessAddress2 || "",
+            City: registration.city,
+            State: registration.state,
+            ZipCode: registration.zipCode,
+            Country: "United States",
+            Note: "Created via Wholesale Registration",
+            "Account Type": registration.businessType || "",
+            "Sample Set": registration.receivedSampleSet ? "Yes" : "No",
+            Instagram: registration.instagramHandle || "",
+            Website: registration.website || "",
+            "Accepts Email Marketing": registration.acceptsEmailMarketing
+              ? "Yes"
+              : "No",
+            "Accepts SMS Marketing": registration.acceptsSmsMarketing
+              ? "Yes"
+              : "No",
+            EIN: registration.taxId || "",
+            "UIA-ID": registration.id,
+            Representative: "John Thompson",
+            leadsourceid: "85927b21-38b2-49dd-8b15-c9b43e41925b",
+            leadsources: "Partner",
+            "Sales Representative": "John Thompson",
+            Registration: "Registered but no documentation",
+            "Lead Source Specifics": "UIA WHOLESALE APP",
+            Tags: "UIA-FORM",
+            "Shopify Reference": "its-under-it-all",
+          },
+        };
+
+        // If updating existing account, include AccountId
+        if (accountId) {
+          crmPayload.AccountId = accountId;
+          console.log("🔄 Updating existing CRM Account:", accountId);
+        } else {
+          console.log("🆕 Creating new CRM Account");
+        }
+
+        console.log("📤 CRM Account Sync Payload:");
+        console.log(JSON.stringify(crmPayload, null, 2));
+
+        const payloadString = JSON.stringify(crmPayload);
+
+        const options = {
+          hostname: "liveapi.claritysoftcrm.com",
+          port: 80,
+          path: "/api/v1",
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Content-Length": Buffer.byteLength(payloadString),
+            Accept: "*/*",
+            "Accept-Encoding": "gzip, deflate",
+            Connection: "keep-alive",
+            "User-Agent": "curl/7.68.0",
+          },
+        };
+
+        const crmData = await new Promise<any>((resolve, reject) => {
+          const req = http.request(options, (crmRes: any) => {
+            let data = "";
+            crmRes.on("data", (chunk: any) => (data += chunk));
+            crmRes.on("end", () => {
+              try {
+                resolve(JSON.parse(data));
+              } catch (error) {
+                reject(new Error(`Failed to parse CRM response: ${data}`));
+              }
+            });
+          });
+
+          req.on("error", reject);
+          req.write(payloadString);
+          req.end();
+        });
+
+        console.log("📤 CRM Account Sync Response:");
+        console.log(JSON.stringify(crmData, null, 2));
+
+        const clarityAccountId = crmData?.Data?.AccountId || accountId;
+
+        if (!clarityAccountId) {
+          throw new Error("CRM Account sync failed - no AccountId returned");
+        }
+
+        console.log("✅ CRM Account synced with AccountID:", clarityAccountId);
+
+        // Save clarityAccountId to DB
+        try {
+          const [updated] = await db
+            .update(wholesaleRegistrations)
+            .set({ clarityAccountId })
+            .where(eq(wholesaleRegistrations.id, id))
+            .returning();
+
+          if (!updated) {
+            console.error(
+              "⚠️ Database update failed - registration not found:",
+              id,
+            );
+          } else {
+            console.log(
+              "✅ Database updated with clarityAccountId:",
+              clarityAccountId,
+            );
+          }
+        } catch (dbError) {
+          console.error("❌ Database update error:", dbError);
+          console.log("⚠️ Continuing despite DB error - CRM sync succeeded");
+        }
+
+        res.json({
+          success: true,
+          clarityAccountId,
+          isUpdate: !!accountId,
+        });
+      } catch (error) {
+        console.error("❌ CRM account sync error:", error);
+        res.status(500).json({
+          error: error instanceof Error ? error.message : "CRM sync failed",
+        });
+      }
+    },
+  );
+
+  // Admin Approval → Create CRM Account + Shopify Customer with wholesale_clarity_id
+  app.post(
+    "/api/admin/approve-registration/:id",
+    async (req: Request, res: Response) => {
+      try {
+        const { id } = req.params;
+
+        // Fetch registration from DB
+        const [registration] = await db
+          .select()
+          .from(wholesaleRegistrations)
+          .where(eq(wholesaleRegistrations.id, id));
+
+        if (!registration) {
+          return res.status(404).json({ error: "Registration not found" });
+        }
+
+        // CRM Account should already be created via /api/admin/sync-to-crm
+        const clarityAccountId = registration.clarityAccountId;
+
+        if (!clarityAccountId) {
+          return res.status(400).json({
+            error: "CRM account not synced yet. Please sync to CRM first.",
+          });
+        }
+
+        // Create/Update Shopify Customer + Set wholesale_clarity_id metafield
+        const shopDomain = process.env.SHOPIFY_SHOP_DOMAIN;
+        const adminToken = process.env.SHOPIFY_ADMIN_ACCESS_TOKEN;
+
+        if (shopDomain && adminToken) {
+          // Check if customer exists
+          const customerQuery = `
           query GetCustomerByEmail($email: String!) {
             customers(first: 1, query: $email) {
               edges {
@@ -976,27 +1050,28 @@ export function registerRoutes(app: Express) {
           }
         `;
 
-        const customerCheckResponse = await fetch(
-          `https://${shopDomain}/admin/api/2025-01/graphql.json`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "X-Shopify-Access-Token": adminToken,
+          const customerCheckResponse = await fetch(
+            `https://${shopDomain}/admin/api/2025-01/graphql.json`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "X-Shopify-Access-Token": adminToken,
+              },
+              body: JSON.stringify({
+                query: customerQuery,
+                variables: { email: `email:${registration.email}` },
+              }),
             },
-            body: JSON.stringify({
-              query: customerQuery,
-              variables: { email: `email:${registration.email}` },
-            }),
-          }
-        );
+          );
 
-        const customerCheckData = await customerCheckResponse.json();
-        let customerId = customerCheckData?.data?.customers?.edges?.[0]?.node?.id;
+          const customerCheckData = await customerCheckResponse.json();
+          let customerId =
+            customerCheckData?.data?.customers?.edges?.[0]?.node?.id;
 
-        // Create customer if doesn't exist
-        if (!customerId) {
-          const customerCreateMutation = `
+          // Create customer if doesn't exist
+          if (!customerId) {
+            const customerCreateMutation = `
             mutation CreateCustomer($input: CustomerInput!) {
               customerCreate(input: $input) {
                 customer {
@@ -1010,40 +1085,44 @@ export function registerRoutes(app: Express) {
             }
           `;
 
-          const customerInput = {
-            email: registration.email,
-            firstName: registration.firstName,
-            lastName: registration.lastName,
-            phone: registration.phone || null,
-          };
+            const customerInput = {
+              email: registration.email,
+              firstName: registration.firstName,
+              lastName: registration.lastName,
+              phone: registration.phone || null,
+            };
 
-          const customerCreateResponse = await fetch(
-            `https://${shopDomain}/admin/api/2025-01/graphql.json`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                "X-Shopify-Access-Token": adminToken,
+            const customerCreateResponse = await fetch(
+              `https://${shopDomain}/admin/api/2025-01/graphql.json`,
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  "X-Shopify-Access-Token": adminToken,
+                },
+                body: JSON.stringify({
+                  query: customerCreateMutation,
+                  variables: { input: customerInput },
+                }),
               },
-              body: JSON.stringify({
-                query: customerCreateMutation,
-                variables: { input: customerInput },
-              }),
+            );
+
+            const customerCreateData = await customerCreateResponse.json();
+
+            if (
+              customerCreateData?.data?.customerCreate?.userErrors?.length > 0
+            ) {
+              throw new Error(
+                customerCreateData.data.customerCreate.userErrors[0].message,
+              );
             }
-          );
 
-          const customerCreateData = await customerCreateResponse.json();
-
-          if (customerCreateData?.data?.customerCreate?.userErrors?.length > 0) {
-            throw new Error(customerCreateData.data.customerCreate.userErrors[0].message);
+            customerId = customerCreateData?.data?.customerCreate?.customer?.id;
+            console.log("✅ Customer created:", customerId);
           }
 
-          customerId = customerCreateData?.data?.customerCreate?.customer?.id;
-          console.log("✅ Customer created:", customerId);
-        }
-
-        // Set wholesale_clarity_id metafield
-        const metafieldsMutation = `
+          // Set wholesale_clarity_id metafield
+          const metafieldsMutation = `
           mutation SetCustomerMetafields($metafields: [MetafieldsSetInput!]!) {
             metafieldsSet(metafields: $metafields) {
               metafields {
@@ -1059,68 +1138,80 @@ export function registerRoutes(app: Express) {
           }
         `;
 
-        const metafields = [
-          { 
-            ownerId: customerId, 
-            namespace: "custom", 
-            key: "wholesale_clarity_id", 
-            value: clarityAccountId, 
-            type: "single_line_text_field" 
-          }
-        ];
-
-        const metafieldsResponse = await fetch(
-          `https://${shopDomain}/admin/api/2025-01/graphql.json`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "X-Shopify-Access-Token": adminToken,
+          const metafields = [
+            {
+              ownerId: customerId,
+              namespace: "custom",
+              key: "wholesale_clarity_id",
+              value: clarityAccountId,
+              type: "single_line_text_field",
             },
-            body: JSON.stringify({
-              query: metafieldsMutation,
-              variables: { metafields },
-            }),
+          ];
+
+          const metafieldsResponse = await fetch(
+            `https://${shopDomain}/admin/api/2025-01/graphql.json`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "X-Shopify-Access-Token": adminToken,
+              },
+              body: JSON.stringify({
+                query: metafieldsMutation,
+                variables: { metafields },
+              }),
+            },
+          );
+
+          const metafieldsResult = await metafieldsResponse.json();
+
+          if (metafieldsResult.data?.metafieldsSet?.userErrors?.length > 0) {
+            console.error(
+              "❌ Metafield write errors:",
+              metafieldsResult.data.metafieldsSet.userErrors,
+            );
+          } else {
+            console.log(
+              "✅ wholesale_clarity_id metafield set:",
+              clarityAccountId,
+            );
           }
-        );
-
-        const metafieldsResult = await metafieldsResponse.json();
-
-        if (metafieldsResult.data?.metafieldsSet?.userErrors?.length > 0) {
-          console.error("❌ Metafield write errors:", metafieldsResult.data.metafieldsSet.userErrors);
-        } else {
-          console.log("✅ wholesale_clarity_id metafield set:", clarityAccountId);
         }
+
+        // Update registration status to approved
+        await db
+          .update(wholesaleRegistrations)
+          .set({
+            status: "approved",
+            clarityAccountId: clarityAccountId,
+          })
+          .where(eq(wholesaleRegistrations.id, id));
+
+        res.json({
+          success: true,
+          message:
+            "Registration approved, CRM account created, customer linked",
+          clarityAccountId,
+        });
+      } catch (error) {
+        console.error("❌ Approval error:", error);
+        res.status(500).json({
+          error: error instanceof Error ? error.message : "Approval failed",
+        });
       }
-
-      // Update registration status to approved
-      await db
-        .update(wholesaleRegistrations)
-        .set({ 
-          status: 'approved',
-          clarityAccountId: clarityAccountId 
-        })
-        .where(eq(wholesaleRegistrations.id, id));
-
-      res.json({
-        success: true,
-        message: "Registration approved, CRM account created, customer linked",
-        clarityAccountId
-      });
-    } catch (error) {
-      console.error("❌ Approval error:", error);
-      res.status(500).json({
-        error: error instanceof Error ? error.message : "Approval failed",
-      });
-    }
-  });
+    },
+  );
 
   // Company Enrichment - AI-powered with Cloudflare geo + gpt-4o-search-preview strict schema
   app.post("/api/enrich-company", async (req, res) => {
     try {
       console.log("📦 Raw request body:", JSON.stringify(req.body, null, 2));
-      
-      const companyName = (req.body?.firmName || req.body?.companyName || "").trim();
+
+      const companyName = (
+        req.body?.firmName ||
+        req.body?.companyName ||
+        ""
+      ).trim();
 
       console.log("🔍 Company enrichment request for:", companyName);
 
@@ -1128,11 +1219,13 @@ export function registerRoutes(app: Express) {
         console.log("⏭️ Company name too short, skipping enrichment");
         return res.json({
           enriched: false,
-          data: null
+          data: null,
         });
       }
 
-      const openaiApiKey = process.env.AI_INTEGRATIONS_OPENAI_API_KEY || process.env.OPENAI_API_KEY;
+      const openaiApiKey =
+        process.env.AI_INTEGRATIONS_OPENAI_API_KEY ||
+        process.env.OPENAI_API_KEY;
       if (!openaiApiKey) {
         console.error("❌ OPENAI_API_KEY not configured");
         return res.json({
@@ -1146,17 +1239,22 @@ export function registerRoutes(app: Express) {
             state: null,
             zipCode: null,
             phone: null,
-          }
+          },
         });
       }
 
       // Extract Cloudflare geo headers
-      const cfCountry = req.headers['cf-ipcountry'] as string || 'US';
-      const cfCity = req.headers['cf-ipcity'] as string || '';
-      const cfState = req.headers['cf-region'] as string || '';
-      const cfIp = req.headers['cf-connecting-ip'] as string || '';
+      const cfCountry = (req.headers["cf-ipcountry"] as string) || "US";
+      const cfCity = (req.headers["cf-ipcity"] as string) || "";
+      const cfState = (req.headers["cf-region"] as string) || "";
+      const cfIp = (req.headers["cf-connecting-ip"] as string) || "";
 
-      console.log("🌍 Cloudflare geo-context:", { ip: cfIp, city: cfCity, state: cfState, country: cfCountry });
+      console.log("🌍 Cloudflare geo-context:", {
+        ip: cfIp,
+        city: cfCity,
+        state: cfState,
+        country: cfCountry,
+      });
 
       // Build geo context for prompt (US-only prioritization)
       const geoContext =
@@ -1190,7 +1288,7 @@ export function registerRoutes(app: Express) {
         "",
         "The JSON response must:",
         "- Be strictly valid per the schema: every required field present, each value matching its regex/pattern constraints, absolutely no extra properties, and the exact field order as shown below.",
-        "- Be output as a single, compact JSON object, with no comments or explanations outside of the \"reasoning\" field.",
+        '- Be output as a single, compact JSON object, with no comments or explanations outside of the "reasoning" field.',
         "",
         "---",
         "",
@@ -1204,7 +1302,7 @@ export function registerRoutes(app: Express) {
         '  "businessAddress2": "string|null",',
         '  "city": "string|null",',
         '  "state": "string|null (2 upper-case letter state code, e.g., \'NY\')",',
-        '  "zipCode": "string|null (5 or 9 digit US zip: \'12345\' or \'12345-6789\')",',
+        "  \"zipCode\": \"string|null (5 or 9 digit US zip: '12345' or '12345-6789')\",",
         '  "phone": "string|null (must match US phone pattern: (999) 999-9999)",',
         '  "reasoning": "string (1–3 sentence summary explaining the sources checked, what data was found, and why other fields are null)"',
         "}",
@@ -1217,7 +1315,7 @@ export function registerRoutes(app: Express) {
         '- "phone": null or a string matching the US phone format "(999) 999-9999", with correct punctuation and spacing.',
         "- Fields must appear in the exact order shown, with no additional properties included.",
         "",
-        '**IMPORTANT**: Return partial data if ANY field can be found. Only set ALL fields to null if ZERO information exists.',
+        "**IMPORTANT**: Return partial data if ANY field can be found. Only set ALL fields to null if ZERO information exists.",
         "",
         'Ensure "reasoning" appears as the final field in the output object.',
         "",
@@ -1290,7 +1388,7 @@ export function registerRoutes(app: Express) {
             state: null,
             zipCode: null,
             phone: null,
-          }
+          },
         });
       }
 
@@ -1308,14 +1406,20 @@ export function registerRoutes(app: Express) {
       console.log("✅ Parsed enrichment data:", enriched);
 
       // Check if we have ANY enriched data (show modal only if data exists)
-      const hasData = enriched.website || enriched.instagramHandle || enriched.businessAddress || 
-                      enriched.city || enriched.state || enriched.zipCode || enriched.phone;
+      const hasData =
+        enriched.website ||
+        enriched.instagramHandle ||
+        enriched.businessAddress ||
+        enriched.city ||
+        enriched.state ||
+        enriched.zipCode ||
+        enriched.phone;
 
       if (!hasData) {
         console.log("ℹ️ No enrichment data found for this company");
         return res.json({
           enriched: false,
-          data: null
+          data: null,
         });
       }
 
@@ -1332,14 +1436,14 @@ export function registerRoutes(app: Express) {
           state: enriched.state || null,
           zipCode: enriched.zipCode || null,
           phone: enriched.phone || null,
-        }
+        },
       });
     } catch (error) {
       console.error("❌ Company enrichment error:", error);
       return res.json({
         enriched: false,
         data: null,
-        error: error instanceof Error ? error.message : "Enrichment failed"
+        error: error instanceof Error ? error.message : "Enrichment failed",
       });
     }
   });
@@ -1370,14 +1474,16 @@ export function registerRoutes(app: Express) {
       const adminToken = process.env.SHOPIFY_ADMIN_ACCESS_TOKEN;
 
       if (!shopDomain || !adminToken) {
-        return res.status(500).json({ error: "Shopify credentials not configured" });
+        return res
+          .status(500)
+          .json({ error: "Shopify credentials not configured" });
       }
 
       // Validate lineItems (must be array)
       if (!Array.isArray(lineItems) || lineItems.length === 0) {
         return res.status(400).json({
           error: "Missing or invalid lineItems",
-          details: "lineItems must be a non-empty array"
+          details: "lineItems must be a non-empty array",
         });
       }
 
@@ -1432,12 +1538,15 @@ export function registerRoutes(app: Express) {
             "X-Shopify-Access-Token": adminToken,
           },
           body: JSON.stringify({ query: draftOrderMutation, variables }),
-        }
+        },
       );
 
       const shopifyData = await shopifyResponse.json();
 
-      if (shopifyData.errors || shopifyData.data?.draftOrderCreate?.userErrors?.length > 0) {
+      if (
+        shopifyData.errors ||
+        shopifyData.data?.draftOrderCreate?.userErrors?.length > 0
+      ) {
         const userErrors = shopifyData.data?.draftOrderCreate?.userErrors || [];
         console.error("❌ Shopify draft order creation failed:");
         console.error("User Errors:", JSON.stringify(userErrors, null, 2));
@@ -1455,7 +1564,7 @@ export function registerRoutes(app: Express) {
         .insert(draftOrders)
         .values({
           shopifyDraftOrderId: draftOrder.id,
-          shopifyDraftOrderUrl: `https://${shopDomain}/admin/draft_orders/${draftOrder.id.split('/').pop()}`,
+          shopifyDraftOrderUrl: `https://${shopDomain}/admin/draft_orders/${draftOrder.id.split("/").pop()}`,
           invoiceUrl: draftOrder.invoiceUrl,
           totalPrice: draftOrder.totalPrice,
           lineItems: lineItems,
@@ -1519,7 +1628,7 @@ export function registerRoutes(app: Express) {
                 "X-Shopify-Access-Token": adminToken,
               },
               body: JSON.stringify({ query }),
-            }
+            },
           );
 
           const data = await response.json();
@@ -1533,16 +1642,30 @@ export function registerRoutes(app: Express) {
             };
           }
         } catch (error) {
-          metaobjectStatus.error = error instanceof Error ? error.message : "Unknown error";
+          metaobjectStatus.error =
+            error instanceof Error ? error.message : "Unknown error";
         }
       }
 
       // Fetch recent data for debugging
-      const [recentRegistrations, recentQuotes, recentWebhooks] = await Promise.all([
-        db.select().from(wholesaleRegistrations).orderBy(desc(wholesaleRegistrations.createdAt)).limit(10),
-        db.select().from(calculatorQuotes).orderBy(desc(calculatorQuotes.createdAt)).limit(10),
-        db.select().from(webhookLogs).orderBy(desc(webhookLogs.timestamp)).limit(20),
-      ]);
+      const [recentRegistrations, recentQuotes, recentWebhooks] =
+        await Promise.all([
+          db
+            .select()
+            .from(wholesaleRegistrations)
+            .orderBy(desc(wholesaleRegistrations.createdAt))
+            .limit(10),
+          db
+            .select()
+            .from(calculatorQuotes)
+            .orderBy(desc(calculatorQuotes.createdAt))
+            .limit(10),
+          db
+            .select()
+            .from(webhookLogs)
+            .orderBy(desc(webhookLogs.timestamp))
+            .limit(20),
+        ]);
 
       const html = `
 <!DOCTYPE html>
@@ -1694,23 +1817,29 @@ export function registerRoutes(app: Express) {
     <button class="refresh-btn" onclick="location.reload()">🔄 Refresh Data</button>
 
     <!-- Metaobject Status (Top Priority) -->
-    <div class="section" style="border: 2px solid ${metaobjectStatus.configured ? '#10b981' : '#ef4444'};">
+    <div class="section" style="border: 2px solid ${metaobjectStatus.configured ? "#10b981" : "#ef4444"};">
       <h2>🔮 Metaobject Definition Status</h2>
       <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
-        <span class="metaobject-badge ${metaobjectStatus.configured ? 'configured' : 'not-configured'}">
-          ${metaobjectStatus.configured ? '✅ CONFIGURED' : '❌ NOT CONFIGURED'}
+        <span class="metaobject-badge ${metaobjectStatus.configured ? "configured" : "not-configured"}">
+          ${metaobjectStatus.configured ? "✅ CONFIGURED" : "❌ NOT CONFIGURED"}
         </span>
-        ${metaobjectStatus.configured ? `
+        ${
+          metaobjectStatus.configured
+            ? `
           <span style="color: #9ca3af; font-size: 0.875rem;">
             wholesale_account metaobject definition deployed
           </span>
-        ` : `
+        `
+            : `
           <span style="color: #ef4444; font-size: 0.875rem;">
             Run 'shopify app deploy' to sync shopify.app.toml
           </span>
-        `}
+        `
+        }
       </div>
-      ${metaobjectStatus.configured ? `
+      ${
+        metaobjectStatus.configured
+          ? `
         <div class="stats">
           <div class="stat-card">
             <div class="stat-value">${metaobjectStatus.definition?.fieldDefinitions?.length || 0}</div>
@@ -1723,13 +1852,15 @@ export function registerRoutes(app: Express) {
         </div>
         <div style="margin-top: 1rem;">
           <p style="color: #9ca3af; font-size: 0.875rem; margin-bottom: 0.5rem;">Definition ID:</p>
-          <code style="background: #1a1a1a; padding: 0.5rem; border-radius: 6px; color: #10b981; font-size: 0.875rem; display: block; overflow-x: auto;">${metaobjectStatus.definition?.id || 'N/A'}</code>
+          <code style="background: #1a1a1a; padding: 0.5rem; border-radius: 6px; color: #10b981; font-size: 0.875rem; display: block; overflow-x: auto;">${metaobjectStatus.definition?.id || "N/A"}</code>
         </div>
         <div style="margin-top: 1rem;">
           <p style="color: #9ca3af; font-size: 0.875rem; margin-bottom: 0.5rem;">Type:</p>
-          <code style="background: #1a1a1a; padding: 0.5rem; border-radius: 6px; color: #10b981; font-size: 0.875rem; display: block;">${metaobjectStatus.definition?.type || 'N/A'}</code>
+          <code style="background: #1a1a1a; padding: 0.5rem; border-radius: 6px; color: #10b981; font-size: 0.875rem; display: block;">${metaobjectStatus.definition?.type || "N/A"}</code>
         </div>
-        ${metaobjectStatus.entries.length > 0 ? `
+        ${
+          metaobjectStatus.entries.length > 0
+            ? `
           <details style="margin-top: 1rem;">
             <summary style="cursor: pointer; color: #F2633A; font-weight: 600; margin-bottom: 0.5rem;">📋 Recent Entries (${metaobjectStatus.entries.length})</summary>
             <table style="width: 100%; margin-top: 0.5rem;">
@@ -1741,28 +1872,36 @@ export function registerRoutes(app: Express) {
                 </tr>
               </thead>
               <tbody>
-                ${metaobjectStatus.entries.map((entry: any) => `
+                ${metaobjectStatus.entries
+                  .map(
+                    (entry: any) => `
                   <tr style="border-bottom: 1px solid rgba(242, 99, 58, 0.1);">
                     <td style="padding: 0.5rem;">${entry.displayName}</td>
                     <td style="padding: 0.5rem;"><code style="font-size: 0.75rem; color: #10b981;">${entry.handle}</code></td>
                     <td style="padding: 0.5rem; color: #9ca3af; font-size: 0.75rem;">${entry.id}</td>
                   </tr>
-                `).join('')}
+                `,
+                  )
+                  .join("")}
               </tbody>
             </table>
           </details>
-        ` : ''}
-      ` : `
+        `
+            : ""
+        }
+      `
+          : `
         <div style="margin-top: 1rem; padding: 1rem; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px;">
           <p style="color: #ef4444; font-weight: 600;">❌ Metaobject definition not found in Shopify</p>
           <p style="color: #9ca3af; font-size: 0.875rem; margin-top: 0.5rem;">
-            ${metaobjectStatus.error ? `Error: ${metaobjectStatus.error}` : 'Expected type: $app:wholesale_account'}
+            ${metaobjectStatus.error ? `Error: ${metaobjectStatus.error}` : "Expected type: $app:wholesale_account"}
           </p>
           <p style="color: #9ca3af; font-size: 0.875rem; margin-top: 0.5rem;">
             Run <code style="background: #1a1a1a; padding: 0.25rem 0.5rem; border-radius: 4px; color: #F2633A;">shopify app deploy</code> to sync your shopify.app.toml configuration.
           </p>
         </div>
-      `}
+      `
+      }
     </div>
 
     <!-- Stats Overview (Now Below Metaobject) -->
@@ -1782,7 +1921,7 @@ export function registerRoutes(app: Express) {
           <div class="stat-label">Recent Webhooks</div>
         </div>
         <div class="stat-card">
-          <div class="stat-value">${recentWebhooks.filter((w: any) => w.source === 'shopify').length}</div>
+          <div class="stat-value">${recentWebhooks.filter((w: any) => w.source === "shopify").length}</div>
           <div class="stat-label">Shopify Events</div>
         </div>
       </div>
@@ -1791,7 +1930,10 @@ export function registerRoutes(app: Express) {
     <!-- Wholesale Registrations -->
     <div class="section">
       <h2>👥 Recent Wholesale Registrations</h2>
-      ${recentRegistrations.length === 0 ? '<p style="color: #9ca3af;">No registrations found</p>' : `
+      ${
+        recentRegistrations.length === 0
+          ? '<p style="color: #9ca3af;">No registrations found</p>'
+          : `
         <table>
           <thead>
             <tr>
@@ -1803,24 +1945,32 @@ export function registerRoutes(app: Express) {
             </tr>
           </thead>
           <tbody>
-            ${recentRegistrations.map((reg: any) => `
+            ${recentRegistrations
+              .map(
+                (reg: any) => `
               <tr>
-                <td><strong>${reg.firmName || 'N/A'}</strong></td>
+                <td><strong>${reg.firmName || "N/A"}</strong></td>
                 <td>${reg.firstName} ${reg.lastName}</td>
                 <td>${reg.email}</td>
                 <td><span class="status ${reg.status}">${reg.status}</span></td>
                 <td class="timestamp">${new Date(reg.createdAt).toLocaleString()}</td>
               </tr>
-            `).join('')}
+            `,
+              )
+              .join("")}
           </tbody>
         </table>
-      `}
+      `
+      }
     </div>
 
     <!-- Calculator Quotes -->
     <div class="section">
       <h2>📐 Recent Calculator Quotes</h2>
-      ${recentQuotes.length === 0 ? '<p style="color: #9ca3af;">No quotes found</p>' : `
+      ${
+        recentQuotes.length === 0
+          ? '<p style="color: #9ca3af;">No quotes found</p>'
+          : `
         <table>
           <thead>
             <tr>
@@ -1832,24 +1982,32 @@ export function registerRoutes(app: Express) {
             </tr>
           </thead>
           <tbody>
-            ${recentQuotes.map((quote: any) => `
+            ${recentQuotes
+              .map(
+                (quote: any) => `
               <tr>
                 <td>${quote.rugWidth}" × ${quote.rugLength}"</td>
                 <td>${quote.productName}</td>
                 <td><strong style="color: #10b981;">$${quote.totalPrice}</strong></td>
-                <td>${quote.installLocation || 'Not specified'}</td>
+                <td>${quote.installLocation || "Not specified"}</td>
                 <td class="timestamp">${new Date(quote.createdAt).toLocaleString()}</td>
               </tr>
-            `).join('')}
+            `,
+              )
+              .join("")}
           </tbody>
         </table>
-      `}
+      `
+      }
     </div>
 
     <!-- Webhook Events -->
     <div class="section">
       <h2>🔔 Recent Webhook Events</h2>
-      ${recentWebhooks.length === 0 ? '<p style="color: #9ca3af;">No webhooks logged</p>' : `
+      ${
+        recentWebhooks.length === 0
+          ? '<p style="color: #9ca3af;">No webhooks logged</p>'
+          : `
         <table>
           <thead>
             <tr>
@@ -1861,11 +2019,13 @@ export function registerRoutes(app: Express) {
             </tr>
           </thead>
           <tbody>
-            ${recentWebhooks.map((hook: any) => `
+            ${recentWebhooks
+              .map(
+                (hook: any) => `
               <tr>
                 <td><strong>${hook.type}</strong></td>
                 <td><span class="status webhook-${hook.source}">${hook.source}</span></td>
-                <td>${hook.shopDomain || 'N/A'}</td>
+                <td>${hook.shopDomain || "N/A"}</td>
                 <td class="timestamp">${new Date(hook.timestamp).toLocaleString()}</td>
                 <td>
                   <details>
@@ -1874,10 +2034,13 @@ export function registerRoutes(app: Express) {
                   </details>
                 </td>
               </tr>
-            `).join('')}
+            `,
+              )
+              .join("")}
           </tbody>
         </table>
-      `}
+      `
+      }
     </div>
 
     <!-- Environment Check -->
@@ -1887,23 +2050,23 @@ export function registerRoutes(app: Express) {
         <tbody>
           <tr>
             <td><strong>SHOPIFY_SHOP_DOMAIN</strong></td>
-            <td>${process.env.SHOPIFY_SHOP_DOMAIN ? '✅ Configured' : '❌ Missing'}</td>
+            <td>${process.env.SHOPIFY_SHOP_DOMAIN ? "✅ Configured" : "❌ Missing"}</td>
           </tr>
           <tr>
             <td><strong>SHOPIFY_ADMIN_ACCESS_TOKEN</strong></td>
-            <td>${process.env.SHOPIFY_ADMIN_ACCESS_TOKEN ? '✅ Configured' : '❌ Missing'}</td>
+            <td>${process.env.SHOPIFY_ADMIN_ACCESS_TOKEN ? "✅ Configured" : "❌ Missing"}</td>
           </tr>
           <tr>
             <td><strong>CRM_BASE_URL</strong></td>
-            <td>${process.env.CRM_BASE_URL || '❌ Missing'}</td>
+            <td>${process.env.CRM_BASE_URL || "❌ Missing"}</td>
           </tr>
           <tr>
             <td><strong>CRM_API_KEY</strong></td>
-            <td>${process.env.CRM_API_KEY ? '✅ Configured' : '❌ Missing'}</td>
+            <td>${process.env.CRM_API_KEY ? "✅ Configured" : "❌ Missing"}</td>
           </tr>
           <tr>
             <td><strong>SHOPIFY_WEBHOOK_SECRET</strong></td>
-            <td>${process.env.SHOPIFY_WEBHOOK_SECRET ? '✅ Configured' : '⚠️ Missing (dev mode)'}</td>
+            <td>${process.env.SHOPIFY_WEBHOOK_SECRET ? "✅ Configured" : "⚠️ Missing (dev mode)"}</td>
           </tr>
         </tbody>
       </table>
@@ -1925,7 +2088,7 @@ export function registerRoutes(app: Express) {
       console.error("❌ Debug endpoint error:", error);
       res.status(500).send(`
         <h1 style="color: #ef4444;">Debug Error</h1>
-        <pre>${error instanceof Error ? error.message : 'Unknown error'}</pre>
+        <pre>${error instanceof Error ? error.message : "Unknown error"}</pre>
       `);
     }
   });
@@ -1940,7 +2103,7 @@ export function registerRoutes(app: Express) {
         return res.status(500).json({
           error: "Missing Shopify credentials",
           shopDomain: !!shopDomain,
-          adminToken: !!adminToken
+          adminToken: !!adminToken,
         });
       }
 
@@ -1972,7 +2135,7 @@ export function registerRoutes(app: Express) {
             "X-Shopify-Access-Token": adminToken,
           },
           body: JSON.stringify({ query: definitionQuery }),
-        }
+        },
       );
 
       const defData = await defResponse.json();
@@ -2003,7 +2166,7 @@ export function registerRoutes(app: Express) {
             "X-Shopify-Access-Token": adminToken,
           },
           body: JSON.stringify({ query: objectsQuery }),
-        }
+        },
       );
 
       const objData = await objResponse.json();
@@ -2014,13 +2177,13 @@ export function registerRoutes(app: Express) {
         metaobjects: objData.data?.metaobjects?.nodes || [],
         errors: {
           definition: defData.errors,
-          metaobjects: objData.errors
-        }
+          metaobjects: objData.errors,
+        },
       });
     } catch (error) {
       console.error("❌ Debug metaobject error:", error);
       res.status(500).json({
-        error: error instanceof Error ? error.message : "Unknown error"
+        error: error instanceof Error ? error.message : "Unknown error",
       });
     }
   });
@@ -2032,7 +2195,7 @@ export function registerRoutes(app: Express) {
       if (!shopifyConfig) {
         return res.json({
           success: false,
-          message: "Shopify credentials not configured"
+          message: "Shopify credentials not configured",
         });
       }
 
@@ -2058,7 +2221,7 @@ export function registerRoutes(app: Express) {
             "X-Shopify-Access-Token": accessToken,
           },
           body: JSON.stringify({ query }),
-        }
+        },
       );
 
       const data = await response.json();
@@ -2066,20 +2229,20 @@ export function registerRoutes(app: Express) {
       if (data.errors) {
         return res.json({
           success: false,
-          message: `Shopify API error: ${data.errors[0]?.message || 'Unknown error'}`
+          message: `Shopify API error: ${data.errors[0]?.message || "Unknown error"}`,
         });
       }
 
       return res.json({
         success: true,
         message: `Connected to ${data.data.shop.name}`,
-        shop: data.data.shop
+        shop: data.data.shop,
       });
     } catch (error: any) {
       console.error("❌ Shopify test error:", error);
       return res.json({
         success: false,
-        message: error.message || "Failed to connect to Shopify"
+        message: error.message || "Failed to connect to Shopify",
       });
     }
   });
@@ -2093,7 +2256,7 @@ export function registerRoutes(app: Express) {
       if (!crmBaseUrl || !crmApiKey) {
         return res.json({
           success: false,
-          message: "CRM credentials not configured"
+          message: "CRM credentials not configured",
         });
       }
 
@@ -2101,15 +2264,15 @@ export function registerRoutes(app: Express) {
       const response = await fetch(`${crmBaseUrl}/api/ping`, {
         method: "GET",
         headers: {
-          "Authorization": `Bearer ${crmApiKey}`,
-          "Content-Type": "application/json"
-        }
+          Authorization: `Bearer ${crmApiKey}`,
+          "Content-Type": "application/json",
+        },
       });
 
       if (!response.ok) {
         return res.json({
           success: false,
-          message: `CRM API returned ${response.status}: ${response.statusText}`
+          message: `CRM API returned ${response.status}: ${response.statusText}`,
         });
       }
 
@@ -2118,13 +2281,13 @@ export function registerRoutes(app: Express) {
       return res.json({
         success: true,
         message: "Connected to Clarity CRM",
-        data
+        data,
       });
     } catch (error: any) {
       console.error("❌ CRM test error:", error);
       return res.json({
         success: false,
-        message: error.message || "Failed to connect to CRM"
+        message: error.message || "Failed to connect to CRM",
       });
     }
   });
@@ -2180,24 +2343,31 @@ export function registerRoutes(app: Express) {
                 "X-Shopify-Access-Token": adminToken,
               },
               body: JSON.stringify({ query }),
-            }
+            },
           );
 
           const data = await response.json();
 
           if (data.data?.metaobjectDefinitionByType) {
             shopifyHealth.metaobjectDefinition = true;
-            shopifyHealth.metaobjectId = data.data.metaobjectDefinitionByType.id;
-            shopifyHealth.metaobjectName = data.data.metaobjectDefinitionByType.name;
-            shopifyHealth.metaobjectType = data.data.metaobjectDefinitionByType.type;
-            shopifyHealth.fieldCount = data.data.metaobjectDefinitionByType.fieldDefinitions?.length || 0;
-            shopifyHealth.entryCount = data.data.metaobjects?.nodes?.length || 0;
+            shopifyHealth.metaobjectId =
+              data.data.metaobjectDefinitionByType.id;
+            shopifyHealth.metaobjectName =
+              data.data.metaobjectDefinitionByType.name;
+            shopifyHealth.metaobjectType =
+              data.data.metaobjectDefinitionByType.type;
+            shopifyHealth.fieldCount =
+              data.data.metaobjectDefinitionByType.fieldDefinitions?.length ||
+              0;
+            shopifyHealth.entryCount =
+              data.data.metaobjects?.nodes?.length || 0;
             shopifyHealth.recentEntries = data.data.metaobjects?.nodes || [];
           } else {
             shopifyHealth.metaobjectDefinition = false;
           }
         } catch (error) {
-          shopifyHealth.error = error instanceof Error ? error.message : "Unknown error";
+          shopifyHealth.error =
+            error instanceof Error ? error.message : "Unknown error";
         }
       }
 
@@ -2216,7 +2386,7 @@ export function registerRoutes(app: Express) {
     } catch (error) {
       console.error("❌ Health check error:", error);
       res.status(500).json({
-        error: error instanceof Error ? error.message : "Health check failed"
+        error: error instanceof Error ? error.message : "Health check failed",
       });
     }
   });
