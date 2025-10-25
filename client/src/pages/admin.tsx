@@ -25,13 +25,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { Users, Calculator, FileText, CheckCircle, XCircle, Clock, ExternalLink, Settings, CheckCircle2, ChevronDown, Building2, Mail, Phone, MapPin, Globe, Instagram, Calendar, FileCheck } from "lucide-react";
+import { Users, Calculator, FileText, CheckCircle, XCircle, Clock, ExternalLink, Settings, CheckCircle2, Building2, Mail, Phone, MapPin, Globe, Instagram, Calendar, FileCheck } from "lucide-react";
 import { format } from "date-fns";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 // Global styles for inputs
@@ -43,7 +39,6 @@ export default function Admin() {
   const [adminNotes, setAdminNotes] = useState("");
   const [rejectionReason, setRejectionReason] = useState("");
   const [actionType, setActionType] = useState<"approve" | "reject" | null>(null);
-  const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
 
   // CRM Conflict Modal States
   const [crmConflictModalOpen, setCrmConflictModalOpen] = useState(false);
@@ -413,22 +408,12 @@ export default function Admin() {
                 </Card>
               ) : (
                 registrations.map((reg: any) => (
-                  <Collapsible
+                  <Card 
                     key={reg.id}
-                    open={expandedCards.has(reg.id)}
-                    onOpenChange={(open) => {
-                      const newExpanded = new Set(expandedCards);
-                      if (open) {
-                        newExpanded.add(reg.id);
-                      } else {
-                        newExpanded.delete(reg.id);
-                      }
-                      setExpandedCards(newExpanded);
-                    }}
+                    className="rounded-[11px] overflow-hidden transition-all hover:shadow-lg cursor-pointer"
+                    onClick={() => setSelectedRegistration(reg)}
                   >
-                    <Card className="rounded-[11px] overflow-hidden transition-all hover:shadow-lg">
-                      <CollapsibleTrigger className="w-full">
-                        <CardHeader className="cursor-pointer hover:bg-[#F3F1E9]/50 transition-colors">
+                    <CardHeader className="hover:bg-[#F3F1E9]/50 transition-colors">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-4">
                               <div className="text-left">
@@ -443,284 +428,16 @@ export default function Admin() {
                             </div>
                             <div className="flex items-center gap-3">
                               {getStatusBadge(reg.status)}
-                              <ChevronDown
-                                className={`w-5 h-5 text-[#696A6D] transition-transform ${
-                                  expandedCards.has(reg.id) ? 'rotate-180' : ''
-                                }`}
-                              />
+                              <ExternalLink className="w-4 h-4 text-[#696A6D]" />
                             </div>
                           </div>
                         </CardHeader>
-                      </CollapsibleTrigger>
-
-                      <CollapsibleContent>
-                        <CardContent className="border-t border-[#E1E0DA]">
-                          <div className="grid md:grid-cols-2 gap-6 py-6">
-                            {/* Contact Information */}
-                            <div className="space-y-4">
-                              <h3 className="font-['Archivo'] text-[#212227] font-semibold text-sm uppercase tracking-wide">Contact Information</h3>
-                              <div className="space-y-3">
-                                <div className="flex items-start gap-3">
-                                  <Mail className="w-4 h-4 text-[#F2633A] mt-0.5" />
-                                  <div>
-                                    <p className="text-xs text-[#696A6D] font-['Vazirmatn']">Email</p>
-                                    <p className="font-['Vazirmatn'] text-[#212227]">{reg.email}</p>
-                                  </div>
-                                </div>
-                                <div className="flex items-start gap-3">
-                                  <Phone className="w-4 h-4 text-[#F2633A] mt-0.5" />
-                                  <div>
-                                    <p className="text-xs text-[#696A6D] font-['Vazirmatn']">Phone</p>
-                                    <p className="font-['Vazirmatn'] text-[#212227]">{reg.phone}</p>
-                                  </div>
-                                </div>
-                                <div className="flex items-start gap-3">
-                                  <MapPin className="w-4 h-4 text-[#F2633A] mt-0.5" />
-                                  <div>
-                                    <p className="text-xs text-[#696A6D] font-['Vazirmatn']">Address</p>
-                                    <p className="font-['Vazirmatn'] text-[#212227]">
-                                      {reg.businessAddress}<br />
-                                      {reg.businessAddress2 && <>{reg.businessAddress2}<br /></>}
-                                      {reg.city}, {reg.state} {reg.zipCode}
-                                    </p>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Business Details */}
-                            <div className="space-y-4">
-                              <h3 className="font-['Archivo'] text-[#212227] font-semibold text-sm uppercase tracking-wide">Business Details</h3>
-                              <div className="space-y-3">
-                                <div className="flex items-start gap-3">
-                                  <Building2 className="w-4 h-4 text-[#F2633A] mt-0.5" />
-                                  <div>
-                                    <p className="text-xs text-[#696A6D] font-['Vazirmatn']">Business Type</p>
-                                    <p className="font-['Vazirmatn'] text-[#212227] capitalize">{reg.businessType.replace(/_/g, ' ')}</p>
-                                  </div>
-                                </div>
-                                {reg.yearsInBusiness && (
-                                  <div className="flex items-start gap-3">
-                                    <Calendar className="w-4 h-4 text-[#F2633A] mt-0.5" />
-                                    <div>
-                                      <p className="text-xs text-[#696A6D] font-['Vazirmatn']">Years in Business</p>
-                                      <p className="font-['Vazirmatn'] text-[#212227]">{reg.yearsInBusiness} years</p>
-                                    </div>
-                                  </div>
-                                )}
-                                {reg.website && (
-                                  <div className="flex items-start gap-3">
-                                    <Globe className="w-4 h-4 text-[#F2633A] mt-0.5" />
-                                    <div>
-                                      <p className="text-xs text-[#696A6D] font-['Vazirmatn']">Website</p>
-                                      <a
-                                        href={reg.website}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="font-['Vazirmatn'] text-[#F2633A] hover:underline flex items-center gap-1"
-                                      >
-                                        {reg.website} <ExternalLink className="w-3 h-3" />
-                                      </a>
-                                    </div>
-                                  </div>
-                                )}
-                                {reg.instagramHandle && (
-                                  <div className="flex items-start gap-3">
-                                    <Instagram className="w-4 h-4 text-[#F2633A] mt-0.5" />
-                                    <div>
-                                      <p className="text-xs text-[#696A6D] font-['Vazirmatn']">Instagram</p>
-                                      <a
-                                        href={`https://instagram.com/${reg.instagramHandle.replace('@', '')}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="font-['Vazirmatn'] text-[#F2633A] hover:underline flex items-center gap-1"
-                                      >
-                                        @{reg.instagramHandle.replace('@', '')} <ExternalLink className="w-3 h-3" />
-                                      </a>
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-
-                            {/* Tax & Documents */}
-                            <div className="space-y-4 md:col-span-2">
-                              <h3 className="font-['Archivo'] text-[#212227] font-semibold text-sm uppercase tracking-wide">Tax & Documentation</h3>
-                              <div className="grid md:grid-cols-2 gap-4">
-                                <div className="flex items-center gap-2">
-                                  <Badge variant={reg.isTaxExempt ? "default" : "outline"} className="font-['Vazirmatn']">
-                                    {reg.isTaxExempt ? 'Tax Exempt' : 'Not Tax Exempt'}
-                                  </Badge>
-                                  {reg.isTaxExempt && reg.taxId && (
-                                    <span className="text-sm text-[#696A6D] font-['Vazirmatn']">ID: {reg.taxId}</span>
-                                  )}
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <Badge variant={reg.receivedSampleSet ? "default" : "outline"} className="font-['Vazirmatn']">
-                                    {reg.receivedSampleSet ? 'Sample Set Received' : 'No Sample Set'}
-                                  </Badge>
-                                </div>
-                              </div>
-
-                              {/* File Links */}
-                              {(reg.certificationUrl || reg.taxIdProofUrl) && (
-                                <div className="flex flex-wrap gap-3 pt-2">
-                                  {reg.certificationUrl && (
-                                    <a
-                                      href={reg.certificationUrl}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="inline-flex items-center gap-2 px-4 py-2 bg-[#F3F1E9] hover:bg-[#E1E0DA] rounded-[11px] transition-colors"
-                                    >
-                                      <FileCheck className="w-4 h-4 text-[#F2633A]" />
-                                      <span className="font-['Vazirmatn'] text-sm text-[#212227]">Business Certification</span>
-                                      <ExternalLink className="w-3 h-3 text-[#696A6D]" />
-                                    </a>
-                                  )}
-                                  {reg.taxIdProofUrl && (
-                                    <a
-                                      href={reg.taxIdProofUrl}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="inline-flex items-center gap-2 px-4 py-2 bg-[#F3F1E9] hover:bg-[#E1E0DA] rounded-[11px] transition-colors"
-                                    >
-                                      <FileCheck className="w-4 h-4 text-[#F2633A]" />
-                                      <span className="font-['Vazirmatn'] text-sm text-[#212227]">Tax ID Proof</span>
-                                      <ExternalLink className="w-3 h-3 text-[#696A6D]" />
-                                    </a>
-                                  )}
-                                </div>
-                              )}
-                            </div>
-
-                            {/* Additional Info */}
-                            {(reg.howDidYouHear || reg.adminNotes) && (
-                              <div className="space-y-4 md:col-span-2">
-                                <h3 className="font-['Archivo'] text-[#212227] font-semibold text-sm uppercase tracking-wide">Additional Information</h3>
-                                {reg.howDidYouHear && (
-                                  <div>
-                                    <p className="text-xs text-[#696A6D] font-['Vazirmatn'] mb-1">How They Heard About Us</p>
-                                    <p className="font-['Vazirmatn'] text-[#212227]">{reg.howDidYouHear}</p>
-                                  </div>
-                                )}
-                                {reg.adminNotes && (
-                                  <div>
-                                    <p className="text-xs text-[#696A6D] font-['Vazirmatn'] mb-1">Admin Notes</p>
-                                    <p className="font-['Vazirmatn'] text-[#212227] text-sm whitespace-pre-wrap">{reg.adminNotes}</p>
-                                  </div>
-                                )}
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Actions */}
-                          <div className="border-t border-[#E1E0DA] pt-4">
-                            {reg.status === "pending" && (
-                              <div className="flex gap-2">
-                                <Button
-                                  onClick={() => handleApprove(reg)}
-                                  className="bg-[#F2633A] hover:bg-[#F2633A]/90 text-white rounded-[11px] font-['Vazirmatn']"
-                                >
-                                  <CheckCircle className="w-4 h-4 mr-2" />
-                                  Approve Application
-                                </Button>
-                                <Button
-                                  onClick={() => handleReject(reg)}
-                                  variant="outline"
-                                  className="rounded-[11px] font-['Vazirmatn']"
-                                >
-                                  <XCircle className="w-4 h-4 mr-2" />
-                                  Reject Application
-                                </Button>
-                              </div>
-                            )}
-                            {reg.status === 'approved' && (
-                              <div className="space-y-3">
-                                <div className="flex items-center gap-2 text-sm text-green-600">
-                                  <CheckCircle2 className="w-4 h-4" />
-                                  <span className="font-['Vazirmatn']">
-                                    {reg.approvedAt 
-                                      ? `Approved on ${format(new Date(reg.approvedAt), 'MMM d, yyyy h:mm a')}`
-                                      : 'Approved (date not recorded)'}
-                                  </span>
-                                </div>
-                                <div className="text-xs text-[#696A6D] font-['Vazirmatn']">
-                                  Submitted {format(new Date(reg.createdAt), 'MMM d, yyyy h:mm a')}
-                                </div>
-
-                                {/* Customer Metafields Display */}
-                                {reg.shopifyCustomerId && (
-                                  <div className="bg-[#F9F9F7] border border-[#E1E0DA] rounded-[11px] p-3 space-y-2">
-                                    <h4 className="font-['Archivo'] text-sm font-semibold text-[#212227]">Shopify Customer Data</h4>
-                                    <div className="grid grid-cols-2 gap-2 text-xs">
-                                      <div>
-                                        <span className="text-[#696A6D] font-['Vazirmatn']">Wholesale Name:</span>
-                                        <p className="font-['Vazirmatn'] text-[#212227]">{reg.firmName}</p>
-                                      </div>
-                                      <div>
-                                        <span className="text-[#696A6D] font-['Vazirmatn']">Clarity Account:</span>
-                                        <p className="font-['Vazirmatn'] text-[#212227]">{reg.clarityAccountId || 'N/A'}</p>
-                                      </div>
-                                      <div>
-                                        <span className="text-[#696A6D] font-['Vazirmatn']">UIA-ID:</span>
-                                        <p className="font-['Vazirmatn'] text-[#212227] truncate" title={reg.id}>{reg.id}</p>
-                                      </div>
-                                    </div>
-                                    <a
-                                      href={`https://underitall-redeux.myshopify.com/admin/customers/${reg.shopifyCustomerId}`}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#96bf48] hover:bg-[#85aa3d] text-white rounded-[8px] transition-colors font-['Vazirmatn'] text-sm"
-                                    >
-                                      <ExternalLink className="w-3 h-3" />
-                                      Open in Shopify Admin
-                                    </a>
-                                  </div>
-                                )}
-                                
-                                <div className="flex flex-wrap gap-2">
-                                  {reg.clarityAccountId ? (
-                                    <a
-                                      href={`https://www.claritycrm.com/accounts/new4.aspx?m=e&id=${reg.clarityAccountId}`}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-[11px] transition-colors font-['Vazirmatn']"
-                                    >
-                                      <CheckCircle2 className="w-4 h-4" />
-                                      ✓ CRM Synced {reg.updatedAt && `(${format(new Date(reg.updatedAt), 'MMM d, yyyy')})`}
-                                    </a>
-                                  ) : (
-                                    <Button
-                                      onClick={() => checkCrmDuplicates(reg.id)}
-                                      className="bg-[#F2633A] hover:bg-[#F2633A]/90 text-white rounded-[11px] font-['Vazirmatn']"
-                                    >
-                                      <ExternalLink className="w-4 h-4 mr-2" />
-                                      Check CRM Duplicates & Approve in Shopify
-                                    </Button>
-                                  )}
-                                  
-                                  <Button
-                                    onClick={() => handleCreateShopifyAccount(reg.id)}
-                                    variant="outline"
-                                    className="rounded-[11px] font-['Vazirmatn'] border-[#7e8d76] text-[#7e8d76] hover:bg-[#7e8d76] hover:text-white"
-                                  >
-                                    <ExternalLink className="w-4 h-4 mr-2" />
-                                    Create Shopify Customer
-                                  </Button>
-                                </div>
-                              </div>
-                            )}
-                            {reg.status === 'rejected' && reg.rejectionReason && (
-                              <div className="bg-red-50 border border-red-200 rounded-[11px] p-4">
-                                <p className="text-xs text-red-600 font-['Vazirmatn'] mb-1">Rejection Reason</p>
-                                <p className="font-['Vazirmatn'] text-red-700 text-sm">{reg.rejectionReason}</p>
-                              </div>
-                            )}
-                          </div>
-                        </CardContent>
-                      </CollapsibleContent>
-                    </Card>
-                  </Collapsible>
+                      </Card>
+                ))
+              )}
+            </div>
+          </TabsContent>
+                        
                 ))
               )}
             </div>
@@ -816,8 +533,205 @@ export default function Admin() {
         </Tabs>
       </div>
 
+      {/* Wholesale Details Modal */}
+      <Dialog open={!!selectedRegistration && !actionType} onOpenChange={() => {
+        if (!actionType) setSelectedRegistration(null);
+      }}>
+        <DialogContent className="rounded-[16px] max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="font-['Archivo'] text-[#212227] text-xl flex items-center gap-2">
+              <Building2 className="w-6 h-6 text-[#F2633A]" />
+              {selectedRegistration?.firmName}
+            </DialogTitle>
+            <DialogDescription className="font-['Vazirmatn'] text-[#696A6D]">
+              {getStatusBadge(selectedRegistration?.status)} • Submitted {selectedRegistration && format(new Date(selectedRegistration.createdAt), "MMM d, yyyy h:mm a")}
+            </DialogDescription>
+          </DialogHeader>
+
+          {selectedRegistration && (
+            <div className="space-y-6">
+              {/* Contact Information */}
+              <div className="space-y-3">
+                <h3 className="font-['Archivo'] text-[#212227] font-semibold text-sm uppercase tracking-wide">Contact Information</h3>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="flex items-start gap-3">
+                    <Mail className="w-4 h-4 text-[#F2633A] mt-0.5" />
+                    <div className="flex-1">
+                      <p className="text-xs text-[#696A6D] font-['Vazirmatn']">Email</p>
+                      <p className="font-['Vazirmatn'] text-[#212227]">{selectedRegistration.email}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <Phone className="w-4 h-4 text-[#F2633A] mt-0.5" />
+                    <div className="flex-1">
+                      <p className="text-xs text-[#696A6D] font-['Vazirmatn']">Phone</p>
+                      <p className="font-['Vazirmatn'] text-[#212227]">{selectedRegistration.phone}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3 md:col-span-2">
+                    <MapPin className="w-4 h-4 text-[#F2633A] mt-0.5" />
+                    <div className="flex-1">
+                      <p className="text-xs text-[#696A6D] font-['Vazirmatn']">Address</p>
+                      <p className="font-['Vazirmatn'] text-[#212227]">
+                        {selectedRegistration.businessAddress}
+                        {selectedRegistration.businessAddress2 && <>, {selectedRegistration.businessAddress2}</>}
+                        <br />
+                        {selectedRegistration.city}, {selectedRegistration.state} {selectedRegistration.zipCode}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="border-t border-[#E1E0DA]" />
+
+              {/* Business Details */}
+              <div className="space-y-3">
+                <h3 className="font-['Archivo'] text-[#212227] font-semibold text-sm uppercase tracking-wide">Business Details</h3>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="flex items-start gap-3">
+                    <Building2 className="w-4 h-4 text-[#F2633A] mt-0.5" />
+                    <div className="flex-1">
+                      <p className="text-xs text-[#696A6D] font-['Vazirmatn']">Business Type</p>
+                      <p className="font-['Vazirmatn'] text-[#212227] capitalize">{selectedRegistration.businessType.replace(/_/g, ' ')}</p>
+                    </div>
+                  </div>
+                  {selectedRegistration.yearsInBusiness && (
+                    <div className="flex items-start gap-3">
+                      <Calendar className="w-4 h-4 text-[#F2633A] mt-0.5" />
+                      <div className="flex-1">
+                        <p className="text-xs text-[#696A6D] font-['Vazirmatn']">Years in Business</p>
+                        <p className="font-['Vazirmatn'] text-[#212227]">{selectedRegistration.yearsInBusiness} years</p>
+                      </div>
+                    </div>
+                  )}
+                  {selectedRegistration.website && (
+                    <div className="flex items-start gap-3">
+                      <Globe className="w-4 h-4 text-[#F2633A] mt-0.5" />
+                      <div className="flex-1">
+                        <p className="text-xs text-[#696A6D] font-['Vazirmatn']">Website</p>
+                        <a href={selectedRegistration.website} target="_blank" rel="noopener noreferrer" className="font-['Vazirmatn'] text-[#F2633A] hover:underline flex items-center gap-1">
+                          {selectedRegistration.website} <ExternalLink className="w-3 h-3" />
+                        </a>
+                      </div>
+                    </div>
+                  )}
+                  {selectedRegistration.instagramHandle && (
+                    <div className="flex items-start gap-3">
+                      <Instagram className="w-4 h-4 text-[#F2633A] mt-0.5" />
+                      <div className="flex-1">
+                        <p className="text-xs text-[#696A6D] font-['Vazirmatn']">Instagram</p>
+                        <a href={`https://instagram.com/${selectedRegistration.instagramHandle.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="font-['Vazirmatn'] text-[#F2633A] hover:underline flex items-center gap-1">
+                          @{selectedRegistration.instagramHandle.replace('@', '')} <ExternalLink className="w-3 h-3" />
+                        </a>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="border-t border-[#E1E0DA]" />
+
+              {/* Tax & Documentation */}
+              <div className="space-y-3">
+                <h3 className="font-['Archivo'] text-[#212227] font-semibold text-sm uppercase tracking-wide">Tax & Documentation</h3>
+                <div className="flex flex-wrap gap-3">
+                  <Badge variant={selectedRegistration.isTaxExempt ? "default" : "outline"} className="font-['Vazirmatn']">
+                    {selectedRegistration.isTaxExempt ? 'Tax Exempt' : 'Not Tax Exempt'}
+                  </Badge>
+                  {selectedRegistration.isTaxExempt && selectedRegistration.taxId && (
+                    <span className="text-sm text-[#696A6D] font-['Vazirmatn']">ID: {selectedRegistration.taxId}</span>
+                  )}
+                  <Badge variant={selectedRegistration.receivedSampleSet ? "default" : "outline"} className="font-['Vazirmatn']">
+                    {selectedRegistration.receivedSampleSet ? 'Sample Set Received' : 'No Sample Set'}
+                  </Badge>
+                </div>
+                {(selectedRegistration.certificationUrl || selectedRegistration.taxIdProofUrl) && (
+                  <div className="flex flex-wrap gap-2 pt-2">
+                    {selectedRegistration.certificationUrl && (
+                      <a href={selectedRegistration.certificationUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#F3F1E9] hover:bg-[#E1E0DA] rounded-[8px] transition-colors text-sm">
+                        <FileCheck className="w-3 h-3 text-[#F2633A]" />
+                        <span className="font-['Vazirmatn'] text-[#212227]">Certification</span>
+                        <ExternalLink className="w-3 h-3 text-[#696A6D]" />
+                      </a>
+                    )}
+                    {selectedRegistration.taxIdProofUrl && (
+                      <a href={selectedRegistration.taxIdProofUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#F3F1E9] hover:bg-[#E1E0DA] rounded-[8px] transition-colors text-sm">
+                        <FileCheck className="w-3 h-3 text-[#F2633A]" />
+                        <span className="font-['Vazirmatn'] text-[#212227]">Tax ID Proof</span>
+                        <ExternalLink className="w-3 h-3 text-[#696A6D]" />
+                      </a>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {(selectedRegistration.howDidYouHear || selectedRegistration.adminNotes) && (
+                <>
+                  <div className="border-t border-[#E1E0DA]" />
+                  <div className="space-y-3">
+                    <h3 className="font-['Archivo'] text-[#212227] font-semibold text-sm uppercase tracking-wide">Additional Information</h3>
+                    {selectedRegistration.howDidYouHear && (
+                      <div>
+                        <p className="text-xs text-[#696A6D] font-['Vazirmatn'] mb-1">How They Heard About Us</p>
+                        <p className="font-['Vazirmatn'] text-[#212227]">{selectedRegistration.howDidYouHear}</p>
+                      </div>
+                    )}
+                    {selectedRegistration.adminNotes && (
+                      <div>
+                        <p className="text-xs text-[#696A6D] font-['Vazirmatn'] mb-1">Admin Notes</p>
+                        <p className="font-['Vazirmatn'] text-[#212227] text-sm whitespace-pre-wrap">{selectedRegistration.adminNotes}</p>
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+
+          <DialogFooter className="pt-4 border-t border-[#E1E0DA]">
+            {selectedRegistration?.status === "pending" && (
+              <>
+                <Button onClick={() => { setActionType("approve"); }} className="bg-[#F2633A] hover:bg-[#F2633A]/90 text-white rounded-[11px] font-['Vazirmatn']">
+                  <CheckCircle className="w-4 h-4 mr-2" />
+                  Approve
+                </Button>
+                <Button onClick={() => { setActionType("reject"); }} variant="outline" className="rounded-[11px] font-['Vazirmatn']">
+                  <XCircle className="w-4 h-4 mr-2" />
+                  Reject
+                </Button>
+              </>
+            )}
+            {selectedRegistration?.status === "approved" && (
+              <div className="flex flex-wrap gap-2 w-full">
+                {selectedRegistration.shopifyCustomerId && (
+                  <a href={`https://underitall-redeux.myshopify.com/admin/customers/${selectedRegistration.shopifyCustomerId}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#96bf48] hover:bg-[#85aa3d] text-white rounded-[8px] transition-colors font-['Vazirmatn'] text-sm">
+                    <ExternalLink className="w-3 h-3" />
+                    Shopify Admin
+                  </a>
+                )}
+                {selectedRegistration.clarityAccountId ? (
+                  <a href={`https://www.claritycrm.com/accounts/new4.aspx?m=e&id=${selectedRegistration.clarityAccountId}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-[8px] transition-colors font-['Vazirmatn'] text-sm">
+                    <CheckCircle2 className="w-3 h-3" />
+                    CRM Synced
+                  </a>
+                ) : (
+                  <Button onClick={() => { checkCrmDuplicates(selectedRegistration.id); setSelectedRegistration(null); }} className="bg-[#F2633A] hover:bg-[#F2633A]/90 text-white rounded-[11px] font-['Vazirmatn'] text-sm">
+                    <ExternalLink className="w-4 h-4 mr-2" />
+                    Sync to CRM
+                  </Button>
+                )}
+              </div>
+            )}
+            <Button variant="outline" onClick={() => setSelectedRegistration(null)} className="rounded-[11px] font-['Vazirmatn']">
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Registration Action Dialog */}
-      <Dialog open={!!selectedRegistration} onOpenChange={() => setSelectedRegistration(null)}>
+      <Dialog open={!!actionType} onOpenChange={() => { setActionType(null); setSelectedRegistration(null); }}>
         <DialogContent className="rounded-[16px]">
           <DialogHeader>
             <DialogTitle className="font-['Archivo'] text-[#212227]">
