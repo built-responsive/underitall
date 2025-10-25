@@ -1778,25 +1778,23 @@ export function registerRoutes(app: Express) {
 
         // Send Gmail notification to admins
         try {
-          const { sendWholesaleAccountEmail } = await import("./utils/gmail");
-          await sendWholesaleAccountEmail({
-            to: ["sales@itsunderitall.com", "admin@itsunderitall.com"], // Admin emails
-            subject: `New Wholesale Account: ${registration.firmName}`,
-            company: registration.firmName,
-            contact: {
-              firstName: registration.firstName,
-              lastName: registration.lastName,
-              email: registration.email,
-              phone: registration.phone || undefined,
-            },
-            address: {
-              address1: registration.businessAddress,
-              city: registration.city,
-              state: registration.state,
-              zip: registration.zipCode,
-            },
-            clarityAccountId,
-            shopifyCustomerId: customerId?.toString(),
+          const { sendNewWholesaleApplicationEmail } = await import("./services/emailService");
+          await sendNewWholesaleApplicationEmail({
+            to: ["sales@itsunderitall.com", "admin@itsunderitall.com"],
+            registrationId: registration.id,
+            firstName: registration.firstName,
+            lastName: registration.lastName,
+            firmName: registration.firmName,
+            email: registration.email,
+            phone: registration.phone || undefined,
+            businessType: registration.businessType,
+            businessAddress: registration.businessAddress,
+            businessAddress2: registration.businessAddress2 || undefined,
+            city: registration.city,
+            state: registration.state,
+            zipCode: registration.zipCode,
+            applicationDate: format(new Date(registration.createdAt), 'MMMM d, yyyy'),
+            applicationNumber: registration.id.substring(0, 8).toUpperCase(),
           });
           console.log("✅ Gmail notification sent to admins");
         } catch (emailError) {

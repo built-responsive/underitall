@@ -151,7 +151,7 @@ function Router() {
       <Route path="/apps/join" component={WholesaleRegistration} />
       <Route path="/apps/join/calculator" component={Calculator} />
       <Route path="/calculator" component={Calculator} />
-      <Route path="/dashboard" component={Admin} />
+      <Route path="/dashboard/:id?" component={Admin} />
       <Route path="/settings" component={Settings} />
       <Route path="/gmail" component={Gmail} />
       <Route path="/email-templates" component={EmailTemplatesPage} />

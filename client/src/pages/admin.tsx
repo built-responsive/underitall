@@ -1,6 +1,7 @@
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useState, useEffect } from "react";
+import { useRoute } from 'wouter';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -34,6 +35,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 const globalInputStyles = "border-[#7e8d76] font-['Lora_Italic'] placeholder:text-[#7e8d76]/70 focus:border-[#7e8d76] focus:ring-[#7e8d76]";
 
 export default function Admin() {
+  const [match, params] = useRoute('/dashboard/:id?');
   const { toast } = useToast();
   const [selectedRegistration, setSelectedRegistration] = useState<any>(null);
   const [adminNotes, setAdminNotes] = useState("");
@@ -345,6 +347,17 @@ export default function Admin() {
     if (ordersError) console.error("🔴 Orders error:", ordersError);
   }, [regError, quotesError, ordersError]);
 
+  // Auto-open modal when ID is in URL
+  useEffect(() => {
+    if (params?.id && registrations && registrations.length > 0 && !selectedRegistration) {
+      const registration = registrations.find(r => r.id === params.id);
+      if (registration) {
+        console.log('🔍 Auto-opening registration from URL:', params.id);
+        setSelectedRegistration(registration);
+      }
+    }
+  }, [params?.id, registrations, selectedRegistration]);
+
   const pendingCount = registrations.filter((r: any) => r.status === "pending").length;
   const approvedCount = registrations.filter((r: any) => r.status === "approved").length;
   const totalQuotes = quotes.length;
@@ -427,7 +440,7 @@ export default function Admin() {
                 </Card>
               ) : (
                 registrations.map((reg: any) => (
-                  <Card 
+                  <Card
                     key={reg.id}
                     className="rounded-[11px] overflow-hidden transition-all hover:shadow-lg cursor-pointer"
                     onClick={() => setSelectedRegistration(reg)}

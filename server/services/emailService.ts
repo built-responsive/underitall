@@ -1,4 +1,3 @@
-
 import { db } from '../db';
 import { emailTemplates, emailSendLog } from '@shared/schema';
 import { eq } from 'drizzle-orm';
@@ -20,26 +19,26 @@ async function loadTemplateFile(templateName: string): Promise<string | null> {
 // Simple variable replacement (supports {{variable}} syntax)
 function replaceVariables(template: string, variables: Record<string, any>): string {
   let result = template;
-  
+
   // Add currentYear as a default variable
   variables.currentYear = new Date().getFullYear();
-  
+
   // Replace simple variables
   Object.keys(variables).forEach(key => {
     const regex = new RegExp(`{{${key}}}`, 'g');
     result = result.replace(regex, variables[key] || '');
   });
-  
+
   // Handle conditionals {{#if variable}}...{{/if}}
   result = result.replace(/{{#if\s+(\w+)}}([\s\S]*?){{\/if}}/g, (match, variable, content) => {
     return variables[variable] ? content : '';
   });
-  
+
   // Handle loops {{#each array}}...{{/each}}
   result = result.replace(/{{#each\s+(\w+)}}([\s\S]*?){{\/each}}/g, (match, variable, content) => {
     const array = variables[variable];
     if (!Array.isArray(array)) return '';
-    
+
     return array.map(item => {
       let itemContent = content;
       Object.keys(item).forEach(key => {
@@ -49,7 +48,7 @@ function replaceVariables(template: string, variables: Record<string, any>): str
       return itemContent;
     }).join('');
   });
-  
+
   return result;
 }
 
@@ -57,7 +56,7 @@ function replaceVariables(template: string, variables: Record<string, any>): str
 async function sendEmail(to: string, subject: string, htmlContent: string): Promise<boolean> {
   try {
     const { google } = await import('googleapis');
-    
+
     // Get fresh access token
     const hostname = process.env.REPLIT_CONNECTORS_HOSTNAME;
     const xReplitToken = process.env.REPL_IDENTITY 
@@ -153,7 +152,7 @@ export async function sendTemplatedEmail(
       .from(emailTemplates)
       .where(eq(emailTemplates.name, templateName))
       .limit(1);
-    
+
     if (!template) {
       console.error(`❌ Template not found: ${templateName}`);
       return false;
@@ -219,7 +218,7 @@ export async function initializeDefaultTemplates() {
       active: true,
     },
   ];
-  
+
   for (const template of templates) {
     try {
       // Load the HTML content from file
@@ -250,7 +249,7 @@ export async function initializeDefaultTemplates() {
             updatedAt: new Date(),
           })
           .where(eq(emailTemplates.name, template.name));
-        
+
         console.log(`✅ Updated template: ${template.name}`);
       } else {
         // Insert new template
@@ -263,14 +262,14 @@ export async function initializeDefaultTemplates() {
           variables: template.variables,
           active: template.active,
         });
-        
+
         console.log(`✅ Created template: ${template.name}`);
       }
     } catch (error) {
       console.error(`❌ Failed to initialize template: ${template.name}`, error);
     }
   }
-  
+
   console.log('✅ Email templates initialized');
 }
 
@@ -288,19 +287,29 @@ export async function sendNewCRMCustomerEmail(variables: {
   return sendTemplatedEmail(variables.to, 'new-crm-customer', variables);
 }
 
-export async function sendNewWholesaleApplicationEmail(variables: {
+export async function sendNewWholesaleApplicationEmail(options: {
   to: string | string[];
+  registrationId: string;
   firstName: string;
   lastName: string;
   firmName: string;
   email: string;
-  applicationNumber: string;
-  [key: string]: any;
+  phone?: string;
+  businessType: string;
+  businessAddress: string;
+  businessAddress2?: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  applicationDate?: string;
+  applicationNumber?: string;
+  pendingCount?: number;
+  adminDashboardUrl?: string;
 }) {
-  const recipients = Array.isArray(variables.to) ? variables.to : [variables.to];
+  const recipients = Array.isArray(options.to) ? options.to : [options.to];
   const results = await Promise.all(
     recipients.map(recipient => 
-      sendTemplatedEmail(recipient, 'new-wholesale-application', { ...variables, to: recipient })
+      sendTemplatedEmail(recipient, 'new-wholesale-application', { ...options, to: recipient })
     )
   );
   return results.every(r => r);
