@@ -449,8 +449,7 @@ export default function Admin() {
                   <Card
                     key={reg.id}
                     id={`registration-${reg.id}`}
-                    className="rounded-[11px] overflow-hidden transition-all hover:shadow-lg cursor-pointer"
-                    onClick={() => setSelectedRegistration(reg)}
+                    className="rounded-[11px] overflow-hidden transition-all hover:shadow-lg"
                   >
                     <CardHeader className="hover:bg-[#F3F1E9]/50 transition-colors">
                           <div className="flex items-center justify-between">
@@ -467,7 +466,14 @@ export default function Admin() {
                             </div>
                             <div className="flex items-center gap-3">
                               {getStatusBadge(reg.status)}
-                              <ExternalLink className="w-4 h-4 text-[#696A6D]" />
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setSelectedRegistration(reg)}
+                                className="rounded-[8px] font-['Vazirmatn']"
+                              >
+                                <ExternalLink className="w-4 h-4" />
+                              </Button>
                             </div>
                           </div>
                         </CardHeader>
