@@ -61,7 +61,7 @@ export default function Settings() {
     queryFn: async () => {
       const query = `
         query {
-          metafieldDefinitions(first: 10, ownerType: CUSTOMER, namespace: "custom") {
+          metafieldDefinitions(first: 10, ownerType: CUSTOMER, namespace: "app") {
             nodes {
               key
               name

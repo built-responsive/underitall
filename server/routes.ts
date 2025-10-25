@@ -1079,54 +1079,95 @@ export function registerRoutes(app: Express) {
           const gid = existingCustomer.id;
           customerId = parseInt(gid.split('/').pop() || '0');
           customerExists = true;
-          console.log("✅ Found existing customer:", customerId);
+          console.log("✅ Found existing customer by email:", customerId);
         } else {
-          // Create new customer via REST API (Basic plan compatible)
-          const customerPayload = {
-            customer: {
-              email: registration.email,
-              first_name: registration.firstName,
-              last_name: registration.lastName,
-              phone: registration.phone || null,
-              tags: `wholesale, ${registration.businessType}`,
-              note: `Wholesale account - ${registration.firmName}`,
-              tax_exempt: registration.isTaxExempt,
-              addresses: [{
-                address1: registration.businessAddress,
-                address2: registration.businessAddress2 || "",
-                city: registration.city,
-                province: registration.state,
-                zip: registration.zipCode,
-                country: "United States",
-                company: registration.firmName,
-              }],
-            },
-          };
+          // Search by phone if email search failed (phone may already exist)
+          const phoneSearchQuery = `
+            query SearchCustomersByPhone($query: String!) {
+              customers(first: 1, query: $query) {
+                edges {
+                  node {
+                    id
+                    email
+                    phone
+                  }
+                }
+              }
+            }
+          `;
 
-          const customerResponse = await fetch(
-            `https://${shopDomain}/admin/api/2025-01/customers.json`,
+          const phoneSearchResponse = await fetch(
+            `https://${shopDomain}/admin/api/2025-01/graphql.json`,
             {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
                 "X-Shopify-Access-Token": adminToken,
               },
-              body: JSON.stringify(customerPayload),
+              body: JSON.stringify({
+                query: phoneSearchQuery,
+                variables: { query: `phone:${registration.phone}` },
+              }),
             },
           );
 
-          if (!customerResponse.ok) {
-            const errorText = await customerResponse.text();
-            console.error("❌ Shopify customer creation failed:", errorText);
-            return res.status(500).json({
-              error: "Failed to create Shopify customer",
-              details: errorText,
-            });
-          }
+          const phoneSearchData = await phoneSearchResponse.json();
+          const existingByPhone = phoneSearchData?.data?.customers?.edges?.[0]?.node;
 
-          const customerData = await customerResponse.json();
-          customerId = customerData.customer.id;
-          console.log("✅ Shopify customer created:", customerId);
+          if (existingByPhone) {
+            // Customer with this phone exists - update instead of create
+            const gid = existingByPhone.id;
+            customerId = parseInt(gid.split('/').pop() || '0');
+            customerExists = true;
+            console.log("✅ Found existing customer by phone (will update metafields):", customerId);
+          } else {
+            // No existing customer - safe to create
+            const customerPayload = {
+              customer: {
+                email: registration.email,
+                first_name: registration.firstName,
+                last_name: registration.lastName,
+                phone: registration.phone || null,
+                tags: `wholesale, ${registration.businessType}`,
+                note: `Wholesale account - ${registration.firmName}`,
+                tax_exempt: registration.isTaxExempt,
+                addresses: [{
+                  address1: registration.businessAddress,
+                  address2: registration.businessAddress2 || "",
+                  city: registration.city,
+                  province: registration.state,
+                  zip: registration.zipCode,
+                  country: "United States",
+                  company: registration.firmName,
+                }],
+              },
+            };
+
+            const customerResponse = await fetch(
+              `https://${shopDomain}/admin/api/2025-01/customers.json`,
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  "X-Shopify-Access-Token": adminToken,
+                },
+                body: JSON.stringify(customerPayload),
+              },
+            );
+
+            if (!customerResponse.ok) {
+              const errorText = await customerResponse.text();
+              console.error("❌ Shopify customer creation failed:", errorText);
+              return res.status(500).json({
+                error: "Failed to create Shopify customer",
+                details: errorText,
+              });
+            }
+
+            const customerData = await customerResponse.json();
+            customerId = customerData.customer.id;
+            console.log("✅ Shopify customer created:", customerId);
+          }
         }
 
         // Set all wholesale metafields (for both new and existing customers)
