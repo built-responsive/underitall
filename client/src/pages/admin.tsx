@@ -640,13 +640,26 @@ export default function Admin() {
                                   <CheckCircle2 className="w-4 h-4" />
                                   <span className="font-['Vazirmatn']">Approved on {new Date(reg.approvedAt!).toLocaleDateString()}</span>
                                 </div>
-                                <Button
-                                  onClick={() => checkCrmDuplicates(reg.id)}
-                                  className="bg-[#F2633A] hover:bg-[#F2633A]/90 text-white rounded-[11px] font-['Vazirmatn']"
-                                >
-                                  <ExternalLink className="w-4 h-4 mr-2" />
-                                  Create Shopify Account & Send to CRM
-                                </Button>
+                                
+                                {reg.clarityAccountId ? (
+                                  <a
+                                    href={`https://www.claritycrm.com/accounts/new4.aspx?m=e&id=${reg.clarityAccountId}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-[11px] transition-colors font-['Vazirmatn']"
+                                  >
+                                    <CheckCircle2 className="w-4 h-4" />
+                                    ✓ CRM Synced {reg.updatedAt && `(${format(new Date(reg.updatedAt), 'MMM d, yyyy')})`}
+                                  </a>
+                                ) : (
+                                  <Button
+                                    onClick={() => checkCrmDuplicates(reg.id)}
+                                    className="bg-[#F2633A] hover:bg-[#F2633A]/90 text-white rounded-[11px] font-['Vazirmatn']"
+                                  >
+                                    <ExternalLink className="w-4 h-4 mr-2" />
+                                    Check CRM Duplicates & Approve in Shopify
+                                  </Button>
+                                )}
                               </div>
                             )}
                             {reg.status === 'rejected' && reg.rejectionReason && (
