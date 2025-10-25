@@ -42,9 +42,11 @@ prefix = "apps"
 
 [metaobjects.app.customer_record]
 name = "Customer Record"
+display_name_field = "firm_name"
 access.admin = "merchant_read_write"
 access.storefront = "public_read"
 capabilities.publishable = true
+capabilities.renderable = true
 
 [metaobjects.app.customer_record.fields.firm_name]
 name = "Firm name"
