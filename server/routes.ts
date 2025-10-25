@@ -12,6 +12,8 @@ import { desc, eq } from "drizzle-orm";
 import { getShopifyConfig, executeShopifyGraphQL } from "./utils/shopifyConfig";
 import path from "path";
 import { getUnreadMessages, sendEmail } from "./gmail";
+import { emailTemplates, emailSendLog } from "@shared/schema";
+import { sendTemplatedEmail, initializeDefaultTemplates } from "./services/emailService";
 
 export function registerRoutes(app: Express) {
   // Customer Account Extension API - Fetch Wholesale Account Data (from CRM)
@@ -491,6 +493,108 @@ export function registerRoutes(app: Express) {
       res.status(500).json({ error: "GraphQL proxy failed" });
     }
   });
+
+  // Email Template API endpoints
+  app.get("/api/email-templates", async (req, res) => {
+    try {
+      const templates = await db.select().from(emailTemplates).orderBy(emailTemplates.name);
+      res.json(templates);
+    } catch (error) {
+      console.error("Error fetching email templates:", error);
+      res.status(500).json({ error: "Failed to fetch email templates" });
+    }
+  });
+
+  app.get("/api/email-templates/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const [template] = await db
+        .select()
+        .from(emailTemplates)
+        .where(eq(emailTemplates.id, id))
+        .limit(1);
+      
+      if (!template) {
+        return res.status(404).json({ error: "Template not found" });
+      }
+      
+      res.json(template);
+    } catch (error) {
+      console.error("Error fetching email template:", error);
+      res.status(500).json({ error: "Failed to fetch email template" });
+    }
+  });
+
+  app.put("/api/email-templates/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updates = req.body;
+      
+      const [updated] = await db
+        .update(emailTemplates)
+        .set({
+          ...updates,
+          updatedAt: new Date()
+        })
+        .where(eq(emailTemplates.id, id))
+        .returning();
+      
+      if (!updated) {
+        return res.status(404).json({ error: "Template not found" });
+      }
+      
+      res.json(updated);
+    } catch (error) {
+      console.error("Error updating email template:", error);
+      res.status(500).json({ error: "Failed to update email template" });
+    }
+  });
+
+  app.post("/api/email-templates/test", async (req, res) => {
+    try {
+      const { templateId, to, variables } = req.body;
+      
+      // Get template name
+      const [template] = await db
+        .select()
+        .from(emailTemplates)
+        .where(eq(emailTemplates.id, templateId))
+        .limit(1);
+      
+      if (!template) {
+        return res.status(404).json({ error: "Template not found" });
+      }
+      
+      // Send test email
+      const result = await sendTemplatedEmail(to, template.name, variables);
+      
+      res.json({ 
+        success: result, 
+        message: result ? "Test email sent successfully" : "Failed to send test email" 
+      });
+    } catch (error) {
+      console.error("Error sending test email:", error);
+      res.status(500).json({ error: "Failed to send test email" });
+    }
+  });
+
+  app.get("/api/email-send-log", async (req, res) => {
+    try {
+      const logs = await db
+        .select()
+        .from(emailSendLog)
+        .orderBy(desc(emailSendLog.createdAt))
+        .limit(100);
+      
+      res.json(logs);
+    } catch (error) {
+      console.error("Error fetching email send log:", error);
+      res.status(500).json({ error: "Failed to fetch email send log" });
+    }
+  });
+
+  // Initialize email templates on startup
+  initializeDefaultTemplates().catch(console.error);
 
   // Gmail API endpoints
   app.get("/api/gmail/unread", async (req, res) => {
