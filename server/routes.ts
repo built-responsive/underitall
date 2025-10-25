@@ -1636,18 +1636,22 @@ export function registerRoutes(app: Express) {
   app.post(
     "/api/admin/approve-registration/:id",
     async (req: Request, res: Response) => {
+      let registration: any = null; // Declare outside try block for catch access
+      
       try {
         const { id } = req.params;
 
         // Fetch registration from DB
-        const [registration] = await db
+        const [reg] = await db
           .select()
           .from(wholesaleRegistrations)
           .where(eq(wholesaleRegistrations.id, id));
 
-        if (!registration) {
+        if (!reg) {
           return res.status(404).json({ error: "Registration not found" });
         }
+        
+        registration = reg; // Assign to outer scope
 
         // CRM Account should already be created via /api/admin/sync-to-crm
         const clarityAccountId = registration.clarityAccountId;
@@ -1880,7 +1884,7 @@ export function registerRoutes(app: Express) {
           res.json({
             success: true,
             message: "Registration approved, CRM account created (phone already exists in Shopify)",
-            clarityAccountId: registration.clarityAccountId,
+            clarityAccountId: registration?.clarityAccountId || null,
             warning: errorMessage,
           });
         } else {
