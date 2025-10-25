@@ -1038,55 +1038,97 @@ export function registerRoutes(app: Express) {
           });
         }
 
-        // Create customer via REST API (Basic plan compatible)
-        const customerPayload = {
-          customer: {
-            email: registration.email,
-            first_name: registration.firstName,
-            last_name: registration.lastName,
-            phone: registration.phone || null,
-            tags: `wholesale, ${registration.businessType}`,
-            note: `Wholesale account - ${registration.firmName}`,
-            tax_exempt: registration.isTaxExempt,
-            addresses: [{
-              address1: registration.businessAddress,
-              address2: registration.businessAddress2 || "",
-              city: registration.city,
-              province: registration.state,
-              zip: registration.zipCode,
-              country: "United States",
-              company: registration.firmName,
-            }],
-          },
-        };
+        let customerId: number;
+        let customerExists = false;
 
-        const customerResponse = await fetch(
-          `https://${shopDomain}/admin/api/2025-01/customers.json`,
+        // First, check if customer with this email already exists
+        const searchQuery = `
+          query SearchCustomers($query: String!) {
+            customers(first: 1, query: $query) {
+              edges {
+                node {
+                  id
+                  email
+                }
+              }
+            }
+          }
+        `;
+
+        const searchResponse = await fetch(
+          `https://${shopDomain}/admin/api/2025-01/graphql.json`,
           {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
               "X-Shopify-Access-Token": adminToken,
             },
-            body: JSON.stringify(customerPayload),
+            body: JSON.stringify({
+              query: searchQuery,
+              variables: { query: `email:${registration.email}` },
+            }),
           }
         );
 
-        if (!customerResponse.ok) {
-          const errorText = await customerResponse.text();
-          console.error("❌ Shopify customer creation failed:", errorText);
-          return res.status(500).json({ 
-            error: "Failed to create Shopify customer",
-            details: errorText 
-          });
+        const searchData = await searchResponse.json();
+        const existingCustomer = searchData?.data?.customers?.edges?.[0]?.node;
+
+        if (existingCustomer) {
+          // Extract numeric ID from GID
+          const gid = existingCustomer.id;
+          customerId = parseInt(gid.split('/').pop() || '0');
+          customerExists = true;
+          console.log("✅ Found existing customer:", customerId);
+        } else {
+          // Create new customer via REST API (Basic plan compatible)
+          const customerPayload = {
+            customer: {
+              email: registration.email,
+              first_name: registration.firstName,
+              last_name: registration.lastName,
+              phone: registration.phone || null,
+              tags: `wholesale, ${registration.businessType}`,
+              note: `Wholesale account - ${registration.firmName}`,
+              tax_exempt: registration.isTaxExempt,
+              addresses: [{
+                address1: registration.businessAddress,
+                address2: registration.businessAddress2 || "",
+                city: registration.city,
+                province: registration.state,
+                zip: registration.zipCode,
+                country: "United States",
+                company: registration.firmName,
+              }],
+            },
+          };
+
+          const customerResponse = await fetch(
+            `https://${shopDomain}/admin/api/2025-01/customers.json`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "X-Shopify-Access-Token": adminToken,
+              },
+              body: JSON.stringify(customerPayload),
+            }
+          );
+
+          if (!customerResponse.ok) {
+            const errorText = await customerResponse.text();
+            console.error("❌ Shopify customer creation failed:", errorText);
+            return res.status(500).json({ 
+              error: "Failed to create Shopify customer",
+              details: errorText 
+            });
+          }
+
+          const customerData = await customerResponse.json();
+          customerId = customerData.customer.id;
+          console.log("✅ Shopify customer created:", customerId);
         }
 
-        const customerData = await customerResponse.json();
-        const customerId = customerData.customer.id;
-
-        console.log("✅ Shopify customer created:", customerId);
-
-        // Set all wholesale metafields
+        // Set all wholesale metafields (for both new and existing customers)
         const metafieldsMutation = `
           mutation SetCustomerMetafields($metafields: [MetafieldsSetInput!]!) {
             metafieldsSet(metafields: $metafields) {
@@ -1166,6 +1208,10 @@ export function registerRoutes(app: Express) {
           customerId,
           customerUrl: `https://${shopDomain}/admin/customers/${customerId}`,
           clarityAccountId: registration.clarityAccountId,
+          customerExists,
+          message: customerExists 
+            ? "Updated existing customer with wholesale metafields" 
+            : "Created new customer with wholesale metafields",
         });
       } catch (error) {
         console.error("❌ Error creating Shopify customer:", error);
