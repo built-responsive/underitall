@@ -191,6 +191,10 @@ export default function Admin() {
   // CRM Duplicate Check and Sync
   const checkCrmDuplicates = async (id: string) => {
     try {
+      // Lock registration ID FIRST before any async calls
+      setCurrentRegistrationId(id);
+      console.log("🔒 Locked currentRegistrationId:", id);
+
       const response = await apiRequest("POST", `/api/admin/check-crm-duplicates/${id}`, {});
 
       if (!response.ok) {
@@ -199,17 +203,19 @@ export default function Admin() {
       }
 
       const data = await response.json();
+      console.log("📦 CRM Conflicts:", data.conflicts);
 
       if (data.conflicts && data.conflicts.length > 0) {
-        // Show conflict modal
+        // Show conflict modal with locked ID
         setCrmConflicts(data.conflicts);
-        setCurrentRegistrationId(id);
         setCrmConflictModalOpen(true);
       } else {
         // No conflicts, proceed with new account creation
+        console.log("✅ No conflicts, syncing new account...");
         await syncToCrm(id, null);
       }
     } catch (error) {
+      console.error("❌ CRM duplicate check error:", error);
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to check CRM duplicates",
@@ -220,14 +226,25 @@ export default function Admin() {
 
   const syncToCrm = async (id: string, accountId: string | null) => {
     try {
+      console.log("🚀 syncToCrm called:", { id, accountId, isUpdate: !!accountId });
+
+      if (!id) {
+        console.error("❌ syncToCrm aborted - no registration ID");
+        throw new Error("Missing registration ID");
+      }
+
       const response = await apiRequest("POST", `/api/admin/sync-to-crm/${id}`, { accountId });
+      console.log("📡 CRM sync response status:", response.status);
 
       if (!response.ok) {
         const errorData = await response.json();
+        console.error("❌ CRM sync failed:", errorData);
         throw new Error(errorData.error || "Failed to sync to CRM");
       }
 
       const data = await response.json();
+      console.log("✅ CRM synced:", data);
+
       toast({
         title: "CRM Account Synced",
         description: `${data.isUpdate ? 'Updated' : 'Created'} CRM Account: ${data.clarityAccountId}`,
@@ -237,8 +254,10 @@ export default function Admin() {
       setCrmConflictModalOpen(false);
       setCrmConflicts([]);
       setSelectedConflict(null);
+      setCurrentRegistrationId(null); // Clear locked ID
       await approveRegistration(id);
     } catch (error) {
+      console.error("❌ syncToCrm error:", error);
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to sync to CRM",
@@ -844,11 +863,19 @@ export default function Admin() {
             </Button>
             <Button
               onClick={() => {
-                if (currentRegistrationId) {
-                  syncToCrm(currentRegistrationId, selectedConflict);
+                if (!currentRegistrationId) {
+                  console.error("❌ Button click aborted - no currentRegistrationId");
+                  toast({
+                    title: "Error",
+                    description: "Registration ID is missing. Please try again.",
+                    variant: "destructive",
+                  });
+                  return;
                 }
+                console.log("🔥 Modal button clicked:", { currentRegistrationId, selectedConflict });
+                syncToCrm(currentRegistrationId, selectedConflict);
               }}
-              disabled={!currentRegistrationId || (!selectedConflict && crmConflicts.length > 0)}
+              disabled={!currentRegistrationId}
               className="bg-[#F2633A] hover:bg-[#F2633A]/90 text-white rounded-[11px] font-['Vazirmatn']"
             >
               {selectedConflict ? "Update CRM Account" : "Create New CRM Account"}
