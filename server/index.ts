@@ -52,8 +52,10 @@ app.use(cors({
 // Capture raw body for webhook HMAC verification (BEFORE JSON parsing)
 // Apply to ALL /api/webhooks/* routes using regex pattern
 app.use(/^\/api\/webhooks/, express.json({
-  verify: (req: any, res, buf) => {
+  verify: (req: any, res, buf, encoding) => {
+    // Store raw buffer as UTF-8 string (exact bytes Shopify signed)
     req.rawBody = buf.toString('utf8');
+    console.log("📥 Raw body captured for HMAC:", buf.length, "bytes");
   }
 }));
 

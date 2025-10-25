@@ -7,11 +7,12 @@ import { desc, eq } from "drizzle-orm";
 
 const router = Router();
 
-// Shopify webhook verification
+// Shopify webhook verification with detailed debugging
 function verifyShopifyWebhook(req: Request): boolean {
   const hmacHeader = req.get("X-Shopify-Hmac-Sha256");
   const webhookSecret = process.env.SHOPIFY_WEBHOOK_SECRET;
   const isDevelopment = process.env.NODE_ENV === "development";
+  const shopDomain = req.get("X-Shopify-Shop-Domain");
 
   // Always allow webhooks in development mode (Shopify CLI dev uses different secrets)
   if (isDevelopment) {
@@ -35,13 +36,27 @@ function verifyShopifyWebhook(req: Request): boolean {
   const body = (req as any).rawBody;
   if (!body) {
     console.warn("⚠️ Raw body not available for HMAC verification");
+    console.warn("📋 Body type:", typeof req.body);
+    console.warn("📋 Body preview:", JSON.stringify(req.body).substring(0, 100));
     return false;
   }
 
+  // Debug: Log raw body characteristics
+  console.log("🔍 HMAC Debug Info:");
+  console.log("  Shop Domain:", shopDomain);
+  console.log("  Raw Body Length:", body.length);
+  console.log("  Raw Body Type:", typeof body);
+  console.log("  Raw Body Preview:", body.substring(0, 100));
+  console.log("  Webhook Secret Length:", webhookSecret.length);
+  console.log("  Received HMAC:", hmacHeader);
+
+  // Compute HMAC (Shopify uses base64-encoded SHA256)
   const hash = crypto
     .createHmac("sha256", webhookSecret)
     .update(body, "utf8")
     .digest("base64");
+
+  console.log("  Computed HMAC:", hash);
 
   const isValid = crypto.timingSafeEqual(
     Buffer.from(hmacHeader),
@@ -49,9 +64,30 @@ function verifyShopifyWebhook(req: Request): boolean {
   );
 
   if (!isValid) {
-    console.warn("⚠️ HMAC verification failed");
-    console.warn("Expected:", hash);
-    console.warn("Received:", hmacHeader);
+    console.warn("❌ HMAC verification FAILED");
+    console.warn("   Expected:", hash);
+    console.warn("   Received:", hmacHeader);
+    console.warn("   Secret (first 10 chars):", webhookSecret.substring(0, 10) + "...");
+    console.warn("   Body matches parsed?", body === JSON.stringify(req.body));
+    
+    // Try alternative encodings as fallback
+    const hashFromBuffer = crypto
+      .createHmac("sha256", webhookSecret)
+      .update(Buffer.from(body, "utf8"))
+      .digest("base64");
+    
+    console.warn("   Alternative (Buffer):", hashFromBuffer);
+    
+    // Check if parsed body matches
+    const reserializedBody = JSON.stringify(req.body);
+    const hashFromReserialized = crypto
+      .createHmac("sha256", webhookSecret)
+      .update(reserializedBody, "utf8")
+      .digest("base64");
+    
+    console.warn("   Alternative (Reserialized):", hashFromReserialized);
+  } else {
+    console.log("✅ HMAC verification PASSED");
   }
 
   return isValid;
