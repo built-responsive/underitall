@@ -1,21 +1,25 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Application Error Alert</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@600;700&family=Lora:ital@1&family=Vazirmatn:wght@400;500;600&display=swap');
+    </style>
 </head>
 <body style="margin:0;padding:0;font-family:'Vazirmatn',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#1E1E1E;color:#E1E0DA;">
     <div style="max-width:100%;background:#1E1E1E;padding:40px 20px;">
-        <div style="max-width:700px;margin:0 auto;background:#212227;border-radius:16px;overflow:hidden;border:1px solid #696A6D;">
+        <div style="max-width:700px;margin:0 auto;background:#212227;border-radius:22px;overflow:hidden;border:1px solid #696A6D;">
 
             <!-- Header -->
             <div style="padding:30px;text-align:center;background:#212227;">
                 <img src="https://join.itsunderitall.com/brand/logo-main.png" alt="UnderItAll Logo" style="height:48px;margin-bottom:20px;filter:brightness(0) invert(1);">
-                <h1 style="font-family:'Archivo',sans-serif;color:#F2633A;margin:0;font-size:28px;font-weight:700;">
+                <h1 style="font-family:'Archivo',sans-serif;color:#F2633A;margin:0;font-size:28px;font-weight:700;line-height:1.2;">
                     ⚠️ Application Error
                 </h1>
-                <p style="font-family:'Lora',serif;font-style:italic;color:#E1E0DA;margin:8px 0 0;font-size:14px;">
+                <p style="font-family:'Lora',serif;font-style:italic;color:#E1E0DA;margin:8px 0 0;font-size:14px;line-height:1.5;">
                     {{timestamp}}
                 </p>
             </div>
@@ -24,22 +28,22 @@
             <div style="padding:25px;">
 
                 <!-- Error Summary -->
-                <div style="background:#1E1E1E;border-radius:12px;padding:20px;margin-bottom:20px;border:1px solid #696A6D;">
+                <div style="background:#1E1E1E;border-radius:16px;padding:20px;margin-bottom:20px;border:1px solid #696A6D;">
                     <div style="margin-bottom:12px;">
-                        <span style="display:inline-block;width:35%;color:#E1E0DA;font-size:13px;font-weight:600;vertical-align:top;">Environment:</span>
-                        <span style="display:inline-block;width:64%;color:#F2633A;font-size:13px;vertical-align:top;">{{environment}}</span>
+                        <span style="display:inline-block;width:35%;font-family:'Vazirmatn',sans-serif;color:#E1E0DA;font-size:13px;font-weight:500;vertical-align:top;">Environment:</span>
+                        <span style="display:inline-block;width:64%;font-family:'Vazirmatn',sans-serif;color:#F2633A;font-size:13px;vertical-align:top;">{{environment}}</span>
                     </div>
                     <div style="margin-bottom:12px;">
-                        <span style="display:inline-block;width:35%;color:#E1E0DA;font-size:13px;font-weight:600;vertical-align:top;">Error Type:</span>
-                        <span style="display:inline-block;width:64%;color:#F2633A;font-size:13px;font-weight:700;vertical-align:top;">{{errorType}}</span>
+                        <span style="display:inline-block;width:35%;font-family:'Vazirmatn',sans-serif;color:#E1E0DA;font-size:13px;font-weight:500;vertical-align:top;">Error Type:</span>
+                        <span style="display:inline-block;width:64%;font-family:'Vazirmatn',sans-serif;color:#F2633A;font-size:13px;font-weight:700;vertical-align:top;">{{errorType}}</span>
                     </div>
                     <div style="margin-bottom:12px;">
-                        <span style="display:inline-block;width:35%;color:#E1E0DA;font-size:13px;font-weight:600;vertical-align:top;">Service:</span>
-                        <span style="display:inline-block;width:64%;color:#E1E0DA;font-size:13px;vertical-align:top;">{{service}}</span>
+                        <span style="display:inline-block;width:35%;font-family:'Vazirmatn',sans-serif;color:#E1E0DA;font-size:13px;font-weight:500;vertical-align:top;">Service:</span>
+                        <span style="display:inline-block;width:64%;font-family:'Vazirmatn',sans-serif;color:#E1E0DA;font-size:13px;vertical-align:top;">{{service}}</span>
                     </div>
                     <div style="margin-bottom:12px;">
-                        <span style="display:inline-block;width:35%;color:#E1E0DA;font-size:13px;font-weight:600;vertical-align:top;">Severity:</span>
-                        <span style="display:inline-block;width:64%;font-size:13px;vertical-align:top;">
+                        <span style="display:inline-block;width:35%;font-family:'Vazirmatn',sans-serif;color:#E1E0DA;font-size:13px;font-weight:500;vertical-align:top;">Severity:</span>
+                        <span style="display:inline-block;width:64%;font-family:'Vazirmatn',sans-serif;font-size:13px;vertical-align:top;">
                             {{#if critical}}
                             <span style="background:#F2633A;color:#FFFFFF;padding:4px 12px;border-radius:11px;font-size:11px;font-weight:600;">CRITICAL</span>
                             {{else if high}}
@@ -53,35 +57,35 @@
                     </div>
                     {{#if endpoint}}
                     <div style="margin-bottom:12px;">
-                        <span style="display:inline-block;width:35%;color:#E1E0DA;font-size:13px;font-weight:600;vertical-align:top;">Endpoint:</span>
-                        <span style="display:inline-block;width:64%;color:#E1E0DA;font-size:13px;font-family:monospace;vertical-align:top;">{{method}} {{endpoint}}</span>
+                        <span style="display:inline-block;width:35%;font-family:'Vazirmatn',sans-serif;color:#E1E0DA;font-size:13px;font-weight:500;vertical-align:top;">Endpoint:</span>
+                        <span style="display:inline-block;width:64%;font-family:'Vazirmatn',sans-serif;color:#E1E0DA;font-size:13px;font-family:monospace;vertical-align:top;">{{method}} {{endpoint}}</span>
                     </div>
                     {{/if}}
                 </div>
 
                 <!-- Error Message -->
-                <div style="background:#1E1E1E;border-radius:12px;padding:20px;margin-bottom:20px;border-left:4px solid #F2633A;">
-                    <h3 style="color:#F2633A;font-size:14px;margin:0 0 10px;font-weight:600;">Error Message:</h3>
-                    <p style="color:#E1E0DA;font-size:13px;line-height:1.5;margin:0;word-break:break-all;">{{errorMessage}}</p>
+                <div style="background:#1E1E1E;border-radius:16px;padding:20px;margin-bottom:20px;border-left:4px solid #F2633A;">
+                    <h3 style="font-family:'Archivo',sans-serif;color:#F2633A;font-size:14px;margin:0 0 10px;font-weight:600;">Error Message:</h3>
+                    <p style="font-family:'Vazirmatn',sans-serif;color:#E1E0DA;font-size:13px;line-height:1.5;margin:0;word-break:break-all;">{{errorMessage}}</p>
                 </div>
 
                 {{#if stackTrace}}
                 <!-- Stack Trace -->
-                <div style="background:#1E1E1E;border-radius:12px;padding:20px;margin-bottom:20px;border:1px solid #696A6D;">
-                    <h3 style="color:#E1E0DA;font-size:14px;margin:0 0 10px;font-weight:600;">Stack Trace:</h3>
-                    <pre style="color:#E1E0DA;font-size:12px;line-height:1.4;margin:0;overflow-x:auto;white-space:pre-wrap;word-wrap:break-word;font-family:monospace;">{{stackTrace}}</pre>
+                <div style="background:#1E1E1E;border-radius:16px;padding:20px;margin-bottom:20px;border:1px solid #696A6D;">
+                    <h3 style="font-family:'Archivo',sans-serif;color:#E1E0DA;font-size:14px;margin:0 0 10px;font-weight:600;">Stack Trace:</h3>
+                    <pre style="font-family:'Vazirmatn',sans-serif;color:#E1E0DA;font-size:12px;line-height:1.4;margin:0;overflow-x:auto;white-space:pre-wrap;word-wrap:break-word;font-family:monospace;">{{stackTrace}}</pre>
                 </div>
                 {{/if}}
 
                 <!-- Action Buttons -->
                 <div style="text-align:center;margin:25px 0;">
                     {{#if logsUrl}}
-                    <a href="{{logsUrl}}" style="display:inline-block;background:#F2633A;color:#FFFFFF;padding:12px 28px;border-radius:16px;text-decoration:none;font-size:14px;font-weight:600;margin:0 10px 10px 0;">
+                    <a href="{{logsUrl}}" style="display:inline-block;background:#F2633A;color:#FFFFFF;padding:12px 28px;border-radius:16px;text-decoration:none;font-family:'Vazirmatn',sans-serif;font-size:14px;font-weight:600;margin:0 10px 10px 0;">
                         View Full Logs
                     </a>
                     {{/if}}
                     {{#if dashboardUrl}}
-                    <a href="{{dashboardUrl}}" style="display:inline-block;background:#696A6D;color:#FFFFFF;padding:12px 28px;border-radius:16px;text-decoration:none;font-size:14px;font-weight:600;">
+                    <a href="{{dashboardUrl}}" style="display:inline-block;background:#696A6D;color:#FFFFFF;padding:12px 28px;border-radius:16px;text-decoration:none;font-family:'Vazirmatn',sans-serif;font-size:14px;font-weight:600;">
                         Open Dashboard
                     </a>
                     {{/if}}

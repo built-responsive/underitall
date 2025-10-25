@@ -1,44 +1,48 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>New Draft Order Created</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@600;700&family=Lora:ital@1&family=Vazirmatn:wght@400;500;600&display=swap');
+    </style>
 </head>
 <body style="margin:0;padding:0;font-family:'Vazirmatn',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:linear-gradient(135deg,#F3F1E9 0%,#E1E0DA 100%);color:#212227;">
     <div style="max-width:100%;background:linear-gradient(135deg,#F3F1E9 0%,#E1E0DA 100%);padding:40px 20px;">
-        <div style="max-width:640px;margin:0 auto;background:#FFFFFF;border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,0.08);overflow:hidden;">
+        <div style="max-width:640px;margin:0 auto;background:#FFFFFF;border-radius:22px;box-shadow:0 4px 12px rgba(105,106,109,0.08);overflow:hidden;">
 
             <!-- Header -->
             <div style="padding:40px 40px 20px;text-align:center;background:#FFFFFF;">
                 <img src="https://join.itsunderitall.com/brand/logo-main.png" alt="UnderItAll Logo" style="height:64px;margin-bottom:24px;">
-                <h1 style="font-family:'Archivo',sans-serif;font-size:32px;color:#F2633A;margin:0 0 12px;font-weight:700;">
+                <h1 style="font-family:'Archivo',sans-serif;font-size:32px;color:#F2633A;margin:0 0 12px;font-weight:700;line-height:1.2;">
                     New Draft Order
                 </h1>
-                <p style="font-family:'Lora',serif;font-style:italic;font-size:16px;color:#696A6D;margin:0;">
+                <p style="font-family:'Lora',serif;font-style:italic;font-size:16px;color:#696A6D;margin:0;line-height:1.5;">
                     Order #{{orderNumber}}
                 </p>
             </div>
 
             <!-- Order Summary -->
             <div style="padding:0 40px 20px;">
-                <div style="background:#F3F1E9;border-radius:12px;padding:20px;">
+                <div style="background:#F3F1E9;border-radius:16px;padding:20px;border:1px solid #E1E0DA;">
                     <h2 style="font-family:'Archivo',sans-serif;color:#212227;font-size:20px;margin:0 0 15px;font-weight:600;display:flex;justify-content:space-between;align-items:center;">
                         <span>Order Summary</span>
                         <span style="color:#F2633A;font-size:24px;">{{totalPrice}}</span>
                     </h2>
 
                     <div style="margin-bottom:12px;">
-                        <span style="display:inline-block;width:45%;color:#696A6D;font-size:14px;font-weight:600;vertical-align:top;">Order Date:</span>
-                        <span style="display:inline-block;width:54%;color:#212227;font-size:14px;vertical-align:top;">{{orderDate}}</span>
+                        <span style="display:inline-block;width:45%;font-family:'Vazirmatn',sans-serif;color:#696A6D;font-size:14px;font-weight:500;vertical-align:top;">Order Date:</span>
+                        <span style="display:inline-block;width:54%;font-family:'Vazirmatn',sans-serif;color:#212227;font-size:14px;vertical-align:top;">{{orderDate}}</span>
                     </div>
                     <div style="margin-bottom:12px;">
-                        <span style="display:inline-block;width:45%;color:#696A6D;font-size:14px;font-weight:600;vertical-align:top;">Customer:</span>
-                        <span style="display:inline-block;width:54%;color:#212227;font-size:14px;vertical-align:top;">{{customerName}}</span>
+                        <span style="display:inline-block;width:45%;font-family:'Vazirmatn',sans-serif;color:#696A6D;font-size:14px;font-weight:500;vertical-align:top;">Customer:</span>
+                        <span style="display:inline-block;width:54%;font-family:'Vazirmatn',sans-serif;color:#212227;font-size:14px;vertical-align:top;">{{customerName}}</span>
                     </div>
                     <div style="margin-bottom:12px;">
-                        <span style="display:inline-block;width:45%;color:#696A6D;font-size:14px;font-weight:600;vertical-align:top;">Email:</span>
-                        <span style="display:inline-block;width:54%;color:#212227;font-size:14px;vertical-align:top;">
+                        <span style="display:inline-block;width:45%;font-family:'Vazirmatn',sans-serif;color:#696A6D;font-size:14px;font-weight:500;vertical-align:top;">Email:</span>
+                        <span style="display:inline-block;width:54%;font-family:'Vazirmatn',sans-serif;color:#212227;font-size:14px;vertical-align:top;">
                             <a href="mailto:{{customerEmail}}" style="color:#F2633A;text-decoration:none;">{{customerEmail}}</a>
                         </span>
                     </div>
@@ -55,13 +59,13 @@
                 <div style="border-bottom:1px solid #E1E0DA;padding:12px 0;">
                     <div style="display:flex;justify-content:space-between;align-items:start;">
                         <div style="flex:1;">
-                            <p style="color:#212227;font-size:15px;margin:0 0 5px;font-weight:500;">{{this.name}}</p>
+                            <p style="font-family:'Vazirmatn',sans-serif;color:#212227;font-size:15px;margin:0 0 5px;font-weight:500;">{{this.name}}</p>
                             {{#if this.variant}}
-                            <p style="color:#696A6D;font-size:13px;margin:0;">{{this.variant}} | Qty: {{this.quantity}}</p>
+                            <p style="font-family:'Vazirmatn',sans-serif;color:#696A6D;font-size:13px;margin:0;">{{this.variant}} | Qty: {{this.quantity}}</p>
                             {{/if}}
                         </div>
                         <div style="text-align:right;">
-                            <p style="color:#212227;font-size:15px;margin:0;font-weight:500;">{{this.price}}</p>
+                            <p style="font-family:'Vazirmatn',sans-serif;color:#212227;font-size:15px;margin:0;font-weight:500;">{{this.price}}</p>
                         </div>
                     </div>
                 </div>
@@ -70,35 +74,35 @@
                 <!-- Totals -->
                 <div style="margin-top:20px;padding-top:20px;border-top:2px solid #E1E0DA;">
                     <div style="margin-bottom:8px;">
-                        <span style="display:inline-block;width:50%;color:#696A6D;font-size:14px;">Subtotal:</span>
-                        <span style="display:inline-block;width:49%;color:#212227;font-size:14px;text-align:right;">{{subtotal}}</span>
+                        <span style="display:inline-block;width:50%;font-family:'Vazirmatn',sans-serif;color:#696A6D;font-size:14px;">Subtotal:</span>
+                        <span style="display:inline-block;width:49%;font-family:'Vazirmatn',sans-serif;color:#212227;font-size:14px;text-align:right;">{{subtotal}}</span>
                     </div>
                     {{#if discount}}
                     <div style="margin-bottom:8px;">
-                        <span style="display:inline-block;width:50%;color:#696A6D;font-size:14px;">Discount:</span>
-                        <span style="display:inline-block;width:49%;color:#4CAF50;font-size:14px;text-align:right;">-{{discount}}</span>
+                        <span style="display:inline-block;width:50%;font-family:'Vazirmatn',sans-serif;color:#696A6D;font-size:14px;">Discount:</span>
+                        <span style="display:inline-block;width:49%;font-family:'Vazirmatn',sans-serif;color:#4CAF50;font-size:14px;text-align:right;">-{{discount}}</span>
                     </div>
                     {{/if}}
                     {{#if tax}}
                     <div style="margin-bottom:8px;">
-                        <span style="display:inline-block;width:50%;color:#696A6D;font-size:14px;">Tax:</span>
-                        <span style="display:inline-block;width:49%;color:#212227;font-size:14px;text-align:right;">{{tax}}</span>
+                        <span style="display:inline-block;width:50%;font-family:'Vazirmatn',sans-serif;color:#696A6D;font-size:14px;">Tax:</span>
+                        <span style="display:inline-block;width:49%;font-family:'Vazirmatn',sans-serif;color:#212227;font-size:14px;text-align:right;">{{tax}}</span>
                     </div>
                     {{/if}}
                     <div style="margin-top:12px;">
-                        <span style="display:inline-block;width:50%;color:#212227;font-size:18px;font-weight:600;">Total:</span>
-                        <span style="display:inline-block;width:49%;color:#F2633A;font-size:20px;font-weight:600;text-align:right;">{{totalPrice}}</span>
+                        <span style="display:inline-block;width:50%;font-family:'Vazirmatn',sans-serif;color:#212227;font-size:18px;font-weight:600;">Total:</span>
+                        <span style="display:inline-block;width:49%;font-family:'Vazirmatn',sans-serif;color:#F2633A;font-size:20px;font-weight:600;text-align:right;">{{totalPrice}}</span>
                     </div>
                 </div>
             </div>
 
             <!-- Action Buttons -->
             <div style="padding:0 40px 30px;text-align:center;">
-                <a href="{{shopifyDraftOrderUrl}}" style="display:inline-block;background:#F2633A;color:#FFFFFF;padding:14px 32px;border-radius:16px;text-decoration:none;font-size:16px;font-weight:600;margin:0 10px 10px 0;">
+                <a href="{{shopifyDraftOrderUrl}}" style="display:inline-block;background:#F2633A;color:#FFFFFF;padding:14px 32px;border-radius:16px;text-decoration:none;font-family:'Vazirmatn',sans-serif;font-size:16px;font-weight:600;margin:0 10px 10px 0;">
                     View in Shopify
                 </a>
                 {{#if invoiceUrl}}
-                <a href="{{invoiceUrl}}" style="display:inline-block;background:#696A6D;color:#FFFFFF;padding:14px 32px;border-radius:16px;text-decoration:none;font-size:16px;font-weight:600;">
+                <a href="{{invoiceUrl}}" style="display:inline-block;background:#696A6D;color:#FFFFFF;padding:14px 32px;border-radius:16px;text-decoration:none;font-family:'Vazirmatn',sans-serif;font-size:16px;font-weight:600;">
                     Send Invoice
                 </a>
                 {{/if}}
