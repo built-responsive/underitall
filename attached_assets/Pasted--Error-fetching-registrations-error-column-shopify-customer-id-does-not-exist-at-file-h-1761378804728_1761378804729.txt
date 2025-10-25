@@ -1,0 +1,52 @@
+❌ Error fetching registrations: error: column "shopify_customer_id" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:607:29) {
+  length: 120,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '458',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+7:44:50 AM [express] GET /api/wholesale-registrations 500 in 657ms :: {"error":"Failed to fetch regi…
+7:44:51 AM [express] GET /api/draft-orders 200 in 772ms :: [{"id":"98747515-8ff0-4452-b3d3-f238531ce…
+7:44:51 AM [express] GET /api/calculator/quotes 200 in 855ms :: [{"id":"8f1ab2e2-e21b-48a3-8496-a420…
+❌ Error fetching registrations: error: column "shopify_customer_id" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:607:29) {
+  length: 120,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '458',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+7:52:49 AM [express] GET /api/wholesale-registrations 500 in 637ms :: {"error":"Failed to fetch regi…
+7:52:49 AM [express] GET /api/draft-orders 200 in 627ms :: [{"id":"98747515-8ff0-4452-b3d3-f238531ce…
+7:52:49 AM [express] GET /api/calculator/quotes 200 in 719ms :: [{"id":"8f1ab2e2-e21b-48a3-8496-a420…
