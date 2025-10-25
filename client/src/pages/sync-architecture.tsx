@@ -41,8 +41,16 @@ export default function SyncArchitecture() {
 
     // Dynamically import Chart.js
     import("chart.js/auto").then((Chart) => {
-      const ctx = chartRef.current?.getContext("2d");
+      if (!chartRef.current) return;
+
+      const ctx = chartRef.current.getContext("2d");
       if (!ctx) return;
+
+      // Destroy existing chart if it exists (handles HMR edge cases)
+      const existingChart = Chart.default.getChart(ctx);
+      if (existingChart) {
+        existingChart.destroy();
+      }
 
       const webhookData = {
         labels: [
