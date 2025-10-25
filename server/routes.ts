@@ -1814,6 +1814,32 @@ export function registerRoutes(app: Express) {
           })
           .where(eq(wholesaleRegistrations.id, id));
 
+        // Send welcome email to customer after CRM account creation
+        try {
+          const { sendNewCRMCustomerEmail } = await import("./services/emailService");
+          await sendNewCRMCustomerEmail({
+            to: registration.email,
+            firstName: registration.firstName,
+            lastName: registration.lastName,
+            firmName: registration.firmName,
+            email: registration.email,
+            phone: registration.phone || undefined,
+            businessType: registration.businessType,
+            clarityAccountId: clarityAccountId,
+            businessAddress: registration.businessAddress,
+            businessAddress2: registration.businessAddress2 || undefined,
+            city: registration.city,
+            state: registration.state,
+            zipCode: registration.zipCode,
+            isTaxExempt: registration.isTaxExempt,
+            taxId: registration.taxId || undefined,
+          });
+          console.log("✅ Welcome email sent to customer:", registration.email);
+        } catch (emailError) {
+          console.error("⚠️ Customer welcome email failed (non-blocking):", emailError);
+          // Don't fail the approval—email is non-critical
+        }
+
         // Send Gmail notification to admins
         try {
           const { sendNewWholesaleApplicationEmail } = await import("./services/emailService");
@@ -1843,7 +1869,7 @@ export function registerRoutes(app: Express) {
         res.json({
           success: true,
           message:
-            "Registration approved, CRM account created, customer linked, notification sent",
+            "Registration approved, CRM account created, customer linked, welcome email sent",
           clarityAccountId,
         });
       } catch (error) {
