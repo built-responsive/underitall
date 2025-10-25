@@ -37,6 +37,8 @@ export default function SyncArchitecture() {
   useEffect(() => {
     if (!chartRef.current) return;
 
+    let chartInstance: any = null;
+
     // Dynamically import Chart.js
     import("chart.js/auto").then((Chart) => {
       const ctx = chartRef.current?.getContext("2d");
@@ -61,7 +63,7 @@ export default function SyncArchitecture() {
         ],
       };
 
-      new Chart.default(ctx, {
+      chartInstance = new Chart.default(ctx, {
         type: "bar",
         data: webhookData,
         options: {
@@ -96,6 +98,13 @@ export default function SyncArchitecture() {
         },
       });
     });
+
+    // Cleanup: Destroy chart instance on unmount
+    return () => {
+      if (chartInstance) {
+        chartInstance.destroy();
+      }
+    };
   }, []);
 
   return (
