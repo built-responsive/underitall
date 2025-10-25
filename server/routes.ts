@@ -821,8 +821,9 @@ export function registerRoutes(app: Express) {
         Resource: "Account",
         Operation: "Create Or Edit",
         Data: {
-          Account: registration.firmName,
-          Owner: `${registration.firstName} ${registration.lastName}`,
+          Name: registration.firmName,
+          "First Name": registration.firstName,
+          "Last Name": registration.lastName,
           CompanyPhone: registration.phone || "",
           Email: registration.email,
           Address1: registration.businessAddress,
@@ -839,6 +840,9 @@ export function registerRoutes(app: Express) {
           "Accepts Email Marketing": registration.acceptsEmailMarketing ? "Yes" : "No",
           "Accepts SMS Marketing": registration.acceptsSmsMarketing ? "Yes" : "No",
           EIN: registration.taxId || "",
+          "Shopify Reference": "",
+          "UIA-ID": registration.id,
+          "Representative": "John Thompson"
         }
       };
 
