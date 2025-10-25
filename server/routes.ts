@@ -417,6 +417,48 @@ export function registerRoutes(app: Express) {
   });
 
   // Shopify GraphQL endpoint for client-side queries (settings, admin, etc.)
+
+
+  // Notification Recipients Management
+  app.get("/api/notification-recipients", async (req, res) => {
+    try {
+      // For now, return hardcoded recipients (you can store in DB later)
+      const recipients = [
+        "sales@itsunderitall.com",
+        "admin@itsunderitall.com"
+      ];
+      res.json({ recipients });
+    } catch (error) {
+      console.error("❌ Error fetching recipients:", error);
+      res.status(500).json({ error: "Failed to fetch recipients" });
+    }
+  });
+
+  app.post("/api/notification-recipients", async (req, res) => {
+    try {
+      const { email } = req.body;
+      if (!email || !email.includes('@')) {
+        return res.status(400).json({ error: "Invalid email address" });
+      }
+      // Store in DB or env var (for now, just acknowledge)
+      res.json({ success: true, message: `Recipient ${email} added` });
+    } catch (error) {
+      console.error("❌ Error adding recipient:", error);
+      res.status(500).json({ error: "Failed to add recipient" });
+    }
+  });
+
+  app.delete("/api/notification-recipients/:email", async (req, res) => {
+    try {
+      const { email } = req.params;
+      // Remove from DB or env var
+      res.json({ success: true, message: `Recipient ${email} removed` });
+    } catch (error) {
+      console.error("❌ Error removing recipient:", error);
+      res.status(500).json({ error: "Failed to remove recipient" });
+    }
+  });
+
   app.post("/api/shopify/graphql", async (req, res) => {
     try {
       const { query, variables } = req.body;

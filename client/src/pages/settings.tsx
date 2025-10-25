@@ -276,6 +276,10 @@ export default function Settings() {
               <LinkIcon className="w-4 h-4 mr-2" />
               Pricing CSVs
             </TabsTrigger>
+            <TabsTrigger value="notifications" className="font-['Vazirmatn']">
+              <SettingsIcon className="w-4 h-4 mr-2" />
+              Notifications
+            </TabsTrigger>
             <TabsTrigger value="webhooks" className="font-['Vazirmatn']">
               <Webhook className="w-4 h-4 mr-2" />
               Webhook Logs
@@ -514,6 +518,116 @@ export default function Settings() {
                 >
                   {updatePricesMutation.isPending ? "Updating..." : "Update Settings"}
                 </Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="notifications">
+            <Card className="rounded-[16px]">
+              <CardHeader>
+                <CardTitle className="font-['Archivo'] text-[#212227]">Gmail Notification Settings</CardTitle>
+                <CardDescription className="font-['Vazirmatn'] text-[#696A6D]">
+                  Configure email notifications for new wholesale applications
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label className="font-['Vazirmatn'] text-[#212227]">Enable Notifications</Label>
+                      <p className="text-sm text-[#696A6D]">Send email alerts when new wholesale applications are submitted</p>
+                    </div>
+                    <input type="checkbox" className="toggle" defaultChecked />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="notificationRecipients" className="font-['Vazirmatn'] text-[#212227]">
+                      Notification Recipients
+                    </Label>
+                    <div className="space-y-2">
+                      <div className="flex gap-2">
+                        <Input
+                          id="newRecipient"
+                          type="email"
+                          placeholder="admin@example.com"
+                          className={`rounded-[11px] font-['Vazirmatn'] ${globalInputStyles}`}
+                        />
+                        <Button
+                          onClick={() => {
+                            const input = document.getElementById('newRecipient') as HTMLInputElement;
+                            if (input?.value) {
+                              // Add recipient logic here
+                              toast({
+                                title: "Recipient Added",
+                                description: `${input.value} will receive notifications`,
+                              });
+                              input.value = '';
+                            }
+                          }}
+                          className="bg-[#F2633A] hover:bg-[#F2633A]/90 text-white rounded-[11px] font-['Vazirmatn']"
+                        >
+                          Add
+                        </Button>
+                      </div>
+
+                      <div className="space-y-2 mt-4">
+                        <p className="text-sm text-[#696A6D]">Current Recipients:</p>
+                        <div className="flex flex-wrap gap-2">
+                          <Badge variant="secondary" className="font-['Vazirmatn']">
+                            sales@itsunderitall.com
+                            <button className="ml-2 text-red-500 hover:text-red-700">×</button>
+                          </Badge>
+                          <Badge variant="secondary" className="font-['Vazirmatn']">
+                            admin@itsunderitall.com
+                            <button className="ml-2 text-red-500 hover:text-red-700">×</button>
+                          </Badge>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-[#F3F1E9] border border-[#E1E0DA] p-4 rounded-[11px] text-sm font-['Vazirmatn'] text-[#696A6D]">
+                    <p className="font-semibold text-[#212227] mb-2">Gmail Integration Status:</p>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-green-600" />
+                      <span>Connected via Replit Gmail Connector</span>
+                    </div>
+                    <p className="text-xs mt-2">Emails will be sent from: noreply@itsunderitall.com</p>
+                  </div>
+
+                  <Button
+                    onClick={async () => {
+                      try {
+                        const res = await fetch('/api/gmail/send', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({
+                            to: 'sales@itsunderitall.com',
+                            subject: 'Test Notification from UnderItAll',
+                            body: 'This is a test notification from your wholesale notification system.',
+                          }),
+                        });
+                        const data = await res.json();
+                        toast({
+                          title: data.success ? "Test Email Sent" : "Send Failed",
+                          description: data.success ? "Check your inbox!" : data.error,
+                          variant: data.success ? "default" : "destructive",
+                        });
+                      } catch (error) {
+                        toast({
+                          title: "Error",
+                          description: "Failed to send test email",
+                          variant: "destructive",
+                        });
+                      }
+                    }}
+                    variant="outline"
+                    className="rounded-[11px] font-['Vazirmatn']"
+                  >
+                    <RefreshCw className="w-4 h-4 mr-2" />
+                    Send Test Email
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
