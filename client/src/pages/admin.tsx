@@ -844,7 +844,19 @@ export default function Admin() {
               <p className="font-['Vazirmatn'] text-sm text-[#696A6D]">Or</p>
               <Button
                 variant="outline"
-                onClick={() => setSelectedConflict(null)} // Deselect any previous choice to signal 'create new'
+                onClick={() => {
+                  if (!currentRegistrationId) {
+                    console.error("❌ Create New CRM aborted - no currentRegistrationId");
+                    toast({
+                      title: "Error",
+                      description: "Registration ID is missing. Please try again.",
+                      variant: "destructive",
+                    });
+                    return;
+                  }
+                  console.log("🆕 Create New CRM Account clicked - syncing with null accountId");
+                  syncToCrm(currentRegistrationId, null);
+                }}
                 className="mt-2 rounded-[11px] font-['Vazirmatn']"
               >
                 Create New CRM Account
