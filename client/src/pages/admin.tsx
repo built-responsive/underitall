@@ -26,8 +26,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { Users, Calculator, FileText, CheckCircle, XCircle, Clock, ExternalLink, Settings, CheckCircle2, Building2, Mail, Phone, MapPin, Globe, Instagram, Calendar, FileCheck } from "lucide-react";
+import { Users, Calculator, FileText, CheckCircle, XCircle, Clock, ExternalLink, Settings, CheckCircle2, Building2, Mail, Phone, MapPin, Globe, Instagram, Calendar, FileCheck, ChevronDown } from "lucide-react";
 import { format } from "date-fns";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
@@ -41,6 +42,7 @@ export default function Admin() {
   const [adminNotes, setAdminNotes] = useState("");
   const [rejectionReason, setRejectionReason] = useState("");
   const [actionType, setActionType] = useState<"approve" | "reject" | null>(null);
+  const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
 
   // CRM Conflict Modal States
   const [crmConflictModalOpen, setCrmConflictModalOpen] = useState(false);
@@ -347,12 +349,14 @@ export default function Admin() {
     if (ordersError) console.error("🔴 Orders error:", ordersError);
   }, [regError, quotesError, ordersError]);
 
-  // Scroll to registration card when ID is in URL (no modal auto-open)
+  // Scroll to registration card when ID is in URL and auto-expand
   useEffect(() => {
     if (params?.id && registrations && registrations.length > 0) {
       const registration = registrations.find(r => r.id === params.id);
       if (registration) {
-        console.log('🔍 Found registration from URL, scrolling to card:', params.id);
+        console.log('🔍 Found registration from URL, scrolling and expanding:', params.id);
+        // Auto-expand the card
+        setExpandedCards(prev => new Set(prev).add(params.id));
         // Scroll to the card element
         setTimeout(() => {
           const element = document.getElementById(`registration-${params.id}`);
@@ -363,6 +367,18 @@ export default function Admin() {
       }
     }
   }, [params?.id, registrations]);
+
+  const toggleCardExpanded = (id: string) => {
+    setExpandedCards(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
 
   const pendingCount = registrations.filter((r: any) => r.status === "pending").length;
   const approvedCount = registrations.filter((r: any) => r.status === "approved").length;
@@ -446,12 +462,17 @@ export default function Admin() {
                 </Card>
               ) : (
                 registrations.map((reg: any) => (
-                  <Card
+                  <Collapsible
                     key={reg.id}
-                    id={`registration-${reg.id}`}
-                    className="rounded-[11px] overflow-hidden transition-all hover:shadow-lg"
+                    open={expandedCards.has(reg.id)}
+                    onOpenChange={() => toggleCardExpanded(reg.id)}
                   >
-                    <CardHeader className="hover:bg-[#F3F1E9]/50 transition-colors">
+                    <Card
+                      id={`registration-${reg.id}`}
+                      className="rounded-[11px] overflow-hidden transition-all hover:shadow-lg"
+                    >
+                      <CollapsibleTrigger asChild>
+                        <CardHeader className="hover:bg-[#F3F1E9]/50 transition-colors cursor-pointer">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-4">
                               <div className="text-left">
@@ -466,18 +487,192 @@ export default function Admin() {
                             </div>
                             <div className="flex items-center gap-3">
                               {getStatusBadge(reg.status)}
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => setSelectedRegistration(reg)}
-                                className="rounded-[8px] font-['Vazirmatn']"
-                              >
-                                <ExternalLink className="w-4 h-4" />
-                              </Button>
+                              <ChevronDown className={`w-5 h-5 text-[#696A6D] transition-transform ${expandedCards.has(reg.id) ? 'rotate-180' : ''}`} />
                             </div>
                           </div>
                         </CardHeader>
-                      </Card>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent>
+                        <CardContent className="pt-0 pb-6 space-y-6">
+                          {/* Contact Information */}
+                          <div className="space-y-3">
+                            <h3 className="font-['Archivo'] text-[#212227] font-semibold text-sm uppercase tracking-wide">Contact Information</h3>
+                            <div className="grid md:grid-cols-2 gap-4">
+                              <div className="flex items-start gap-3">
+                                <Mail className="w-4 h-4 text-[#F2633A] mt-0.5" />
+                                <div className="flex-1">
+                                  <p className="text-xs text-[#696A6D] font-['Vazirmatn']">Email</p>
+                                  <p className="font-['Vazirmatn'] text-[#212227]">{reg.email}</p>
+                                </div>
+                              </div>
+                              <div className="flex items-start gap-3">
+                                <Phone className="w-4 h-4 text-[#F2633A] mt-0.5" />
+                                <div className="flex-1">
+                                  <p className="text-xs text-[#696A6D] font-['Vazirmatn']">Phone</p>
+                                  <p className="font-['Vazirmatn'] text-[#212227]">{reg.phone}</p>
+                                </div>
+                              </div>
+                              <div className="flex items-start gap-3 md:col-span-2">
+                                <MapPin className="w-4 h-4 text-[#F2633A] mt-0.5" />
+                                <div className="flex-1">
+                                  <p className="text-xs text-[#696A6D] font-['Vazirmatn']">Address</p>
+                                  <p className="font-['Vazirmatn'] text-[#212227]">
+                                    {reg.businessAddress}
+                                    {reg.businessAddress2 && <>, {reg.businessAddress2}</>}
+                                    <br />
+                                    {reg.city}, {reg.state} {reg.zipCode}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="border-t border-[#E1E0DA]" />
+
+                          {/* Business Details */}
+                          <div className="space-y-3">
+                            <h3 className="font-['Archivo'] text-[#212227] font-semibold text-sm uppercase tracking-wide">Business Details</h3>
+                            <div className="grid md:grid-cols-2 gap-4">
+                              <div className="flex items-start gap-3">
+                                <Building2 className="w-4 h-4 text-[#F2633A] mt-0.5" />
+                                <div className="flex-1">
+                                  <p className="text-xs text-[#696A6D] font-['Vazirmatn']">Business Type</p>
+                                  <p className="font-['Vazirmatn'] text-[#212227] capitalize">{reg.businessType.replace(/_/g, ' ')}</p>
+                                </div>
+                              </div>
+                              {reg.yearsInBusiness && (
+                                <div className="flex items-start gap-3">
+                                  <Calendar className="w-4 h-4 text-[#F2633A] mt-0.5" />
+                                  <div className="flex-1">
+                                    <p className="text-xs text-[#696A6D] font-['Vazirmatn']">Years in Business</p>
+                                    <p className="font-['Vazirmatn'] text-[#212227]">{reg.yearsInBusiness} years</p>
+                                  </div>
+                                </div>
+                              )}
+                              {reg.website && (
+                                <div className="flex items-start gap-3">
+                                  <Globe className="w-4 h-4 text-[#F2633A] mt-0.5" />
+                                  <div className="flex-1">
+                                    <p className="text-xs text-[#696A6D] font-['Vazirmatn']">Website</p>
+                                    <a href={reg.website} target="_blank" rel="noopener noreferrer" className="font-['Vazirmatn'] text-[#F2633A] hover:underline flex items-center gap-1">
+                                      {reg.website} <ExternalLink className="w-3 h-3" />
+                                    </a>
+                                  </div>
+                                </div>
+                              )}
+                              {reg.instagramHandle && (
+                                <div className="flex items-start gap-3">
+                                  <Instagram className="w-4 h-4 text-[#F2633A] mt-0.5" />
+                                  <div className="flex-1">
+                                    <p className="text-xs text-[#696A6D] font-['Vazirmatn']">Instagram</p>
+                                    <a href={`https://instagram.com/${reg.instagramHandle.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="font-['Vazirmatn'] text-[#F2633A] hover:underline flex items-center gap-1">
+                                      @{reg.instagramHandle.replace('@', '')} <ExternalLink className="w-3 h-3" />
+                                    </a>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="border-t border-[#E1E0DA]" />
+
+                          {/* Tax & Documentation */}
+                          <div className="space-y-3">
+                            <h3 className="font-['Archivo'] text-[#212227] font-semibold text-sm uppercase tracking-wide">Tax & Documentation</h3>
+                            <div className="flex flex-wrap gap-3">
+                              <Badge variant={reg.isTaxExempt ? "default" : "outline"} className="font-['Vazirmatn']">
+                                {reg.isTaxExempt ? 'Tax Exempt' : 'Not Tax Exempt'}
+                              </Badge>
+                              {reg.isTaxExempt && reg.taxId && (
+                                <span className="text-sm text-[#696A6D] font-['Vazirmatn']">ID: {reg.taxId}</span>
+                              )}
+                              <Badge variant={reg.receivedSampleSet ? "default" : "outline"} className="font-['Vazirmatn']">
+                                {reg.receivedSampleSet ? 'Sample Set Received' : 'No Sample Set'}
+                              </Badge>
+                            </div>
+                            {(reg.certificationUrl || reg.taxIdProofUrl) && (
+                              <div className="flex flex-wrap gap-2 pt-2">
+                                {reg.certificationUrl && (
+                                  <a href={reg.certificationUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#F3F1E9] hover:bg-[#E1E0DA] rounded-[8px] transition-colors text-sm">
+                                    <FileCheck className="w-3 h-3 text-[#F2633A]" />
+                                    <span className="font-['Vazirmatn'] text-[#212227]">Certification</span>
+                                    <ExternalLink className="w-3 h-3 text-[#696A6D]" />
+                                  </a>
+                                )}
+                                {reg.taxIdProofUrl && (
+                                  <a href={reg.taxIdProofUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#F3F1E9] hover:bg-[#E1E0DA] rounded-[8px] transition-colors text-sm">
+                                    <FileCheck className="w-3 h-3 text-[#F2633A]" />
+                                    <span className="font-['Vazirmatn'] text-[#212227]">Tax ID Proof</span>
+                                    <ExternalLink className="w-3 h-3 text-[#696A6D]" />
+                                  </a>
+                                )}
+                              </div>
+                            )}
+                          </div>
+
+                          {(reg.howDidYouHear || reg.adminNotes) && (
+                            <>
+                              <div className="border-t border-[#E1E0DA]" />
+                              <div className="space-y-3">
+                                <h3 className="font-['Archivo'] text-[#212227] font-semibold text-sm uppercase tracking-wide">Additional Information</h3>
+                                {reg.howDidYouHear && (
+                                  <div>
+                                    <p className="text-xs text-[#696A6D] font-['Vazirmatn'] mb-1">How They Heard About Us</p>
+                                    <p className="font-['Vazirmatn'] text-[#212227]">{reg.howDidYouHear}</p>
+                                  </div>
+                                )}
+                                {reg.adminNotes && (
+                                  <div>
+                                    <p className="text-xs text-[#696A6D] font-['Vazirmatn'] mb-1">Admin Notes</p>
+                                    <p className="font-['Vazirmatn'] text-[#212227] text-sm whitespace-pre-wrap">{reg.adminNotes}</p>
+                                  </div>
+                                )}
+                              </div>
+                            </>
+                          )}
+
+                          <div className="border-t border-[#E1E0DA]" />
+
+                          {/* Actions */}
+                          <div className="flex flex-wrap gap-2">
+                            {reg.status === "pending" && (
+                              <>
+                                <Button onClick={() => { setSelectedRegistration(reg); setActionType("approve"); }} className="bg-[#F2633A] hover:bg-[#F2633A]/90 text-white rounded-[11px] font-['Vazirmatn']">
+                                  <CheckCircle className="w-4 h-4 mr-2" />
+                                  Approve
+                                </Button>
+                                <Button onClick={() => { setSelectedRegistration(reg); setActionType("reject"); }} variant="outline" className="rounded-[11px] font-['Vazirmatn']">
+                                  <XCircle className="w-4 h-4 mr-2" />
+                                  Reject
+                                </Button>
+                              </>
+                            )}
+                            {reg.status === "approved" && (
+                              <>
+                                {reg.shopifyCustomerId && (
+                                  <a href={`https://admin.shopify.com/store/its-under-it-all/customers/${reg.shopifyCustomerId}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#96bf48] hover:bg-[#85aa3d] text-white rounded-[8px] transition-colors font-['Vazirmatn'] text-sm">
+                                    <ExternalLink className="w-3 h-3" />
+                                    Shopify Admin
+                                  </a>
+                                )}
+                                {reg.clarityAccountId ? (
+                                  <a href={`https://www.claritycrm.com/accounts/new4.aspx?m=e&id=${reg.clarityAccountId}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-[8px] transition-colors font-['Vazirmatn'] text-sm">
+                                    <CheckCircle2 className="w-3 h-3" />
+                                    CRM Synced
+                                  </a>
+                                ) : (
+                                  <Button onClick={() => { checkCrmDuplicates(reg.id); }} className="bg-[#F2633A] hover:bg-[#F2633A]/90 text-white rounded-[11px] font-['Vazirmatn'] text-sm">
+                                    <ExternalLink className="w-4 h-4 mr-2" />
+                                    Sync to CRM
+                                  </Button>
+                                )}
+                              </>
+                            )}
+                          </div>
+                        </CardContent>
+                      </CollapsibleContent>
+                    </Card>
+                  </Collapsible>
                 ))
               )}
             </div>
