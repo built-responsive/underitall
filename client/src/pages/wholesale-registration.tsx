@@ -743,17 +743,25 @@ export default function WholesaleRegistration() {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="interior_designer_solo">Interior Designer - Solopreneur</SelectItem>
-                            <SelectItem value="interior_design_firm_2_5">Interior Design Firm - 2-5 ppl</SelectItem>
-                            <SelectItem value="interior_design_firm_5_plus">Interior Design Firm - 5+ ppl</SelectItem>
-                            <SelectItem value="design_with_retail">Design with Retail</SelectItem>
-                            <SelectItem value="trade_showroom">To-the-Trade Multi-Line Showroom</SelectItem>
-                            <SelectItem value="architecture_firm">Architecture Firm (A&D)</SelectItem>
-                            <SelectItem value="furniture_retailer">Furniture Retailer - Brick & Mortar</SelectItem>
-                            <SelectItem value="ecommerce">E-Comm</SelectItem>
-                            <SelectItem value="home_stager">Home Stager / Staging Company</SelectItem>
-                            <SelectItem value="specialty_rug_retail">Specialty Retail Location - Rugs</SelectItem>
-                            <SelectItem value="receiving_warehousing">Recieving / Warehousing / White-Glove Install</SelectItem>
+                            <SelectItem value="Design Firm">Design Firm</SelectItem>
+                            <SelectItem value="Design Firm with Retail">Design Firm with Retail</SelectItem>
+                            <SelectItem value="Other Design Professional">Other Design Professional</SelectItem>
+                            <SelectItem value="Retailer">Retailer</SelectItem>
+                            <SelectItem value="Sales Rep">Sales Rep</SelectItem>
+                            <SelectItem value="Vendor">Vendor</SelectItem>
+                            <SelectItem value="Partner">Partner</SelectItem>
+                            <SelectItem value="Personal">Personal</SelectItem>
+                            <SelectItem value="Interior Designer - Solopreneur">Interior Designer - Solopreneur</SelectItem>
+                            <SelectItem value="Interior Design Firm - 2-5 ppl">Interior Design Firm - 2-5 ppl</SelectItem>
+                            <SelectItem value="Interior Design Firm - 5+ ppl">Interior Design Firm - 5+ ppl</SelectItem>
+                            <SelectItem value="Design with Retail">Design with Retail</SelectItem>
+                            <SelectItem value="To-the-Trade Multi-Line Showroom">To-the-Trade Multi-Line Showroom</SelectItem>
+                            <SelectItem value="Architecture Firm (A&D)">Architecture Firm (A&D)</SelectItem>
+                            <SelectItem value="Furniture Retailer - Brick & Mortar">Furniture Retailer - Brick & Mortar</SelectItem>
+                            <SelectItem value="E-Comm">E-Comm</SelectItem>
+                            <SelectItem value="Home Stager / Staging Company">Home Stager / Staging Company</SelectItem>
+                            <SelectItem value="Specialty Retail Location - Rugs">Specialty Retail Location - Rugs</SelectItem>
+                            <SelectItem value="Receiving / Warehousing / White-Glove Install">Receiving / Warehousing / White-Glove Install</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
