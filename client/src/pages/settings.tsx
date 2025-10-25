@@ -161,7 +161,6 @@ function EmailTemplateTestPanel() {
   const [testEmail, setTestEmail] = useState("");
   const [customHtml, setCustomHtml] = useState("");
   const [subject, setSubject] = useState("");
-  const [showPreview, setShowPreview] = useState(false);
 
   const { data: templatesData } = useQuery({
     queryKey: ["/api/email-templates"],
@@ -192,6 +191,58 @@ function EmailTemplateTestPanel() {
 
   const templates = templatesData || [];
   const selectedTemplate = templates.find((t: any) => t.id === selectedTemplateId);
+
+  // Generate preview HTML with sample data
+  const previewHtml = React.useMemo(() => {
+    if (!customHtml) return '';
+    
+    let preview = customHtml;
+    const sampleData: any = {
+      firstName: 'John',
+      lastName: 'Doe',
+      firmName: 'Acme Design Studio',
+      email: 'john@acmedesign.com',
+      phone: '555-0123',
+      businessType: 'Interior Designer',
+      clarityAccountId: 'AC000123',
+      applicationDate: new Date().toLocaleDateString(),
+      applicationNumber: 'APP-2024-001',
+      orderNumber: 'DO-2024-001',
+      orderDate: new Date().toLocaleDateString(),
+      customerName: 'Acme Design Studio',
+      customerEmail: 'orders@acmedesign.com',
+      totalPrice: '$545.00',
+      subtotal: '$500.00',
+      tax: '$45.00',
+      timestamp: new Date().toLocaleString(),
+      environment: 'Production',
+      errorType: 'DatabaseConnectionError',
+      errorMessage: 'Failed to connect to database',
+      service: 'API',
+      critical: true,
+      pendingCount: 3,
+      adminDashboardUrl: 'https://app.itsunderitall.com/admin',
+      businessAddress: '123 Design Street',
+      businessAddress2: 'Suite 100',
+      city: 'Atlanta',
+      state: 'GA',
+      zipCode: '30303',
+      currentYear: new Date().getFullYear()
+    };
+
+    // Replace simple variables
+    Object.keys(sampleData).forEach(key => {
+      const regex = new RegExp(`{{${key}}}`, 'g');
+      preview = preview.replace(regex, sampleData[key] || '');
+    });
+
+    // Handle conditionals
+    preview = preview.replace(/{{#if\s+(\w+)}}([\s\S]*?){{\/if}}/g, (match, variable, content) => {
+      return sampleData[variable] ? content : '';
+    });
+
+    return preview;
+  }, [customHtml]);
 
   return (
     <div className="space-y-4 border-t pt-4">
@@ -254,15 +305,19 @@ function EmailTemplateTestPanel() {
         />
       </div>
 
-      <div className="flex gap-2">
-        <Button
-          onClick={() => setShowPreview(!showPreview)}
-          variant="outline"
-          className="rounded-[11px] font-['Vazirmatn']"
-        >
-          {showPreview ? "Hide Preview" : "Show Preview"}
-        </Button>
+      {/* Auto-render preview below textarea */}
+      {customHtml && (
+        <div className="mt-4 border rounded-[11px] p-4 bg-white">
+          <h4 className="font-['Vazirmatn'] text-sm text-[#696A6D] mb-2">Live Preview:</h4>
+          <iframe
+            srcDoc={previewHtml}
+            className="w-full h-[500px] border rounded"
+            title="Email Preview"
+          />
+        </div>
+      )}
 
+      <div className="flex gap-2">
         <Button
           onClick={() => {
             if (!testEmail || !testEmail.includes('@')) {
@@ -295,58 +350,6 @@ function EmailTemplateTestPanel() {
           {sendTestMutation.isPending ? "Sending..." : "Send Test Email"}
         </Button>
       </div>
-
-      {showPreview && customHtml && (
-        <div className="mt-4 border rounded-[11px] p-4 bg-white">
-          <h4 className="font-['Vazirmatn'] text-sm text-[#696A6D] mb-2">Preview:</h4>
-          <iframe
-            srcDoc={(() => {
-              // Replace template variables with sample data for preview
-              let preview = customHtml;
-              const sampleData: any = {
-                firstName: 'John',
-                lastName: 'Doe',
-                firmName: 'Acme Design Studio',
-                email: 'john@acmedesign.com',
-                phone: '555-0123',
-                businessType: 'Interior Designer',
-                clarityAccountId: 'AC000123',
-                applicationDate: new Date().toLocaleDateString(),
-                applicationNumber: 'APP-2024-001',
-                orderNumber: 'DO-2024-001',
-                orderDate: new Date().toLocaleDateString(),
-                customerName: 'Acme Design Studio',
-                customerEmail: 'orders@acmedesign.com',
-                totalPrice: '$545.00',
-                subtotal: '$500.00',
-                tax: '$45.00',
-                timestamp: new Date().toLocaleString(),
-                environment: 'Production',
-                errorType: 'DatabaseConnectionError',
-                errorMessage: 'Failed to connect to database',
-                service: 'API',
-                critical: true,
-                currentYear: new Date().getFullYear()
-              };
-
-              // Replace simple variables
-              Object.keys(sampleData).forEach(key => {
-                const regex = new RegExp(`{{${key}}}`, 'g');
-                preview = preview.replace(regex, sampleData[key] || '');
-              });
-
-              // Handle conditionals
-              preview = preview.replace(/{{#if\s+(\w+)}}([\s\S]*?){{\/if}}/g, (match, variable, content) => {
-                return sampleData[variable] ? content : '';
-              });
-
-              return preview;
-            })()}
-            className="w-full h-[400px] border rounded"
-            title="Email Preview"
-          />
-        </div>
-      )}
     </div>
   );
 }
