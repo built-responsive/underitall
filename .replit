@@ -1,7 +1,7 @@
 modules = ["nodejs-20", "python-3.11", "postgresql-16"]
 [agent]
 expertMode = true
-integrations = ["javascript_database:1.0.0"]
+integrations = ["javascript_database:1.0.0", "google-mail:1.0.0"]
 
 [workflows]
 runButton = "Project"
@@ -19,13 +19,13 @@ args = "Server"
 name = "Server"
 author = "agent"
 
+[workflows.workflow.metadata]
+outputType = "webview"
+
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npm run dev"
 waitForPort = 5000
-
-[workflows.workflow.metadata]
-outputType = "webview"
 
 [[ports]]
 localPort = 80
@@ -50,14 +50,13 @@ localPort = 5000
 externalPort = 80
 
 [[ports]]
-localPort = 8080
-externalPort = 8080
-exposeLocalhost = true
-
-[[ports]]
 localPort = 9293
 externalPort = 3003
 exposeLocalhost = true
+
+[[ports]]
+localPort = 35711
+externalPort = 4200
 
 [deployment]
 deploymentTarget = "gce"
@@ -67,3 +66,6 @@ build = ["sh", "-c", "npm run build && npm run db:production-setup"]
 [nix]
 packages = ["postgresql_10", "shopify-cli"]
 channel = "stable-25_05"
+
+[objectStorage]
+defaultBucketID = "replit-objstore-c316fd75-b945-42ca-bd8d-9cfb94c6c2a4"

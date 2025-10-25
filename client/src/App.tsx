@@ -10,6 +10,7 @@ import WholesaleRegistration from "@/pages/wholesale-registration";
 import Admin from "@/pages/admin";
 import Settings from "@/pages/settings";
 import SyncArchitecture from "@/pages/sync-architecture";
+import Gmail from "@/pages/gmail";
 import NotFound from "@/pages/not-found";
 import { useEffect, useState, useRef } from "react";
 
@@ -151,6 +152,7 @@ function Router() {
       <Route path="/calculator" component={Calculator} />
       <Route path="/dashboard" component={Admin} />
       <Route path="/settings" component={Settings} />
+      <Route path="/gmail" component={Gmail} />
       <Route path="/outline" component={SyncArchitecture} />
       <Route path="/preview_calculator" component={Calculator} />
       <Route path="/preview_registration" component={WholesaleRegistration} />

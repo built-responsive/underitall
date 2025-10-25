@@ -11,6 +11,7 @@ import {
 import { desc, eq } from "drizzle-orm";
 import { getShopifyConfig, executeShopifyGraphQL } from "./utils/shopifyConfig";
 import path from "path";
+import { getUnreadMessages, sendEmail } from "./gmail";
 
 export function registerRoutes(app: Express) {
   // Customer Account Extension API - Fetch Wholesale Account Data (from CRM)
@@ -488,6 +489,42 @@ export function registerRoutes(app: Express) {
     } catch (error) {
       console.error("❌ GraphQL proxy error:", error);
       res.status(500).json({ error: "GraphQL proxy failed" });
+    }
+  });
+
+  // Gmail API endpoints
+  app.get("/api/gmail/unread", async (req, res) => {
+    try {
+      const messages = await getUnreadMessages();
+      res.json({ success: true, messages });
+    } catch (error) {
+      console.error("Error fetching Gmail messages:", error);
+      res.status(500).json({ 
+        success: false, 
+        error: error instanceof Error ? error.message : "Failed to fetch messages" 
+      });
+    }
+  });
+
+  app.post("/api/gmail/send", async (req, res) => {
+    try {
+      const { to, subject, body } = req.body;
+      
+      if (!to || !subject || !body) {
+        return res.status(400).json({ 
+          success: false, 
+          error: "Missing required fields: to, subject, body" 
+        });
+      }
+
+      const result = await sendEmail(to, subject, body);
+      res.json({ ...result });
+    } catch (error) {
+      console.error("Error sending email:", error);
+      res.status(500).json({ 
+        success: false, 
+        error: error instanceof Error ? error.message : "Failed to send email" 
+      });
     }
   });
 
@@ -1293,6 +1330,7 @@ export function registerRoutes(app: Express) {
         // Create/Update Shopify Customer + Set wholesale_clarity_id metafield
         const shopDomain = process.env.SHOPIFY_SHOP_DOMAIN;
         const adminToken = process.env.SHOPIFY_ADMIN_ACCESS_TOKEN;
+        let customerId: string | undefined;
 
         if (shopDomain && adminToken) {
           // Check if customer exists
@@ -1324,7 +1362,7 @@ export function registerRoutes(app: Express) {
           );
 
           const customerCheckData = await customerCheckResponse.json();
-          let customerId =
+          customerId =
             customerCheckData?.data?.customers?.edges?.[0]?.node?.id;
 
           // Create customer if doesn't exist
