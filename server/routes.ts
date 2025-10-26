@@ -704,51 +704,52 @@ export function registerRoutes(app: Express) {
       }
 
       // Import OpenAI service
-      const { getChatCompletion } = await import("./utils/openai");
-      const storage = await import("./storage");
+      const { getChatResponse } = await import("./utils/openai");
+      const storageModule = await import("./storage");
+      const db = storageModule.storage;
 
       let conversation;
 
       // Get or create conversation
       if (conversationId) {
-        conversation = await storage.default.getChatConversation(conversationId);
+        conversation = await db.getChatConversation(conversationId);
         if (!conversation) {
           return res.status(404).json({ error: "Conversation not found" });
         }
       } else {
         // Create new conversation
-        conversation = await storage.default.createChatConversation({
+        conversation = await db.createChatConversation({
           sessionId: sessionId || `session_${Date.now()}`,
-          status: "active",
+          isActive: true,
         });
       }
 
       // Save user message
-      const userMessage = await storage.default.createChatMessage({
+      const userMessage = await db.createChatMessage({
         conversationId: conversation.id,
         role: "user",
         content: content.trim(),
       });
 
       // Get conversation history
-      const messages = await storage.default.getChatMessagesByConversation(conversation.id);
+      const messages = await db.getChatMessagesByConversation(conversation.id);
       const conversationHistory = messages.map(msg => ({
         role: msg.role,
         content: msg.content,
       }));
 
       // Get AI response
-      const assistantContent = await getChatCompletion(conversationHistory);
+      const assistantContent = await getChatResponse(content.trim(), conversationHistory);
 
       // Save assistant message
-      const assistantMessage = await storage.default.createChatMessage({
+      const assistantMessage = await db.createChatMessage({
         conversationId: conversation.id,
         role: "assistant",
         content: assistantContent,
       });
 
       // Update conversation timestamp
-      await storage.default.updateChatConversation(conversation.id, {
+      await db.updateChatConversation(conversation.id, {
         updatedAt: new Date(),
       });
 
