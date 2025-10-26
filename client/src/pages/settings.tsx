@@ -520,6 +520,7 @@ export default function Settings() {
             }
           }
         `;
+        console.log("📥 Fetching customers with wholesale metafields...");
         const res = await fetch("/api/shopify/graphql", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -527,10 +528,13 @@ export default function Settings() {
         });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
-        // Filter to only customers with ALL three IDs linked
-        return data?.data?.customers?.nodes?.filter((c: any) => 
+        console.log("📤 Customer metafield data:", data);
+        // Filter to only customers with CRM + UIA linkage (both required)
+        const linked = data?.data?.customers?.nodes?.filter((c: any) => 
           c.clarityId?.value && c.uiaId?.value
         ) || [];
+        console.log(`✅ Found ${linked.length} fully linked wholesale customers`);
+        return linked;
       },
     });
 
