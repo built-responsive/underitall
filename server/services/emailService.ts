@@ -309,7 +309,7 @@ export async function sendNewWholesaleApplicationEmail(options: {
   const recipients = Array.isArray(options.to) ? options.to : [options.to];
   const results = await Promise.all(
     recipients.map(recipient => 
-      sendTemplatedEmail(recipient, 'new-wholesale-application', { ...options, to: recipient })
+      sendTemplatedEmail(recipient, 'new-wholesale-application', { ...options, to: recipient, dashboardUrl: options.adminDashboardUrl || `https://join.itsunderitall.com/dashboard/${options.registrationId}` })
     )
   );
   return results.every(r => r);

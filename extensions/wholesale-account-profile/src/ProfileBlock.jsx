@@ -57,7 +57,7 @@ function WholesaleAccountPage() {
         return;
       }
 
-      const appUrl = 'https://its-under-it-all.replit.app';
+      const appUrl = 'https://join.itsunderitall.com';
       const response = await fetch(`${appUrl}/api/customer/wholesale-account?customerId=${encodeURIComponent(customerId)}`);
 
       if (!response.ok) {
@@ -104,7 +104,7 @@ function WholesaleAccountPage() {
       const customerResult = await query(customerQuery);
       const customerId = customerResult?.data?.customer?.id;
 
-      const appUrl = 'https://its-under-it-all.replit.app';
+      const appUrl = 'https://join.itsunderitall.com';
 
       const response = await fetch(`${appUrl}/api/wholesale-account/${wholesaleAccount.id}`, {
         method: 'PATCH',

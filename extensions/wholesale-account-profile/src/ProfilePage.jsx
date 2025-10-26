@@ -121,7 +121,7 @@ function WholesaleAccountFullPage() {
       setError(null);
 
       // Update via our API
-      const appUrl = 'https://its-under-it-all.replit.app';
+      const appUrl = 'https://join.itsunderitall.com';
       const response = await fetch(`${appUrl}/api/customer/wholesale-account`, {
         method: 'PATCH',
         headers: {

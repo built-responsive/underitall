@@ -74,6 +74,8 @@ export default function Calculator() {
   const { toast } = useToast();
   const [priceData, setPriceData] = useState<any>(null);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+  const [customerEmail, setCustomerEmail] = useState<string | null>(null);
+  const [isAuthenticating, setIsAuthenticating] = useState(true);
 
   const form = useForm<CalculatorFormData>({
     resolver: zodResolver(calculatorSchema),
@@ -97,6 +99,42 @@ export default function Calculator() {
       freeformMessage: "",
     },
   });
+
+  // Check Shopify customer auth on mount
+  useEffect(() => {
+    const checkCustomerAuth = async () => {
+      try {
+        setIsAuthenticating(true);
+        const urlParams = new URLSearchParams(window.location.search);
+        const shopifyCustomerId = urlParams.get('logged_in_customer_id');
+
+        if (!shopifyCustomerId) {
+          // Redirect to wholesale registration if no customer ID
+          window.location.href = '/wholesale-registration?redirect=calculator';
+          return;
+        }
+
+        // Fetch customer email from Shopify via our API
+        const response = await fetch(`/api/customer/wholesale-account?customerId=${shopifyCustomerId}`);
+        const data = await response.json();
+
+        if (!data.hasWholesaleAccount) {
+          // Redirect to registration if no wholesale account
+          window.location.href = '/wholesale-registration?email=' + encodeURIComponent(data.email || '');
+          return;
+        }
+
+        setCustomerEmail(data.account.email);
+        setIsAuthenticating(false);
+      } catch (error) {
+        console.error('❌ Customer auth error:', error);
+        window.location.href = '/wholesale-registration';
+      }
+    };
+
+    checkCustomerAuth();
+  }, []);
+
 
   const shape = form.watch("shape");
   const widthFeet = form.watch("widthFeet");
@@ -127,8 +165,8 @@ export default function Calculator() {
     },
   });
 
-  // Trigger calculation when dimensions change (but not for freeform)
-  useEffect(() => {
+  // Function to calculate price, will be called after auth check
+  const calculatePrice = () => {
     if (shape === "freeform") {
       setPriceData(null);
       return;
@@ -157,7 +195,14 @@ export default function Calculator() {
         quantity 
       });
     }
-  }, [shape, width, length, size, radius, thickness, quantity]);
+  };
+
+  // Trigger calculation when dimensions change (but not for freeform)
+  useEffect(() => {
+    if (!isAuthenticating) {
+      calculatePrice();
+    }
+  }, [shape, width, length, size, radius, thickness, quantity, isAuthenticating]);
 
   // Save quote
   const saveQuoteMutation = useMutation({
@@ -191,7 +236,7 @@ export default function Calculator() {
   const createDraftOrderMutation = useMutation({
     mutationFn: async (quoteId: string) => {
       const values = form.getValues();
-      
+
       if (!priceData) {
         throw new Error("Price calculation required before creating draft order");
       }
@@ -200,7 +245,7 @@ export default function Calculator() {
       const thicknessLabel = values.thickness === "thin" ? "Luxe Lite ⅛\"" : "Luxe ¼\"";
       const shapeLabel = values.shape.charAt(0).toUpperCase() + values.shape.slice(1);
       const title = `Custom Rug Pad - ${thicknessLabel} ${shapeLabel}`;
-      
+
       const lineItems = [
         {
           title: title,
@@ -219,10 +264,11 @@ export default function Calculator() {
         },
       ];
 
+      // Use the authenticated customerEmail
       const res = await apiRequest("POST", "/api/draft-order", { 
         calculatorQuoteId: quoteId,
         lineItems,
-        customerEmail: values.clientName ? `${values.clientName.replace(/\s+/g, "").toLowerCase()}@placeholder.com` : "noreply@underitall.com",
+        customerEmail: customerEmail, // Pass authenticated customer email
         note: `Calculator Quote: ${quoteId}\nPO: ${values.poNumber || "N/A"}`,
       });
       return await res.json();
@@ -320,6 +366,17 @@ export default function Calculator() {
     square: Square,
     freeform: Sparkles,
   };
+
+  if (isAuthenticating) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-stone-50 to-stone-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#F2633A] mx-auto mb-4"></div>
+          <p className="text-slate-600">Authenticating customer...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[hsl(48,21%,95%)] to-[hsl(60,5%,88%)]">

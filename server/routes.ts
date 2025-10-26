@@ -310,8 +310,8 @@ export function registerRoutes(app: Express) {
           <!-- Load App Bridge (optional for proxy, but safe to include) -->
           <script src="https://cdn.shopify.com/shopifycloud/app-bridge.js" type="text/javascript"></script>
           <!-- Vite dev assets -->
-          <script type="module" src="https://its-under-it-all.replit.app/@vite/client"></script>
-          <script type="module" src="https://its-under-it-all.replit.app/src/main.tsx"></script>
+          <script type="module" src="https://join.itsunderitall.com/@vite/client"></script>
+          <script type="module" src="https://join.itsunderitall.com/src/main.tsx"></script>
         </head>
         <body>
           <div id="root"></div>
@@ -320,6 +320,17 @@ export function registerRoutes(app: Express) {
               shop: window.__SHOPIFY_SHOP__,
               customerId: window.__SHOPIFY_CUSTOMER_ID__
             });
+            // Placeholder for welcome email button logic
+            window.open = (url, target) => {
+              if (url === 'https://join.itsunderitall.com/wholesale-registration' && target === '_blank') {
+                console.log('Redirecting to wholesale registration:', url);
+                // In a real app, you might handle this differently in the embedded context
+                // For now, we log it and don't perform the actual window.open
+              } else {
+                // Fallback for other window.open calls
+                window.location.href = url;
+              }
+            };
           </script>
         </body>
         </html>
@@ -412,7 +423,7 @@ export function registerRoutes(app: Express) {
     } catch (error) {
       console.error("❌ CRM account lookup error:", error);
       res.status(500).json({
-        error: error instanceof Error ? error.message : "CRM lookup failed",
+        error: error instanceof Error ? message : "CRM lookup failed",
       });
     }
   });
@@ -424,10 +435,10 @@ export function registerRoutes(app: Express) {
   app.get("/api/notification-recipients", async (req, res) => {
     try {
       const { category } = req.query;
-      const query = category 
+      const query = category
         ? db.select().from(notificationRecipients).where(eq(notificationRecipients.category, category as string))
         : db.select().from(notificationRecipients);
-      
+
       const recipients = await query;
       res.json({ recipients });
     } catch (error) {
@@ -442,7 +453,7 @@ export function registerRoutes(app: Express) {
       if (!email || !email.includes('@')) {
         return res.status(400).json({ error: "Invalid email address" });
       }
-      
+
       const [recipient] = await db
         .insert(notificationRecipients)
         .values({
@@ -452,7 +463,7 @@ export function registerRoutes(app: Express) {
         })
         .onConflictDoNothing()
         .returning();
-      
+
       res.json({ success: true, recipient });
     } catch (error) {
       console.error("❌ Error adding recipient:", error);
@@ -466,7 +477,7 @@ export function registerRoutes(app: Express) {
       await db
         .delete(notificationRecipients)
         .where(eq(notificationRecipients.id, id));
-      
+
       res.json({ success: true, message: "Recipient removed" });
     } catch (error) {
       console.error("❌ Error removing recipient:", error);
@@ -478,11 +489,11 @@ export function registerRoutes(app: Express) {
   app.post("/api/gmail/send-test", async (req, res) => {
     try {
       const { to, templateId, subject, htmlContent, variables } = req.body;
-      
+
       if (!to || !subject || (!htmlContent && !templateId)) {
-        return res.status(400).json({ 
-          success: false, 
-          error: "Missing required fields: to, subject, and (htmlContent or templateId)" 
+        return res.status(400).json({
+          success: false,
+          error: "Missing required fields: to, subject, and (htmlContent or templateId)"
         });
       }
 
@@ -496,7 +507,7 @@ export function registerRoutes(app: Express) {
           .from(emailTemplates)
           .where(eq(emailTemplates.id, templateId))
           .limit(1);
-        
+
         if (!template) {
           return res.status(404).json({ success: false, error: "Template not found" });
         }
@@ -504,7 +515,7 @@ export function registerRoutes(app: Express) {
         // Simple variable replacement (same as emailService.ts)
         finalHtml = template.htmlContent;
         finalSubject = template.subject;
-        
+
         if (variables) {
           Object.keys(variables).forEach(key => {
             const regex = new RegExp(`{{${key}}}`, 'g');
@@ -529,13 +540,13 @@ export function registerRoutes(app: Express) {
       // Send via Gmail API with HTML support
       const { google } = await import('googleapis');
       const { default: http } = await import("http");
-      
+
       // Get fresh access token
       const hostname = process.env.REPLIT_CONNECTORS_HOSTNAME;
-      const xReplitToken = process.env.REPL_IDENTITY 
-        ? 'repl ' + process.env.REPL_IDENTITY 
-        : process.env.WEB_REPL_RENEWAL 
-        ? 'depl ' + process.env.WEB_REPL_RENEWAL 
+      const xReplitToken = process.env.REPL_IDENTITY
+        ? 'repl ' + process.env.REPL_IDENTITY
+        : process.env.WEB_REPL_RENEWAL
+        ? 'depl ' + process.env.WEB_REPL_RENEWAL
         : null;
 
       if (!xReplitToken) {
@@ -592,16 +603,16 @@ export function registerRoutes(app: Express) {
         requestBody: { raw: encodedMessage },
       });
 
-      res.json({ 
-        success: true, 
+      res.json({
+        success: true,
         messageId: result.data.id,
         message: "Test email sent successfully with HTML formatting"
       });
     } catch (error) {
       console.error("Error sending test email:", error);
-      res.status(500).json({ 
-        success: false, 
-        error: error instanceof Error ? error.message : "Failed to send test email" 
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to send test email"
       });
     }
   });
@@ -702,11 +713,11 @@ export function registerRoutes(app: Express) {
         .from(emailTemplates)
         .where(eq(emailTemplates.id, id))
         .limit(1);
-      
+
       if (!template) {
         return res.status(404).json({ error: "Template not found" });
       }
-      
+
       res.json(template);
     } catch (error) {
       console.error("Error fetching email template:", error);
@@ -718,7 +729,7 @@ export function registerRoutes(app: Express) {
     try {
       const { id } = req.params;
       const updates = req.body;
-      
+
       const [updated] = await db
         .update(emailTemplates)
         .set({
@@ -727,11 +738,11 @@ export function registerRoutes(app: Express) {
         })
         .where(eq(emailTemplates.id, id))
         .returning();
-      
+
       if (!updated) {
         return res.status(404).json({ error: "Template not found" });
       }
-      
+
       res.json(updated);
     } catch (error) {
       console.error("Error updating email template:", error);
@@ -742,24 +753,24 @@ export function registerRoutes(app: Express) {
   app.post("/api/email-templates/test", async (req, res) => {
     try {
       const { templateId, to, variables } = req.body;
-      
+
       // Get template name
       const [template] = await db
         .select()
         .from(emailTemplates)
         .where(eq(emailTemplates.id, templateId))
         .limit(1);
-      
+
       if (!template) {
         return res.status(404).json({ error: "Template not found" });
       }
-      
+
       // Send test email
       const result = await sendTemplatedEmail(to, template.name, variables);
-      
-      res.json({ 
-        success: result, 
-        message: result ? "Test email sent successfully" : "Failed to send test email" 
+
+      res.json({
+        success: result,
+        message: result ? "Test email sent successfully" : "Failed to send test email"
       });
     } catch (error) {
       console.error("Error sending test email:", error);
@@ -774,7 +785,7 @@ export function registerRoutes(app: Express) {
         .from(emailSendLog)
         .orderBy(desc(emailSendLog.createdAt))
         .limit(100);
-      
+
       res.json(logs);
     } catch (error) {
       console.error("Error fetching email send log:", error);
@@ -792,9 +803,9 @@ export function registerRoutes(app: Express) {
       res.json({ success: true, messages });
     } catch (error) {
       console.error("Error fetching Gmail messages:", error);
-      res.status(500).json({ 
-        success: false, 
-        error: error instanceof Error ? error.message : "Failed to fetch messages" 
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to fetch messages"
       });
     }
   });
@@ -802,11 +813,11 @@ export function registerRoutes(app: Express) {
   app.post("/api/gmail/send", async (req, res) => {
     try {
       const { to, subject, body } = req.body;
-      
+
       if (!to || !subject || !body) {
-        return res.status(400).json({ 
-          success: false, 
-          error: "Missing required fields: to, subject, body" 
+        return res.status(400).json({
+          success: false,
+          error: "Missing required fields: to, subject, body"
         });
       }
 
@@ -814,9 +825,9 @@ export function registerRoutes(app: Express) {
       res.json({ ...result });
     } catch (error) {
       console.error("Error sending email:", error);
-      res.status(500).json({ 
-        success: false, 
-        error: error instanceof Error ? error.message : "Failed to send email" 
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to send email"
       });
     }
   });
@@ -1047,15 +1058,15 @@ export function registerRoutes(app: Express) {
         // Send Gmail notification to admins (non-blocking)
         try {
           const { sendNewWholesaleApplicationEmail } = await import("./services/emailService");
-          
+
           // Get notification recipients from database
           const recipients = await db
             .select()
             .from(notificationRecipients)
             .where(eq(notificationRecipients.category, "wholesale_notifications"))
             .where(eq(notificationRecipients.active, true));
-          
-          const recipientEmails = recipients.length > 0 
+
+          const recipientEmails = recipients.length > 0
             ? recipients.map(r => r.email)
             : ["sales@itsunderitall.com", "admin@itsunderitall.com"]; // fallback
 
@@ -1417,7 +1428,6 @@ export function registerRoutes(app: Express) {
               edges {
                 node {
                   id
-                  email
                 }
               }
             }
@@ -1637,7 +1647,7 @@ export function registerRoutes(app: Express) {
     "/api/admin/approve-registration/:id",
     async (req: Request, res: Response) => {
       let registration: any = null; // Declare outside try block for catch access
-      
+
       try {
         const { id } = req.params;
 
@@ -1650,7 +1660,7 @@ export function registerRoutes(app: Express) {
         if (!reg) {
           return res.status(404).json({ error: "Registration not found" });
         }
-        
+
         registration = reg; // Assign to outer scope
 
         // CRM Account should already be created via /api/admin/sync-to-crm
@@ -2240,8 +2250,8 @@ export function registerRoutes(app: Express) {
 
       // Check for critical errors (excluding phone duplicate warnings)
       const userErrors = shopifyData.data?.customerCreate?.userErrors || [];
-      const criticalErrors = userErrors.filter((err: any) => 
-        !err.message?.toLowerCase().includes('phone') && 
+      const criticalErrors = userErrors.filter((err: any) =>
+        !err.message?.toLowerCase().includes('phone') &&
         !err.message?.toLowerCase().includes('already been taken')
       );
 
@@ -2278,22 +2288,22 @@ export function registerRoutes(app: Express) {
       // Send email notification for new draft order (non-blocking)
       try {
         const { sendNewDraftOrderEmail } = await import("./services/emailService");
-        
+
         // Get notification recipients
         const recipients = await db
           .select()
           .from(notificationRecipients)
           .where(eq(notificationRecipients.category, "wholesale_notifications"))
           .where(eq(notificationRecipients.active, true));
-        
-        const recipientEmails = recipients.length > 0 
+
+        const recipientEmails = recipients.length > 0
           ? recipients.map(r => r.email)
           : ["sales@itsunderitall.com"]; // fallback
 
         // Format line items for email template
         const formattedLineItems = lineItems.map((item: any) => ({
           name: item.title,
-          variant: item.customAttributes?.find((attr: any) => attr.key === "Width")?.value 
+          variant: item.customAttributes?.find((attr: any) => attr.key === "Width")?.value
             ? `${item.customAttributes.find((attr: any) => attr.key === "Width")?.value} × ${item.customAttributes.find((attr: any) => attr.key === "Length")?.value}`
             : "",
           quantity: item.quantity,
