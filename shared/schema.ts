@@ -238,7 +238,7 @@ export const draftOrders = pgTable("draft_orders", {
   // Associations
   calculatorQuoteId: varchar("calculator_quote_id").references(() => calculatorQuotes.id),
   wholesaleRegistrationId: varchar("wholesale_registration_id").references(() => wholesaleRegistrations.id),
-  shopifyCustomerId: text("shopify_customer_id"), // Track customer ownership
+  shopifyCustomerId: text("shopify_customer_id"), // Added for customer linking
 
   // Metadata
   createdAt: timestamp("created_at").defaultNow().notNull(),
