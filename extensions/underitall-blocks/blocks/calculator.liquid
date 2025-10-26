@@ -1,3 +1,4 @@
+
 {% comment %}
   UnderItAll Custom Rug Pad Calculator
   A theme app block for calculating custom rug pad pricing
@@ -20,18 +21,16 @@
   {% endif %}
 
   <div id="underitall-calculator-root"></div>
-
-  <script>
-    // Global config for calculator bundle
-    window.UNDERITALL_CALCULATOR_CONFIG = {
-      apiUrl: "{{ block.settings.api_url }}",
-      brandAssetsUrl: "{{ block.settings.api_url }}/brand",
-      blockId: "{{ block.id }}"
-    };
-  </script>
 </div>
 
 <script src="{{ 'calculator-block.js' | asset_url }}" defer></script>
+
+<script>
+  // Initialize calculator after bundle loads
+  document.addEventListener('DOMContentLoaded', function() {
+    console.log('📄 HTML loaded - #root exists:', !!document.getElementById('underitall-calculator-root'));
+  });
+</script>
 
 {% schema %}
 {
@@ -42,7 +41,7 @@
       "type": "text",
       "id": "api_url",
       "label": "API Base URL",
-      "default": "https://its-under-it-all.replit.app",
+      "default": "https://join.itsunderitall.com",
       "info": "The base URL for the UnderItAll API"
     },
     {

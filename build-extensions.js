@@ -28,19 +28,15 @@ async function buildCalculator() {
       outDir: path.resolve(__dirname, 'extensions/underitall-blocks/assets'),
       emptyOutDir: false,
       lib: {
-        entry: path.resolve(__dirname, 'client/src/pages/calculator.tsx'),
+        entry: path.resolve(__dirname, 'client/src/calculator-entry.tsx'),
         name: 'UnderItAllCalculator',
         fileName: () => 'calculator-block.js',
         formats: ['iife']
       },
       rollupOptions: {
-        external: ['react', 'react-dom', 'react/jsx-runtime'],
+        external: [],
         output: {
-          globals: {
-            react: 'React',
-            'react-dom': 'ReactDOM',
-            'react/jsx-runtime': 'React'
-          },
+          globals: {},
           assetFileNames: 'calculator-block.[ext]'
         }
       }
