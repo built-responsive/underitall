@@ -410,63 +410,66 @@ export default function Admin() {
           <p className="text-[#696A6D] font-['Vazirmatn']">Manage wholesale registrations, quotes, and draft orders</p>
         </div>
 
-        {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card className="rounded-[16px] border-[#E1E0DA] bg-white shadow-sm">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-['Vazirmatn'] font-medium text-[#696A6D]">Pending Applications</CardTitle>
-              <Clock className="w-5 h-5 text-[#F2633A]" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-['Archivo'] font-bold text-[#212227]">{pendingRegistrations.length}</div>
-            </CardContent>
-          </Card>
-
-          <Card className="rounded-[16px] border-[#E1E0DA] bg-white shadow-sm">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-['Vazirmatn'] font-medium text-[#696A6D]">Approved Customers</CardTitle>
-              <CheckCircle className="w-5 h-5 text-green-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-['Archivo'] font-bold text-[#212227]">{approvedRegistrations.length}</div>
-            </CardContent>
-          </Card>
-
-          <Card className="rounded-[16px] border-[#E1E0DA] bg-white shadow-sm">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-['Vazirmatn'] font-medium text-[#696A6D]">Calculator Quotes</CardTitle>
-              <Calculator className="w-5 h-5 text-[#F2633A]" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-['Archivo'] font-bold text-[#212227]">{quotes.length}</div>
-            </CardContent>
-          </Card>
-        </div>
-
         {/* Main Tabs Section */}
         <Tabs defaultValue="pending" value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="bg-white border border-[#E1E0DA] rounded-[16px] p-1">
-            <TabsTrigger value="pending" className="font-['Vazirmatn'] data-[state=active]:bg-[#F2633A] data-[state=active]:text-white rounded-[11px]">
-              <Clock className="w-4 h-4 mr-2" />
+          <div className="bg-white border border-[#E1E0DA] rounded-[16px] p-1 flex gap-1">
+            <button
+              onClick={() => setActiveTab("pending")}
+              className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-[11px] font-['Vazirmatn'] font-medium transition-colors ${
+                activeTab === "pending" ? "bg-[#F2633A] text-white" : "bg-transparent text-[#212227] hover:bg-[#F3F1E9]"
+              }`}
+            >
+              <Clock className="w-4 h-4" />
               Pending
-              <Badge variant="secondary" className="ml-2">{pendingRegistrations.length}</Badge>
-            </TabsTrigger>
-            <TabsTrigger value="approved" className="font-['Vazirmatn'] data-[state=active]:bg-[#F2633A] data-[state=active]:text-white rounded-[11px]">
-              <CheckCircle className="w-4 h-4 mr-2" />
+              <span className={`flex items-center justify-center w-7 h-7 rounded-full font-['Archivo'] font-bold text-sm ${
+                activeTab === "pending" ? "bg-white text-[#F2633A]" : "bg-[#F2633A] text-white"
+              }`}>
+                {pendingRegistrations.length}
+              </span>
+            </button>
+            <button
+              onClick={() => setActiveTab("approved")}
+              className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-[11px] font-['Vazirmatn'] font-medium transition-colors ${
+                activeTab === "approved" ? "bg-[#F2633A] text-white" : "bg-transparent text-[#212227] hover:bg-[#F3F1E9]"
+              }`}
+            >
+              <CheckCircle className="w-4 h-4" />
               Approved
-              <Badge variant="secondary" className="ml-2">{approvedRegistrations.length}</Badge>
-            </TabsTrigger>
-            <TabsTrigger value="quotes" className="font-['Vazirmatn'] data-[state=active]:bg-[#F2633A] data-[state=active]:text-white rounded-[11px]">
-              <Calculator className="w-4 h-4 mr-2" />
+              <span className={`flex items-center justify-center w-7 h-7 rounded-full font-['Archivo'] font-bold text-sm ${
+                activeTab === "approved" ? "bg-white text-[#F2633A]" : "bg-[#F2633A] text-white"
+              }`}>
+                {approvedRegistrations.length}
+              </span>
+            </button>
+            <button
+              onClick={() => setActiveTab("quotes")}
+              className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-[11px] font-['Vazirmatn'] font-medium transition-colors ${
+                activeTab === "quotes" ? "bg-[#F2633A] text-white" : "bg-transparent text-[#212227] hover:bg-[#F3F1E9]"
+              }`}
+            >
+              <Calculator className="w-4 h-4" />
               Quotes
-              <Badge variant="secondary" className="ml-2">{quotes.length}</Badge>
-            </TabsTrigger>
-            <TabsTrigger value="orders" className="font-['Vazirmatn'] data-[state=active]:bg-[#F2633A] data-[state=active]:text-white rounded-[11px]">
-              <FileText className="w-4 h-4 mr-2" />
+              <span className={`flex items-center justify-center w-7 h-7 rounded-full font-['Archivo'] font-bold text-sm ${
+                activeTab === "quotes" ? "bg-white text-[#F2633A]" : "bg-[#F2633A] text-white"
+              }`}>
+                {quotes.length}
+              </span>
+            </button>
+            <button
+              onClick={() => setActiveTab("orders")}
+              className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-[11px] font-['Vazirmatn'] font-medium transition-colors ${
+                activeTab === "orders" ? "bg-[#F2633A] text-white" : "bg-transparent text-[#212227] hover:bg-[#F3F1E9]"
+              }`}
+            >
+              <FileText className="w-4 h-4" />
               Draft Orders
-              <Badge variant="secondary" className="ml-2">{draftOrders.length}</Badge>
-            </TabsTrigger>
-          </TabsList>
+              <span className={`flex items-center justify-center w-7 h-7 rounded-full font-['Archivo'] font-bold text-sm ${
+                activeTab === "orders" ? "bg-white text-[#F2633A]" : "bg-[#F2633A] text-white"
+              }`}>
+                {draftOrders.length}
+              </span>
+            </button>
+          </div>
 
           <TabsContent value="pending">
             <Card className="rounded-[16px] border-[#E1E0DA]">
