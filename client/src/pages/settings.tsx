@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Settings as SettingsIcon, Link as LinkIcon, Webhook, RefreshCw, CheckCircle2, XCircle, AlertCircle, Database, Package, Cog, Users, Mail, ShoppingBag, FileText } from "lucide-react";
+import { Settings as SettingsIcon, Link as LinkIcon, Webhook, RefreshCw, CheckCircle2, XCircle, AlertCircle, Database, Package } from "lucide-react";
 import { format } from "date-fns";
 import {
   Table,
@@ -20,6 +20,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+
+const globalInputStyles = "border-[#7e8d76] font-['Lora_Italic'] placeholder:text-[#7e8d76]/70 focus:border-[#7e8d76] focus:ring-[#7e8d76]";
 
 // Notification Recipients Manager Component
 function NotificationRecipientsManager() {
@@ -92,7 +94,7 @@ function NotificationRecipientsManager() {
             placeholder="admin@example.com"
             value={newRecipientEmail}
             onChange={(e) => setNewRecipientEmail(e.target.value)}
-            className={`rounded-[11px] font-['Vazirmatn'] border-[#7e8d76] font-['Lora_Italic'] placeholder:text-[#7e8d76]/70 focus:border-[#7e8d76] focus:ring-[#7e8d76]`}
+            className={`rounded-[11px] font-['Vazirmatn'] ${globalInputStyles}`}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && newRecipientEmail) {
                 addRecipientMutation.mutate(newRecipientEmail);
@@ -193,7 +195,7 @@ function EmailTemplateTestPanel() {
   // Generate preview HTML with sample data
   const previewHtml = React.useMemo(() => {
     if (!customHtml) return '';
-
+    
     let preview = customHtml;
     const sampleData: any = {
       firstName: 'John',
@@ -259,7 +261,7 @@ function EmailTemplateTestPanel() {
                 setCustomHtml(template.htmlContent);
               }
             }}
-            className={`w-full rounded-[11px] p-2 border font-['Vazirmatn'] border-[#7e8d76] font-['Lora_Italic'] placeholder:text-[#7e8d76]/70 focus:border-[#7e8d76] focus:ring-[#7e8d76]`}
+            className={`w-full rounded-[11px] p-2 border font-['Vazirmatn'] ${globalInputStyles}`}
           >
             <option value="">-- Select Template --</option>
             {templates.map((template: any) => (
@@ -277,7 +279,7 @@ function EmailTemplateTestPanel() {
             placeholder="test@example.com"
             value={testEmail}
             onChange={(e) => setTestEmail(e.target.value)}
-            className={`rounded-[11px] font-['Vazirmatn'] border-[#7e8d76] font-['Lora_Italic'] placeholder:text-[#7e8d76]/70 focus:border-[#7e8d76] focus:ring-[#7e8d76]`}
+            className={`rounded-[11px] font-['Vazirmatn'] ${globalInputStyles}`}
           />
         </div>
       </div>
@@ -288,7 +290,7 @@ function EmailTemplateTestPanel() {
           value={subject}
           onChange={(e) => setSubject(e.target.value)}
           placeholder="Email subject..."
-          className={`rounded-[11px] font-['Vazirmatn'] border-[#7e8d76] font-['Lora_Italic'] placeholder:text-[#7e8d76]/70 focus:border-[#7e8d76] focus:ring-[#7e8d76]`}
+          className={`rounded-[11px] font-['Vazirmatn'] ${globalInputStyles}`}
         />
       </div>
 
@@ -299,7 +301,7 @@ function EmailTemplateTestPanel() {
           onChange={(e) => setCustomHtml(e.target.value)}
           placeholder="<p>HTML content here...</p>"
           rows={10}
-          className={`w-full rounded-[11px] p-3 border font-mono text-sm border-[#7e8d76] font-['Lora_Italic'] placeholder:text-[#7e8d76]/70 focus:border-[#7e8d76] focus:ring-[#7e8d76]`}
+          className={`w-full rounded-[11px] p-3 border font-mono text-sm ${globalInputStyles}`}
         />
       </div>
 
@@ -357,7 +359,6 @@ export default function Settings() {
   const [thinCsvUrl, setThinCsvUrl] = useState("https://docs.google.com/spreadsheets/d/e/2PACX-1vSdjr_ZWgEOAfDH0c9bAxhRe-fDuc_Z9DAdCW3b4pSUgGjWtOhaVXUW7lWxlBN7eN9F_Z0M-I5X2N85/pub?gid=71970597&single=true&output=csv");
   const [thickCsvUrl, setThickCsvUrl] = useState("https://docs.google.com/spreadsheets/d/e/2PACX-1vSdjr_ZWgEOAfDH0c9bAxhRe-fDuc_Z9DAdCW3b4pSUgGjWtOhaVXUW7lWxlBN7eN9F_Z0M-I5X2N85/pub?gid=218236355&single=true&output=csv");
   const [expandedWebhooks, setExpandedWebhooks] = useState<Set<number>>(new Set());
-  const [syncStats, setSyncStats] = useState({ clarityCustomers: 0, metaobjects: 0, gmailThreads: 0 }); // Added to resolve the error
 
   const { data: webhookLogs, isLoading: loadingWebhooks, refetch: refetchWebhooks, isError: webhookError } = useQuery({
     queryKey: ["https://its-under-it-all.replit.app/api/webhooks/logs"],
@@ -584,82 +585,401 @@ export default function Settings() {
     );
   }
 
-  const handleCustomerSync = () => { /* placeholder */ };
-  const handleMetaobjectSync = () => { /* placeholder */ };
-  const handleGmailSync = () => { /* placeholder */ };
 
   return (
     <div className="min-h-screen bg-[#F3F1E9]">
-      {/* Top Navigation Bar */}
-      <div className="bg-white border-b border-[#E1E0DA] shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-4">
-              <Cog className="h-8 w-8 text-[#F2633A]" />
-              <h1 className="text-2xl font-['Archivo'] font-bold text-[#212227]">Settings</h1>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Badge variant="outline" className="text-sm border-[#E1E0DA]">
-                Last sync: {new Date().toLocaleDateString()}
-              </Badge>
-            </div>
+      <div className="container mx-auto px-4 py-8">
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-2">
+            <SettingsIcon className="w-8 h-8 text-[#F2633A]" />
+            <h1 className="text-3xl font-['Archivo'] text-[#212227]">Settings</h1>
           </div>
+          <p className="text-[#696A6D] font-['Vazirmatn']">Configure pricing matrices and monitor webhook activity</p>
         </div>
-      </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Stats Overview */}
-          <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card className="rounded-[22px] border-[#E1E0DA]">
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium font-['Vazirmatn'] text-[#696A6D]">Active Customers</p>
-                    <p className="text-2xl font-bold font-['Archivo'] text-[#212227] mt-1">
-                      {syncStats.clarityCustomers}
-                    </p>
+        <Tabs defaultValue="health" className="space-y-6">
+          <TabsList>
+            <TabsTrigger value="health" className="font-['Vazirmatn']">
+              <Database className="w-4 h-4 mr-2" />
+              System Health
+            </TabsTrigger>
+            <TabsTrigger value="pricing" className="font-['Vazirmatn']">
+              <LinkIcon className="w-4 h-4 mr-2" />
+              Pricing CSVs
+            </TabsTrigger>
+            <TabsTrigger value="notifications" className="font-['Vazirmatn']">
+              <SettingsIcon className="w-4 h-4 mr-2" />
+              Notifications
+            </TabsTrigger>
+            <TabsTrigger value="webhooks" className="font-['Vazirmatn']">
+              <Webhook className="w-4 h-4 mr-2" />
+              Webhook Logs
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="health">
+            <div className="space-y-6">
+              {/* TOML Metafield Verification */}
+              <Card className="rounded-[16px] border-2 border-green-500">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="font-['Archivo'] text-[#212227] flex items-center gap-2">
+                        <Package className="w-6 h-6 text-[#F2633A]" />
+                        Customer Metafield Definitions (TOML)
+                      </CardTitle>
+                      <CardDescription className="font-['Vazirmatn'] text-[#696A6D]">
+                        Configured in shopify.app.toml
+                      </CardDescription>
+                    </div>
+                    <Badge variant="default" className="font-['Vazirmatn'] text-lg px-4 py-2">
+                      ✅ SYNCED
+                    </Badge>
                   </div>
-                  <div className="h-12 w-12 bg-[#F2633A] bg-opacity-10 rounded-[16px] flex items-center justify-center">
-                    <Users className="h-6 w-6 text-[#F2633A]" />
+                </CardHeader>
+                <CardContent>
+                  {loadingMetafields ? (
+                    <div className="text-center py-4 text-[#696A6D]">Loading metafield definitions...</div>
+                  ) : (
+                    <div className="space-y-3">
+                      {metafieldCheck?.data?.metafieldDefinitions?.nodes?.map((def: any) => (
+                        <div key={def.key} className="bg-[#F3F1E9] p-3 rounded-[11px] flex items-center justify-between">
+                          <div>
+                            <code className="text-sm font-mono text-[#F2633A]">{def.namespace}.{def.key}</code>
+                            <div className="text-xs text-[#696A6D] mt-1">{def.name}</div>
+                          </div>
+                          <Badge variant="outline" className="text-xs">{def.type.name}</Badge>
+                        </div>
+                      )) || (
+                        <Alert>
+                          <AlertCircle className="h-4 w-4" />
+                          <AlertDescription>No custom metafields found. Run 'shopify app deploy' to sync.</AlertDescription>
+                        </Alert>
+                      )}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              <Card className="rounded-[16px]">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="font-['Archivo'] text-[#212227]">Integration Health Status</CardTitle>
+                      <CardDescription className="font-['Vazirmatn'] text-[#696A6D]">
+                        Monitor Shopify, CRM, and system connectivity
+                      </CardDescription>
+                    </div>
+                    <Button
+                      onClick={() => refetchHealth()}
+                      variant="outline"
+                      size="sm"
+                      className="rounded-[11px] font-['Vazirmatn']"
+                    >
+                      <RefreshCw className="w-4 h-4 mr-2" />
+                      Refresh
+                    </Button>
                   </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {loadingHealth ? (
+                    <div className="text-center py-8 font-['Vazirmatn'] text-[#696A6D]">Checking system health...</div>
+                  ) : healthError ? (
+                    <Alert className="border-red-500">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertTitle className="font-['Archivo']">Failed to Load Health Status</AlertTitle>
+                      <AlertDescription className="font-['Vazirmatn']">
+                        Could not load health status. Please try again.
+                        <Button
+                          onClick={() => refetchHealth()}
+                          variant="outline"
+                          size="sm"
+                          className="ml-4 rounded-[11px]"
+                        >
+                          Retry
+                        </Button>
+                      </AlertDescription>
+                    </Alert>
+                  ) : healthCheck ? (
+                    <div className="space-y-4">
+                      <Alert className={healthCheck.shopify?.configured ? "border-green-500" : "border-yellow-500"}>
+                        <Package className="h-4 w-4" />
+                        <AlertTitle className="font-['Archivo']">Shopify Integration</AlertTitle>
+                        <AlertDescription className="font-['Vazirmatn'] space-y-2">
+                          <div className="flex items-center gap-2">
+                            {healthCheck.shopify?.configured ? (
+                              <CheckCircle2 className="w-4 h-4 text-green-600" />
+                            ) : (
+                              <XCircle className="w-4 h-4 text-red-600" />
+                            )}
+                            <span>Admin API: {healthCheck.shopify?.configured ? "Configured" : "Not Configured"}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {healthCheck.shopify?.metaobjectDefinition ? (
+                              <CheckCircle2 className="w-4 h-4 text-green-600" />
+                            ) : (
+                              <AlertCircle className="w-4 h-4 text-yellow-600" />
+                            )}
+                            <span>wholesale_account metaobject: {healthCheck.shopify?.metaobjectDefinition ? "Exists" : "Not Found"}</span>
+                          </div>
+                          {healthCheck.shopify?.shop && (
+                            <div className="text-sm text-[#696A6D]">Shop: {healthCheck.shopify.shop}</div>
+                          )}
+                          {healthCheck.shopify?.error && (
+                            <div className="text-sm text-red-600">{healthCheck.shopify.error}</div>
+                          )}
+                        </AlertDescription>
+                      </Alert>
+
+                      <Alert className={healthCheck.crm?.configured ? "border-green-500" : "border-yellow-500"}>
+                        <Database className="h-4 w-4" />
+                        <AlertTitle className="font-['Archivo']">Clarity CRM</AlertTitle>
+                        <AlertDescription className="font-['Vazirmatn'] space-y-2">
+                          <div className="flex items-center gap-2">
+                            {healthCheck.crm?.configured ? (
+                              <CheckCircle2 className="w-4 h-4 text-green-600" />
+                            ) : (
+                              <XCircle className="w-4 h-4 text-red-600" />
+                            )}
+                            <span>API: {healthCheck.crm?.configured ? "Configured" : "Not Configured"}</span>
+                          </div>
+                          {healthCheck.crm?.baseUrl && (
+                            <div className="text-sm text-[#696A6D]">Base URL: {healthCheck.crm.baseUrl}</div>
+                          )}
+                          {healthCheck.crm?.error && (
+                            <div className="text-sm text-red-600">{healthCheck.crm.error}</div>
+                          )}
+                        </AlertDescription>
+                      </Alert>
+                    </div>
+                  ) : null}
+                </CardContent>
+              </Card>
+
+              <Card className="rounded-[16px]">
+                <CardHeader>
+                  <CardTitle className="font-['Archivo'] text-[#212227]">Connection Tests</CardTitle>
+                  <CardDescription className="font-['Vazirmatn'] text-[#696A6D]">
+                    Test API connectivity and credentials
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Button
+                      onClick={() => testShopifyMutation.mutate()}
+                      disabled={testShopifyMutation.isPending}
+                      className="bg-[#96BF48] hover:bg-[#96BF48]/90 text-white rounded-[11px] font-['Vazirmatn']"
+                    >
+                      {testShopifyMutation.isPending ? "Testing..." : "Test Shopify Connection"}
+                    </Button>
+                    <Button
+                      onClick={() => testCrmMutation.mutate()}
+                      disabled={testCrmMutation.isPending}
+                      className="bg-[#5E8C61] hover:bg-[#5E8C61]/90 text-white rounded-[11px] font-['Vazirmatn']"
+                    >
+                      {testCrmMutation.isPending ? "Testing..." : "Test CRM Connection"}
+                    </Button>
+                  </div>
+
+
+                </CardContent>
+              </Card>
+
+              {/* Linked Wholesale Customers (CRM ID -> UIA-ID -> Shopify) */}
+              <Card className="rounded-[16px]">
+                <CardHeader>
+                  <CardTitle className="font-['Archivo'] text-[#212227]">Wholesale Customer Data</CardTitle>
+                  <CardDescription className="font-['Vazirmatn'] text-[#696A6D]">
+                    Shopify customers with proper CRM and registration linkage
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <LinkedCustomersTable />
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="pricing">
+            <Card className="rounded-[16px]">
+              <CardHeader>
+                <CardTitle className="font-['Archivo'] text-[#212227]">Price CSV Configuration</CardTitle>
+                <CardDescription className="font-['Vazirmatn'] text-[#696A6D]">
+                  Configure Google Sheets CSV URLs for pricing matrices
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="thinCsvUrl" className="font-['Vazirmatn'] text-[#212227]">Thin (⅛") CSV URL</Label>
+                  <Input
+                    id="thinCsvUrl"
+                    value={thinCsvUrl}
+                    onChange={(e) => setThinCsvUrl(e.target.value)}
+                    placeholder="https://docs.google.com/spreadsheets/..."
+                    className={`rounded-[11px] font-['Vazirmatn'] ${globalInputStyles}`}
+                  />
                 </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="thickCsvUrl" className="font-['Vazirmatn'] text-[#212227]">Thick (¼") CSV URL</Label>
+                  <Input
+                    id="thickCsvUrl"
+                    value={thickCsvUrl}
+                    onChange={(e) => setThickCsvUrl(e.target.value)}
+                    placeholder="https://docs.google.com/spreadsheets/..."
+                    className={`rounded-[11px] font-['Vazirmatn'] ${globalInputStyles}`}
+                  />
+                </div>
+
+                <div className="bg-[#F3F1E9] border border-[#E1E0DA] p-4 rounded-[11px] text-sm font-['Vazirmatn'] text-[#696A6D]">
+                  <p className="font-semibold text-[#212227] mb-2">Instructions:</p>
+                  <ol className="list-decimal list-inside space-y-1">
+                    <li>Open your Google Sheet</li>
+                    <li>Go to File → Share → Publish to web</li>
+                    <li>Select the specific sheet/tab</li>
+                    <li>Choose "CSV" as the format</li>
+                    <li>Copy the published URL and paste above</li>
+                  </ol>
+                </div>
+
+                <Button
+                  onClick={handleUpdatePrices}
+                  disabled={updatePricesMutation.isPending}
+                  className="bg-[#F2633A] hover:bg-[#F2633A]/90 text-white rounded-[11px] font-['Vazirmatn']"
+                >
+                  {updatePricesMutation.isPending ? "Updating..." : "Update Settings"}
+                </Button>
               </CardContent>
             </Card>
+          </TabsContent>
 
-            <Card className="rounded-[22px] border-[#E1E0DA]">
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium font-['Vazirmatn'] text-[#696A6D]">Metaobjects</p>
-                    <p className="text-2xl font-bold font-['Archivo'] text-[#212227] mt-1">
-                      {syncStats.metaobjects}
-                    </p>
-                  </div>
-                  <div className="h-12 w-12 bg-[#F2633A] bg-opacity-10 rounded-[16px] flex items-center justify-center">
-                    <Database className="h-6 w-6 text-[#F2633A]" />
-                  </div>
-                </div>
+          <TabsContent value="notifications">
+            <Card className="rounded-[16px]">
+              <CardHeader>
+                <CardTitle className="font-['Archivo'] text-[#212227]">Gmail Notification Settings</CardTitle>
+                <CardDescription className="font-['Vazirmatn'] text-[#696A6D]">
+                  Configure email notifications for new wholesale applications
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <NotificationRecipientsManager />
+                <EmailTemplateTestPanel />
               </CardContent>
             </Card>
+          </TabsContent>
 
-            <Card className="rounded-[22px] border-[#E1E0DA]">
-              <CardContent className="pt-6">
+          <TabsContent value="webhooks">
+            <Card className="rounded-[16px]">
+              <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium font-['Vazirmatn'] text-[#696A6D]">Gmail Threads</p>
-                    <p className="text-2xl font-bold font-['Archivo'] text-[#212227] mt-1">
-                      {syncStats.gmailThreads}
-                    </p>
+                    <CardTitle className="font-['Archivo'] text-[#212227]">Webhook Activity Log</CardTitle>
+                    <CardDescription className="font-['Vazirmatn'] text-[#696A6D]">
+                      Monitor all incoming webhooks from Shopify and Clarity CRM
+                    </CardDescription>
                   </div>
-                  <div className="h-12 w-12 bg-[#F2633A] bg-opacity-10 rounded-[16px] flex items-center justify-center">
-                    <Mail className="h-6 w-6 text-[#F2633A]" />
-                  </div>
+                  <Button
+                    onClick={() => refetchWebhooks()}
+                    variant="outline"
+                    size="sm"
+                    className="rounded-[11px] font-['Vazirmatn']"
+                  >
+                    <RefreshCw className="w-4 h-4 mr-2" />
+                    Refresh
+                  </Button>
                 </div>
+              </CardHeader>
+              <CardContent>
+                {loadingWebhooks ? (
+                  <div className="text-center py-8 font-['Vazirmatn'] text-[#696A6D]">Loading webhook logs...</div>
+                ) : webhookError ? (
+                  <Alert className="border-red-500">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle className="font-['Archivo']">Failed to Load Webhook Logs</AlertTitle>
+                    <AlertDescription className="font-['Vazirmatn']">
+                      Could not fetch webhook logs. Please try again.
+                      <Button
+                        onClick={() => refetchWebhooks()}
+                        variant="outline"
+                        size="sm"
+                        className="ml-4 rounded-[11px]"
+                      >
+                        Retry
+                      </Button>
+                    </AlertDescription>
+                  </Alert>
+                ) : logs.length === 0 ? (
+                  <div className="text-center py-8 text-[#696A6D] font-['Vazirmatn']">No webhook calls logged yet</div>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between mb-4">
+                      <p className="text-sm text-[#696A6D] font-['Vazirmatn']">
+                        Showing {logs.length} most recent webhook{logs.length !== 1 ? 's' : ''}
+                      </p>
+                    </div>
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead className="font-['Vazirmatn']">Timestamp</TableHead>
+                            <TableHead className="font-['Vazirmatn']">Type</TableHead>
+                            <TableHead className="font-['Vazirmatn']">Source</TableHead>
+                            <TableHead className="font-['Vazirmatn']">Details</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {logs.map((log: any, index: number) => {
+                            const webhookType = log.type || 'unknown';
+                            const webhookSource = log.source || 'unknown';
+                            const isShopify = webhookSource === 'shopify' || webhookType.includes('shopify');
+                            const isCRM = webhookSource === 'crm' || webhookType.includes('clarity');
+                            const isExpanded = expandedWebhooks.has(index);
+                            // Use log.id if available (from database), fallback to stable composite key
+                            const logKey = log.id || `log-${index}-${log.timestamp}`;
+
+                            return (
+                              <React.Fragment key={logKey}>
+                                <TableRow onClick={() => toggleExpandWebhook(index)} className="cursor-pointer hover:bg-secondary/10">
+                                  <TableCell className="font-['Vazirmatn'] text-[#696A6D]">
+                                    {format(new Date(log.timestamp), "MMM d, yyyy HH:mm:ss")}
+                                  </TableCell>
+                                  <TableCell className="font-mono text-xs font-['Vazirmatn'] text-[#212227]">
+                                    {webhookType}
+                                  </TableCell>
+                                  <TableCell>
+                                    <Badge
+                                      variant={isShopify ? "default" : isCRM ? "secondary" : "outline"}
+                                      className="font-['Vazirmatn']"
+                                    >
+                                      {isShopify ? "Shopify" : isCRM ? "CRM" : webhookSource}
+                                    </Badge>
+                                  </TableCell>
+                                  <TableCell className="font-['Vazirmatn'] text-[#696A6D] text-xs max-w-md truncate">
+                                    {log.payload ? JSON.stringify(log.payload).substring(0, 100) : 'No payload'}
+                                    {log.payload && JSON.stringify(log.payload).length > 100 && "..."}
+                                  </TableCell>
+                                </TableRow>
+                                {isExpanded && (
+                                  <TableRow>
+                                    <TableCell colSpan={4} className="p-4 bg-secondary/20">
+                                      <pre className="text-xs font-mono whitespace-pre-wrap break-words">
+                                        {JSON.stringify(log.payload, null, 2)}
+                                      </pre>
+                                    </TableCell>
+                                  </TableRow>
+                                )}
+                              </React.Fragment>
+                            );
+                          })}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
-          </div>
-        </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

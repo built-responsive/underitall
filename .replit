@@ -28,8 +28,31 @@ args = "npm run dev"
 waitForPort = 5000
 
 [[ports]]
+localPort = 80
+
+[[ports]]
+localPort = 3000
+externalPort = 3001
+exposeLocalhost = true
+
+[[ports]]
+localPort = 3457
+externalPort = 3000
+exposeLocalhost = true
+
+[[ports]]
+localPort = 3458
+externalPort = 3002
+exposeLocalhost = true
+
+[[ports]]
 localPort = 5000
 externalPort = 80
+
+[[ports]]
+localPort = 9293
+externalPort = 3003
+exposeLocalhost = true
 
 [deployment]
 deploymentTarget = "gce"
