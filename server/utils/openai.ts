@@ -176,8 +176,8 @@ You are a helpful AI shopping assistant for UnderItAll — a premium, to-the-tra
     const response = await openai.chat.completions.create({
       model: "gpt-5", // GPT-5 equivalent (latest model)
       messages,
-      temperature: 0.7,
       max_completion_tokens: 800, // Increased for MCP-enhanced responses
+      // Note: GPT-5 only supports default temperature (1.0) - custom values not allowed
       // Function calling for MCP actions (future enhancement)
       // functions: [...], 
     });
