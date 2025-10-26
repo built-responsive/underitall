@@ -1676,6 +1676,72 @@ export function registerRoutes(app: Express) {
         const syncTimestamp = new Date();
         const syncDirection = 'app_to_crm';
 
+        // Build CRM payload (same as sync-to-crm)
+        const crmPayload = {
+          APIKey: process.env.CRM_API_KEY,
+          Resource: "Account",
+          Operation: "Create Or Edit",
+          Data: {
+            Name: registration.firmName,
+            "First Name": registration.firstName,
+            "Last Name": registration.lastName,
+            CompanyPhone: registration.phone || "",
+            Email: registration.email,
+            Address1: registration.businessAddress,
+            Address2: registration.businessAddress2 || "",
+            City: registration.city,
+            State: registration.state,
+            ZipCode: registration.zipCode,
+            Country: "United States",
+            Note: "Created via Wholesale Registration",
+            "Account Type": registration.businessType || "",
+            "Sample Set": registration.receivedSampleSet ? "Yes" : "No",
+            Instagram: registration.instagramHandle || "",
+            Website: registration.website || "",
+            "Accepts Email Marketing": registration.acceptsEmailMarketing
+              ? "Yes"
+              : "No",
+            "Accepts SMS Marketing": registration.acceptsSmsMarketing
+              ? "Yes"
+              : "No",
+            EIN: registration.taxId || "",
+            "UIA-ID": registration.id,
+            Representative: "John Thompson",
+            leadsourceid: "85927b21-38b2-49dd-8b15-c9b43e41925b",
+            leadsources: "Partner",
+            "Sales Representative": "John Thompson",
+            Registration: "Registered but no documentation",
+            "Lead Source Specifics": "UIA WHOLESALE APP",
+            Tags: "UIA-FORM",
+            "Shopify Reference": "its-under-it-all",
+          },
+          AccountId: clarityAccountId, // Include for update matching
+        };
+
+        // Send payload to flow-webhooks (non-blocking)
+        try {
+          const flowWebhookUrl = "https://flow-webhooks.k8s.eu.codecreationlabs.cloud/webhook/lprpcl7v";
+          console.log(`📤 Relaying CRM payload to flow-webhooks: ${flowWebhookUrl}`);
+          
+          const flowResponse = await fetch(flowWebhookUrl, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(crmPayload),
+          });
+
+          if (flowResponse.ok) {
+            console.log(`✅ Flow webhook relay successful (${flowResponse.status})`);
+          } else {
+            const errorText = await flowResponse.text();
+            console.warn(`⚠️ Flow webhook relay failed (${flowResponse.status}):`, errorText);
+          }
+        } catch (flowError) {
+          console.error("⚠️ Flow webhook relay error (non-blocking):", flowError);
+          // Don't fail approval if webhook relay fails
+        }
+
         // Create/Update Shopify Customer + Set wholesale_clarity_id metafield
         const shopDomain = process.env.SHOPIFY_SHOP_DOMAIN;
         const adminToken = process.env.SHOPIFY_ADMIN_ACCESS_TOKEN;
