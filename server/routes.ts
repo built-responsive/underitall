@@ -2275,6 +2275,52 @@ export function registerRoutes(app: Express) {
         })
         .returning();
 
+      // Send email notification for new draft order (non-blocking)
+      try {
+        const { sendNewDraftOrderEmail } = await import("./services/emailService");
+        
+        // Get notification recipients
+        const recipients = await db
+          .select()
+          .from(notificationRecipients)
+          .where(eq(notificationRecipients.category, "wholesale_notifications"))
+          .where(eq(notificationRecipients.active, true));
+        
+        const recipientEmails = recipients.length > 0 
+          ? recipients.map(r => r.email)
+          : ["sales@itsunderitall.com"]; // fallback
+
+        // Format line items for email template
+        const formattedLineItems = lineItems.map((item: any) => ({
+          name: item.title,
+          variant: item.customAttributes?.find((attr: any) => attr.key === "Width")?.value 
+            ? `${item.customAttributes.find((attr: any) => attr.key === "Width")?.value} × ${item.customAttributes.find((attr: any) => attr.key === "Length")?.value}`
+            : "",
+          quantity: item.quantity,
+          price: `$${item.price}`,
+        }));
+
+        const draftOrderNumber = draftOrder.id.split("/").pop() || "Unknown";
+
+        await sendNewDraftOrderEmail({
+          to: recipientEmails[0], // Send to first recipient (template handles single email)
+          orderNumber: draftOrderNumber,
+          customerName: customerEmail || "Guest Customer",
+          customerEmail: customerEmail || "noreply@underitall.com",
+          totalPrice: draftOrder.totalPrice,
+          lineItems: formattedLineItems,
+          orderDate: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+          shopifyDraftOrderUrl: `https://${shopDomain}/admin/draft_orders/${draftOrderNumber}`,
+          invoiceUrl: draftOrder.invoiceUrl,
+          subtotal: draftOrder.totalPrice, // Same as total for now (no tax/discount in calculator orders)
+        });
+
+        console.log("✅ Draft order email notification sent");
+      } catch (emailError) {
+        console.error("⚠️ Draft order email notification failed (non-blocking):", emailError);
+        // Don't fail the order creation—email is non-critical
+      }
+
       res.json({
         success: true,
         draftOrder: savedOrder,
