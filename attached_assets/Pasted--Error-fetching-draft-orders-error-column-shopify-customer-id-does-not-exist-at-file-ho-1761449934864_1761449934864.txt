@@ -1,0 +1,77 @@
+❌ Error fetching draft orders: error: column "shopify_customer_id" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:2159:22) {
+  length: 120,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '163',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+3:29:54 AM [express] GET /api/draft-orders 500 in 323ms :: {"error":"Failed to fetch draft orders"}
+3:29:54 AM [express] GET /api/calculator/quotes 200 in 340ms :: [{"id":"f5c35332-5c62-4313-a45c-a4c8…
+3:31:17 AM [express] GET /api/wholesale-registrations 200 in 277ms :: [{"id":"4db4988f-fd6f-420d-95b…
+❌ Error fetching draft orders: error: column "shopify_customer_id" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:2159:22) {
+  length: 120,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '163',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+3:31:17 AM [express] GET /api/draft-orders 500 in 273ms :: {"error":"Failed to fetch draft orders"}
+3:31:17 AM [express] GET /api/calculator/quotes 200 in 334ms :: [{"id":"f5c35332-5c62-4313-a45c-a4c8…
+3:37:03 AM [express] GET /api/wholesale-registrations 200 in 329ms :: [{"id":"4db4988f-fd6f-420d-95b…
+3:37:03 AM [express] GET /api/calculator/quotes 200 in 344ms :: [{"id":"f5c35332-5c62-4313-a45c-a4c8…
+❌ Error fetching draft orders: error: column "shopify_customer_id" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:2159:22) {
+  length: 120,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '163',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+3:37:03 AM [express] GET /api/draft-orders 500 in 384ms :: {"error":"Failed to fetch draft orders"}
