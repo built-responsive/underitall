@@ -37,8 +37,9 @@ import React from "react";
 const globalInputStyles = "border-[#7e8d76] font-['Lora_Italic'] placeholder:text-[#7e8d76]/70 focus:border-[#7e8d76] focus:ring-[#7e8d76]";
 
 export default function Admin() {
-  const [match, params] = useRoute('/dashboard/:id?');
   const { toast } = useToast();
+  const queryClientInstance = useQueryClient();
+  const [activeTab, setActiveTab] = useState("pending");
   const [selectedRegistration, setSelectedRegistration] = useState<any>(null);
   const [adminNotes, setAdminNotes] = useState("");
   const [rejectionReason, setRejectionReason] = useState("");
@@ -381,10 +382,8 @@ export default function Admin() {
     });
   };
 
-  const pendingCount = registrations.filter((r: any) => r.status === "pending").length;
-  const approvedCount = registrations.filter((r: any) => r.status === "approved").length;
-  const totalQuotes = quotes.length;
-  const totalOrders = draftOrders.length;
+  const pendingRegistrations = registrations?.filter(r => r.status === 'pending') || [];
+  const approvedRegistrations = registrations?.filter(r => r.status === 'approved') || [];
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -399,449 +398,483 @@ export default function Admin() {
     }
   };
 
-  const [activeTab, setActiveTab] = React.useState<'pending' | 'approved'>('pending');
-
-  // Filter registrations by status
-  const pendingRegistrations = registrations?.filter(r => r.status === 'pending') || [];
-  const approvedRegistrations = registrations?.filter(r => r.status === 'approved') || [];
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+    <div className="min-h-screen bg-[#F3F1E9]">
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-slate-900 mb-2">Wholesale Admin Dashboard</h1>
-          <p className="text-slate-600">Manage wholesale applications, quotes, and orders</p>
+          <div className="flex items-center gap-3 mb-2">
+            <Users className="w-8 h-8 text-[#F2633A]" />
+            <h1 className="text-3xl font-['Archivo'] text-[#212227]">Admin Dashboard</h1>
+          </div>
+          <p className="text-[#696A6D] font-['Vazirmatn']">Manage wholesale registrations, quotes, and draft orders</p>
         </div>
 
-        {/* Mobile-Responsive Tabs */}
-        <div className="mb-6 border-b border-slate-200">
-          <Tabs defaultValue="pending" className="w-full">
-            <TabsList className="flex flex-wrap gap-2 sm:gap-4 bg-transparent border-b border-slate-200 p-0">
-              <TabsTrigger
-                value="pending"
-                onClick={() => setActiveTab('pending')}
-                className={`px-4 py-2 font-medium text-sm sm:text-base transition-colors flex items-center gap-2 data-[state=active]:text-[#F2633A] data-[state=active]:border-b-2 data-[state=active]:border-[#F2633A] data-[state=active]:font-bold text-slate-600 hover:text-slate-900 ${
-                  activeTab === 'pending'
-                    ? 'text-[#F2633A] border-b-2 border-[#F2633A]'
-                    : 'text-slate-600 hover:text-slate-900'
-                }`}
-              >
-                <Clock className="w-4 h-4" />
-                <span className="hidden sm:inline">Pending Applications</span>
-                <span className="sm:hidden">Pending</span>
-                <Badge variant="secondary" className="ml-1">{pendingRegistrations.length}</Badge>
-              </TabsTrigger>
-              <TabsTrigger
-                value="approved"
-                onClick={() => setActiveTab('approved')}
-                className={`px-4 py-2 font-medium text-sm sm:text-base transition-colors flex items-center gap-2 data-[state=active]:text-[#F2633A] data-[state=active]:border-b-2 data-[state=active]:border-[#F2633A] data-[state=active]:font-bold text-slate-600 hover:text-slate-900 ${
-                  activeTab === 'approved'
-                    ? 'text-[#F2633A] border-b-2 border-[#F2633A]'
-                    : 'text-slate-600 hover:text-slate-900'
-                }`}
-              >
-                <CheckCircle className="w-4 h-4" />
-                <span className="hidden sm:inline">Approved Customers</span>
-                <span className="sm:hidden">Approved</span>
-                <Badge variant="secondary" className="ml-1">{approvedRegistrations.length}</Badge>
-              </TabsTrigger>
-            </TabsList>
-            {/* Tab Content */}
-            <TabsContent value="pending">
-              <Card className="mb-8">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Users className="w-5 h-5 text-[#F2633A]" />
-                    Pending Applications
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {loadingRegistrations ? (
-                    <div className="text-center py-8">Loading registrations...</div>
-                  ) : pendingRegistrations.length > 0 ? (
-                    <div className="space-y-4">
-                      {pendingRegistrations.map((reg) => (
-                        <Collapsible
-                          key={reg.id}
-                          open={expandedCards.has(reg.id)}
-                          onOpenChange={() => toggleCardExpanded(reg.id)}
+        {/* Stats Overview */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <Card className="rounded-[16px] border-[#E1E0DA] bg-white shadow-sm">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-['Vazirmatn'] font-medium text-[#696A6D]">Pending Applications</CardTitle>
+              <Clock className="w-5 h-5 text-[#F2633A]" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-['Archivo'] font-bold text-[#212227]">{pendingRegistrations.length}</div>
+            </CardContent>
+          </Card>
+
+          <Card className="rounded-[16px] border-[#E1E0DA] bg-white shadow-sm">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-['Vazirmatn'] font-medium text-[#696A6D]">Approved Customers</CardTitle>
+              <CheckCircle className="w-5 h-5 text-green-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-['Archivo'] font-bold text-[#212227]">{approvedRegistrations.length}</div>
+            </CardContent>
+          </Card>
+
+          <Card className="rounded-[16px] border-[#E1E0DA] bg-white shadow-sm">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-['Vazirmatn'] font-medium text-[#696A6D]">Calculator Quotes</CardTitle>
+              <Calculator className="w-5 h-5 text-[#F2633A]" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-['Archivo'] font-bold text-[#212227]">{quotes.length}</div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Main Tabs Section */}
+        <Tabs defaultValue="pending" value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="bg-white border border-[#E1E0DA] rounded-[16px] p-1">
+            <TabsTrigger value="pending" className="font-['Vazirmatn'] data-[state=active]:bg-[#F2633A] data-[state=active]:text-white rounded-[11px]">
+              <Clock className="w-4 h-4 mr-2" />
+              Pending
+              <Badge variant="secondary" className="ml-2">{pendingRegistrations.length}</Badge>
+            </TabsTrigger>
+            <TabsTrigger value="approved" className="font-['Vazirmatn'] data-[state=active]:bg-[#F2633A] data-[state=active]:text-white rounded-[11px]">
+              <CheckCircle className="w-4 h-4 mr-2" />
+              Approved
+              <Badge variant="secondary" className="ml-2">{approvedRegistrations.length}</Badge>
+            </TabsTrigger>
+            <TabsTrigger value="quotes" className="font-['Vazirmatn'] data-[state=active]:bg-[#F2633A] data-[state=active]:text-white rounded-[11px]">
+              <Calculator className="w-4 h-4 mr-2" />
+              Quotes
+              <Badge variant="secondary" className="ml-2">{quotes.length}</Badge>
+            </TabsTrigger>
+            <TabsTrigger value="orders" className="font-['Vazirmatn'] data-[state=active]:bg-[#F2633A] data-[state=active]:text-white rounded-[11px]">
+              <FileText className="w-4 h-4 mr-2" />
+              Draft Orders
+              <Badge variant="secondary" className="ml-2">{draftOrders.length}</Badge>
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="pending">
+            <Card className="rounded-[16px] border-[#E1E0DA]">
+              <CardHeader>
+                <CardTitle className="font-['Archivo'] text-[#212227] flex items-center gap-2">
+                  <Users className="w-5 h-5 text-[#F2633A]" />
+                  Pending Applications
+                </CardTitle>
+                <CardDescription className="font-['Vazirmatn'] text-[#696A6D]">
+                  New wholesale applications awaiting review
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {loadingRegistrations ? (
+                  <div className="text-center py-8">Loading registrations...</div>
+                ) : pendingRegistrations.length > 0 ? (
+                  <div className="space-y-4">
+                    {pendingRegistrations.map((reg) => (
+                      <Collapsible
+                        key={reg.id}
+                        open={expandedCards.has(reg.id)}
+                        onOpenChange={() => toggleCardExpanded(reg.id)}
+                      >
+                        <Card
+                          id={`registration-${reg.id}`}
+                          className="rounded-[16px] border-[#E1E0DA] overflow-hidden transition-all hover:shadow-lg"
                         >
-                          <Card
-                            id={`registration-${reg.id}`}
-                            className="rounded-[11px] overflow-hidden transition-all hover:shadow-lg"
-                          >
-                            <CollapsibleTrigger asChild>
-                              <CardHeader className="hover:bg-[#F3F1E9]/50 transition-colors cursor-pointer">
-                                <div className="flex items-center justify-between gap-4">
-                                  <div className="flex items-center gap-4 flex-1 min-w-0">
-                                    <div className="text-left flex-1 min-w-0">
-                                      <CardTitle className="font-['Archivo'] text-[#212227] text-lg flex items-center gap-2">
-                                        <Building2 className="w-5 h-5 text-[#F2633A]" />
-                                        {reg.firmName}
-                                      </CardTitle>
-                                      <CardDescription className="font-['Vazirmatn'] text-[#696A6D] mt-1">
-                                        {reg.contactName} • {format(new Date(reg.createdAt), "MMM d, yyyy")}
-                                      </CardDescription>
-                                    </div>
-                                  </div>
-                                  <div className="flex items-center gap-2 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
-                                    {reg.status === "pending" && (
-                                      <>
-                                        <Button onClick={() => { setSelectedRegistration(reg); setActionType("approve"); }} size="sm" className="bg-[#F2633A] hover:bg-[#F2633A]/90 text-white rounded-[8px] font-['Vazirmatn']">
-                                          <CheckCircle className="w-3 h-3 mr-1" />
-                                          Approve
-                                        </Button>
-                                        <Button onClick={() => { setSelectedRegistration(reg); setActionType("reject"); }} size="sm" variant="outline" className="rounded-[8px] font-['Vazirmatn']">
-                                          <XCircle className="w-3 h-3 mr-1" />
-                                          Reject
-                                        </Button>
-                                      </>
-                                    )}
-                                    {reg.status === "approved" && (
-                                      <>
-                                        {reg.shopifyCustomerId && (
-                                          <a href={`https://admin.shopify.com/store/its-under-it-all/customers/${reg.shopifyCustomerId}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 px-2 py-1 bg-[#96bf48] hover:bg-[#85aa3d] text-white rounded-[8px] transition-colors font-['Vazirmatn'] text-xs">
-                                            <ExternalLink className="w-3 h-3" />
-                                            Shopify
-                                          </a>
-                                        )}
-                                        {reg.clarityAccountId ? (
-                                          <a href={`https://www.claritycrm.com/accounts/new4.aspx?m=e&id=${reg.clarityAccountId}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 px-2 py-1 bg-green-600 hover:bg-green-700 text-white rounded-[8px] transition-colors font-['Vazirmatn'] text-xs">
-                                            <CheckCircle2 className="w-3 h-3" />
-                                            CRM
-                                          </a>
-                                        ) : (
-                                          <Button onClick={() => { checkCrmDuplicates(reg.id); }} size="sm" className="bg-[#F2633A] hover:bg-[#F2633A]/90 text-white rounded-[8px] font-['Vazirmatn'] text-xs">
-                                            <ExternalLink className="w-3 h-3 mr-1" />
-                                            Sync CRM
-                                          </Button>
-                                        )}
-                                      </>
-                                    )}
-                                    {getStatusBadge(reg.status)}
-                                    <ChevronDown className={`w-5 h-5 text-[#696A6D] transition-transform ${expandedCards.has(reg.id) ? 'rotate-180' : ''}`} />
+                          <CollapsibleTrigger asChild>
+                            <CardHeader className="hover:bg-[#F3F1E9]/50 transition-colors cursor-pointer">
+                              <div className="flex items-center justify-between gap-4">
+                                <div className="flex items-center gap-4 flex-1 min-w-0">
+                                  <div className="text-left flex-1 min-w-0">
+                                    <CardTitle className="font-['Archivo'] text-[#212227] text-lg flex items-center gap-2">
+                                      <Building2 className="w-5 h-5 text-[#F2633A]" />
+                                      {reg.firmName}
+                                    </CardTitle>
+                                    <CardDescription className="font-['Vazirmatn'] text-[#696A6D] mt-1">
+                                      {reg.contactName} • {format(new Date(reg.createdAt), "MMM d, yyyy")}
+                                    </CardDescription>
                                   </div>
                                 </div>
-                              </CardHeader>
-                            </CollapsibleTrigger>
-                            <CollapsibleContent>
-                              <CardContent className="pt-0 pb-6 space-y-6">
-                                {/* Contact Information */}
-                                <div className="space-y-3">
-                                  <h3 className="font-['Archivo'] text-[#212227] font-semibold text-sm uppercase tracking-wide">Contact Information</h3>
-                                  <div className="grid md:grid-cols-2 gap-4">
-                                    <div className="flex items-start gap-3">
-                                      <Mail className="w-4 h-4 text-[#F2633A] mt-0.5" />
-                                      <div className="flex-1">
-                                        <p className="text-xs text-[#696A6D] font-['Vazirmatn']">Email</p>
-                                        <p className="font-['Vazirmatn'] text-[#212227]">{reg.email}</p>
-                                      </div>
-                                    </div>
-                                    <div className="flex items-start gap-3">
-                                      <Phone className="w-4 h-4 text-[#F2633A] mt-0.5" />
-                                      <div className="flex-1">
-                                        <p className="text-xs text-[#696A6D] font-['Vazirmatn']">Phone</p>
-                                        <p className="font-['Vazirmatn'] text-[#212227]">{reg.phone}</p>
-                                      </div>
-                                    </div>
-                                    <div className="flex items-start gap-3 md:col-span-2">
-                                      <MapPin className="w-4 h-4 text-[#F2633A] mt-0.5" />
-                                      <div className="flex-1">
-                                        <p className="text-xs text-[#696A6D] font-['Vazirmatn']">Address</p>
-                                        <p className="font-['Vazirmatn'] text-[#212227]">
-                                          {reg.businessAddress}
-                                          {reg.businessAddress2 && <>, {reg.businessAddress2}</>}
-                                          <br />
-                                          {reg.city}, {reg.state} {reg.zipCode}
-                                        </p>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-
-                                <div className="border-t border-[#E1E0DA]" />
-
-                                {/* Business Details */}
-                                <div className="space-y-3">
-                                  <h3 className="font-['Archivo'] text-[#212227] font-semibold text-sm uppercase tracking-wide">Business Details</h3>
-                                  <div className="grid md:grid-cols-2 gap-4">
-                                    <div className="flex items-start gap-3">
-                                      <Building2 className="w-4 h-4 text-[#F2633A] mt-0.5" />
-                                      <div className="flex-1">
-                                        <p className="text-xs text-[#696A6D] font-['Vazirmatn']">Business Type</p>
-                                        <p className="font-['Vazirmatn'] text-[#212227] capitalize">{reg.businessType.replace(/_/g, ' ')}</p>
-                                      </div>
-                                    </div>
-                                    {reg.yearsInBusiness && (
-                                      <div className="flex items-start gap-3">
-                                        <Calendar className="w-4 h-4 text-[#F2633A] mt-0.5" />
-                                        <div className="flex-1">
-                                          <p className="text-xs text-[#696A6D] font-['Vazirmatn']">Years in Business</p>
-                                          <p className="font-['Vazirmatn'] text-[#212227]">{reg.yearsInBusiness} years</p>
-                                        </div>
-                                      </div>
-                                    )}
-                                    {reg.website && (
-                                      <div className="flex items-start gap-3">
-                                        <Globe className="w-4 h-4 text-[#F2633A] mt-0.5" />
-                                        <div className="flex-1">
-                                          <p className="text-xs text-[#696A6D] font-['Vazirmatn']">Website</p>
-                                          <a href={reg.website} target="_blank" rel="noopener noreferrer" className="font-['Vazirmatn'] text-[#F2633A] hover:underline flex items-center gap-1">
-                                            {reg.website} <ExternalLink className="w-3 h-3" />
-                                          </a>
-                                        </div>
-                                      </div>
-                                    )}
-                                    {reg.instagramHandle && (
-                                      <div className="flex items-start gap-3">
-                                        <Instagram className="w-4 h-4 text-[#F2633A] mt-0.5" />
-                                        <div className="flex-1">
-                                          <p className="text-xs text-[#696A6D] font-['Vazirmatn']">Instagram</p>
-                                          <a href={`https://instagram.com/${reg.instagramHandle.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="font-['Vazirmatn'] text-[#F2633A] hover:underline flex items-center gap-1">
-                                            @{reg.instagramHandle.replace('@', '')} <ExternalLink className="w-3 h-3" />
-                                          </a>
-                                        </div>
-                                      </div>
-                                    )}
-                                  </div>
-                                </div>
-
-                                <div className="border-t border-[#E1E0DA]" />
-
-                                {/* Tax & Documentation */}
-                                <div className="space-y-3">
-                                  <h3 className="font-['Archivo'] text-[#212227] font-semibold text-sm uppercase tracking-wide">Tax & Documentation</h3>
-                                  <div className="flex flex-wrap gap-3">
-                                    <Badge variant={reg.isTaxExempt ? "default" : "outline"} className="font-['Vazirmatn']">
-                                      {reg.isTaxExempt ? 'Tax Exempt' : 'Not Tax Exempt'}
-                                    </Badge>
-                                    {reg.isTaxExempt && reg.taxId && (
-                                      <span className="text-sm text-[#696A6D] font-['Vazirmatn']">ID: {reg.taxId}</span>
-                                    )}
-                                    <Badge variant={reg.receivedSampleSet ? "default" : "outline"} className="font-['Vazirmatn']">
-                                      {reg.receivedSampleSet ? 'Sample Set Received' : 'No Sample Set'}
-                                    </Badge>
-                                  </div>
-                                  {(reg.certificationUrl || reg.taxIdProofUrl) && (
-                                    <div className="flex flex-wrap gap-2 pt-2">
-                                      {reg.certificationUrl && (
-                                        <a href={reg.certificationUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#F3F1E9] hover:bg-[#E1E0DA] rounded-[8px] transition-colors text-sm">
-                                          <FileCheck className="w-3 h-3 text-[#F2633A]" />
-                                          <span className="font-['Vazirmatn'] text-[#212227]">Certification</span>
-                                          <ExternalLink className="w-3 h-3 text-[#696A6D]" />
+                                <div className="flex items-center gap-2 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
+                                  {reg.status === "pending" && (
+                                    <>
+                                      <Button onClick={() => { setSelectedRegistration(reg); setActionType("approve"); }} size="sm" className="bg-[#F2633A] hover:bg-[#F2633A]/90 text-white rounded-[11px] font-['Vazirmatn']">
+                                        <CheckCircle className="w-3 h-3 mr-1" />
+                                        Approve
+                                      </Button>
+                                      <Button onClick={() => { setSelectedRegistration(reg); setActionType("reject"); }} size="sm" variant="outline" className="rounded-[11px] font-['Vazirmatn']">
+                                        <XCircle className="w-3 h-3 mr-1" />
+                                        Reject
+                                      </Button>
+                                    </>
+                                  )}
+                                  {reg.status === "approved" && (
+                                    <>
+                                      {reg.shopifyCustomerId && (
+                                        <a href={`https://admin.shopify.com/store/its-under-it-all/customers/${reg.shopifyCustomerId}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 px-2 py-1 bg-[#96bf48] hover:bg-[#85aa3d] text-white rounded-[11px] transition-colors font-['Vazirmatn'] text-xs">
+                                          <ExternalLink className="w-3 h-3" />
+                                          Shopify
                                         </a>
                                       )}
-                                      {reg.taxIdProofUrl && (
-                                        <a href={reg.taxIdProofUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#F3F1E9] hover:bg-[#E1E0DA] rounded-[8px] transition-colors text-sm">
-                                          <FileCheck className="w-3 h-3 text-[#F2633A]" />
-                                          <span className="font-['Vazirmatn'] text-[#212227]">Tax ID Proof</span>
-                                          <ExternalLink className="w-3 h-3 text-[#696A6D]" />
+                                      {reg.clarityAccountId ? (
+                                        <a href={`https://www.claritycrm.com/accounts/new4.aspx?m=e&id=${reg.clarityAccountId}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 px-2 py-1 bg-green-600 hover:bg-green-700 text-white rounded-[11px] transition-colors font-['Vazirmatn'] text-xs">
+                                          <CheckCircle2 className="w-3 h-3" />
+                                          CRM
                                         </a>
+                                      ) : (
+                                        <Button onClick={() => { checkCrmDuplicates(reg.id); }} size="sm" className="bg-[#F2633A] hover:bg-[#F2633A]/90 text-white rounded-[11px] font-['Vazirmatn'] text-xs">
+                                          <ExternalLink className="w-3 h-3 mr-1" />
+                                          Sync CRM
+                                        </Button>
                                       )}
+                                    </>
+                                  )}
+                                  {getStatusBadge(reg.status)}
+                                  <ChevronDown className={`w-5 h-5 text-[#696A6D] transition-transform ${expandedCards.has(reg.id) ? 'rotate-180' : ''}`} />
+                                </div>
+                              </div>
+                            </CardHeader>
+                          </CollapsibleTrigger>
+                          <CollapsibleContent>
+                            <CardContent className="pt-0 pb-6 space-y-6">
+                              {/* Contact Information */}
+                              <div className="space-y-3">
+                                <h3 className="font-['Archivo'] text-[#212227] font-semibold text-sm uppercase tracking-wide">Contact Information</h3>
+                                <div className="grid md:grid-cols-2 gap-4">
+                                  <div className="flex items-start gap-3">
+                                    <Mail className="w-4 h-4 text-[#F2633A] mt-0.5" />
+                                    <div className="flex-1">
+                                      <p className="text-xs text-[#696A6D] font-['Vazirmatn']">Email</p>
+                                      <p className="font-['Vazirmatn'] text-[#212227]">{reg.email}</p>
+                                    </div>
+                                  </div>
+                                  <div className="flex items-start gap-3">
+                                    <Phone className="w-4 h-4 text-[#F2633A] mt-0.5" />
+                                    <div className="flex-1">
+                                      <p className="text-xs text-[#696A6D] font-['Vazirmatn']">Phone</p>
+                                      <p className="font-['Vazirmatn'] text-[#212227]">{reg.phone}</p>
+                                    </div>
+                                  </div>
+                                  <div className="flex items-start gap-3 md:col-span-2">
+                                    <MapPin className="w-4 h-4 text-[#F2633A] mt-0.5" />
+                                    <div className="flex-1">
+                                      <p className="text-xs text-[#696A6D] font-['Vazirmatn']">Address</p>
+                                      <p className="font-['Vazirmatn'] text-[#212227]">
+                                        {reg.businessAddress}
+                                        {reg.businessAddress2 && <>, {reg.businessAddress2}</>}
+                                        <br />
+                                        {reg.city}, {reg.state} {reg.zipCode}
+                                      </p>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div className="border-t border-[#E1E0DA]" />
+
+                              {/* Business Details */}
+                              <div className="space-y-3">
+                                <h3 className="font-['Archivo'] text-[#212227] font-semibold text-sm uppercase tracking-wide">Business Details</h3>
+                                <div className="grid md:grid-cols-2 gap-4">
+                                  <div className="flex items-start gap-3">
+                                    <Building2 className="w-4 h-4 text-[#F2633A] mt-0.5" />
+                                    <div className="flex-1">
+                                      <p className="text-xs text-[#696A6D] font-['Vazirmatn']">Business Type</p>
+                                      <p className="font-['Vazirmatn'] text-[#212227] capitalize">{reg.businessType.replace(/_/g, ' ')}</p>
+                                    </div>
+                                  </div>
+                                  {reg.yearsInBusiness && (
+                                    <div className="flex items-start gap-3">
+                                      <Calendar className="w-4 h-4 text-[#F2633A] mt-0.5" />
+                                      <div className="flex-1">
+                                        <p className="text-xs text-[#696A6D] font-['Vazirmatn']">Years in Business</p>
+                                        <p className="font-['Vazirmatn'] text-[#212227]">{reg.yearsInBusiness} years</p>
+                                      </div>
+                                    </div>
+                                  )}
+                                  {reg.website && (
+                                    <div className="flex items-start gap-3">
+                                      <Globe className="w-4 h-4 text-[#F2633A] mt-0.5" />
+                                      <div className="flex-1">
+                                        <p className="text-xs text-[#696A6D] font-['Vazirmatn']">Website</p>
+                                        <a href={reg.website} target="_blank" rel="noopener noreferrer" className="font-['Vazirmatn'] text-[#F2633A] hover:underline flex items-center gap-1">
+                                          {reg.website} <ExternalLink className="w-3 h-3" />
+                                        </a>
+                                      </div>
+                                    </div>
+                                  )}
+                                  {reg.instagramHandle && (
+                                    <div className="flex items-start gap-3">
+                                      <Instagram className="w-4 h-4 text-[#F2633A] mt-0.5" />
+                                      <div className="flex-1">
+                                        <p className="text-xs text-[#696A6D] font-['Vazirmatn']">Instagram</p>
+                                        <a href={`https://instagram.com/${reg.instagramHandle.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="font-['Vazirmatn'] text-[#F2633A] hover:underline flex items-center gap-1">
+                                          @{reg.instagramHandle.replace('@', '')} <ExternalLink className="w-3 h-3" />
+                                        </a>
+                                      </div>
                                     </div>
                                   )}
                                 </div>
+                              </div>
 
-                                {(reg.howDidYouHear || reg.adminNotes) && (
-                                  <>
-                                    <div className="border-t border-[#E1E0DA]" />
-                                    <div className="space-y-3">
-                                      <h3 className="font-['Archivo'] text-[#212227] font-semibold text-sm uppercase tracking-wide">Additional Information</h3>
-                                      {reg.howDidYouHear && (
-                                        <div>
-                                          <p className="text-xs text-[#696A6D] font-['Vazirmatn'] mb-1">How They Heard About Us</p>
-                                          <p className="font-['Vazirmatn'] text-[#212227]">{reg.howDidYouHear}</p>
-                                        </div>
-                                      )}
-                                      {reg.adminNotes && (
-                                        <div>
-                                          <p className="text-xs text-[#696A6D] font-['Vazirmatn'] mb-1">Admin Notes</p>
-                                          <p className="font-['Vazirmatn'] text-[#212227] text-sm whitespace-pre-wrap">{reg.adminNotes}</p>
-                                        </div>
-                                      )}
-                                    </div>
-                                  </>
+                              <div className="border-t border-[#E1E0DA]" />
+
+                              {/* Tax & Documentation */}
+                              <div className="space-y-3">
+                                <h3 className="font-['Archivo'] text-[#212227] font-semibold text-sm uppercase tracking-wide">Tax & Documentation</h3>
+                                <div className="flex flex-wrap gap-3">
+                                  <Badge variant={reg.isTaxExempt ? "default" : "outline"} className="font-['Vazirmatn']">
+                                    {reg.isTaxExempt ? 'Tax Exempt' : 'Not Tax Exempt'}
+                                  </Badge>
+                                  {reg.isTaxExempt && reg.taxId && (
+                                    <span className="text-sm text-[#696A6D] font-['Vazirmatn']">ID: {reg.taxId}</span>
+                                  )}
+                                  <Badge variant={reg.receivedSampleSet ? "default" : "outline"} className="font-['Vazirmatn']">
+                                    {reg.receivedSampleSet ? 'Sample Set Received' : 'No Sample Set'}
+                                  </Badge>
+                                </div>
+                                {(reg.certificationUrl || reg.taxIdProofUrl) && (
+                                  <div className="flex flex-wrap gap-2 pt-2">
+                                    {reg.certificationUrl && (
+                                      <a href={reg.certificationUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#F3F1E9] hover:bg-[#E1E0DA] rounded-[8px] transition-colors text-sm">
+                                        <FileCheck className="w-3 h-3 text-[#F2633A]" />
+                                        <span className="font-['Vazirmatn'] text-[#212227]">Certification</span>
+                                        <ExternalLink className="w-3 h-3 text-[#696A6D]" />
+                                      </a>
+                                    )}
+                                    {reg.taxIdProofUrl && (
+                                      <a href={reg.taxIdProofUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#F3F1E9] hover:bg-[#E1E0DA] rounded-[8px] transition-colors text-sm">
+                                        <FileCheck className="w-3 h-3 text-[#F2633A]" />
+                                        <span className="font-['Vazirmatn'] text-[#212227]">Tax ID Proof</span>
+                                        <ExternalLink className="w-3 h-3 text-[#696A6D]" />
+                                      </a>
+                                    )}
+                                  </div>
                                 )}
-
-
-                              </CardContent>
-                            </CollapsibleContent>
-                          </Card>
-                        </Collapsible>
-                      ))
-                    }
-                    </div>
-                  ) : (
-                    <div className="text-center py-8 text-slate-500">No pending applications</div>
-                  )
-                }
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="approved">
-              <Card className="mb-8">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Users className="w-5 h-5 text-[#F2633A]" />
-                    Approved Customers
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {loadingRegistrations ? (
-                    <div className="text-center py-8">Loading registrations...</div>
-                  ) : approvedRegistrations.length > 0 ? (
-                    <div className="space-y-4">
-                      {approvedRegistrations.map((reg) => (
-                        <Collapsible key={reg.id}>
-                          <div className="border border-slate-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                            <CollapsibleTrigger className="flex items-center justify-between w-full">
-                              <div className="flex items-center gap-4">
-                                <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
-                                  Approved
-                                </Badge>
-                                <div>
-                                  <h3 className="font-semibold text-slate-900">{reg.firmName}</h3>
-                                  <p className="text-sm text-slate-600">{reg.email}</p>
-                                </div>
                               </div>
-                              <ChevronDown className="w-5 h-5 text-slate-400" />
-                            </CollapsibleTrigger>
-                            <CollapsibleContent className="mt-4 pt-4 border-t border-slate-200">
-                              <div className="grid grid-cols-2 gap-4 text-sm">
-                                <div>
-                                  <span className="font-medium text-slate-700">Contact:</span>
-                                  <p className="text-slate-600">{reg.firstName} {reg.lastName}</p>
-                                </div>
-                                <div>
-                                  <span className="font-medium text-slate-700">Phone:</span>
-                                  <p className="text-slate-600">{reg.phone || 'N/A'}</p>
-                                </div>
-                                <div>
-                                  <span className="font-medium text-slate-700">City, State:</span>
-                                  <p className="text-slate-600">{reg.city}, {reg.state}</p>
-                                </div>
-                                <div>
-                                  <span className="font-medium text-slate-700">Clarity ID:</span>
-                                  <p className="text-slate-600 font-mono text-xs">{reg.clarityAccountId || 'N/A'}</p>
-                                </div>
-                              </div>
-                              {reg.shopifyCustomerId && (
-                                <div className="mt-4 p-3 bg-green-50 rounded-md">
-                                  <p className="text-sm text-green-800">
-                                    ✅ Shopify Customer ID: <span className="font-mono">{reg.shopifyCustomerId}</span>
-                                  </p>
-                                </div>
+
+                              {(reg.howDidYouHear || reg.adminNotes) && (
+                                <>
+                                  <div className="border-t border-[#E1E0DA]" />
+                                  <div className="space-y-3">
+                                    <h3 className="font-['Archivo'] text-[#212227] font-semibold text-sm uppercase tracking-wide">Additional Information</h3>
+                                    {reg.howDidYouHear && (
+                                      <div>
+                                        <p className="text-xs text-[#696A6D] font-['Vazirmatn'] mb-1">How They Heard About Us</p>
+                                        <p className="font-['Vazirmatn'] text-[#212227]">{reg.howDidYouHear}</p>
+                                      </div>
+                                    )}
+                                    {reg.adminNotes && (
+                                      <div>
+                                        <p className="text-xs text-[#696A6D] font-['Vazirmatn'] mb-1">Admin Notes</p>
+                                        <p className="font-['Vazirmatn'] text-[#212227] text-sm whitespace-pre-wrap">{reg.adminNotes}</p>
+                                      </div>
+                                    )}
+                                  </div>
+                                </>
                               )}
-                            </CollapsibleContent>
-                          </div>
-                        </Collapsible>
+
+
+                            </CardContent>
+                          </CollapsibleContent>
+                        </Card>
+                      </Collapsible>
+                    ))
+                  }
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-slate-500">No pending applications</div>
+                )
+              }
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="approved">
+            <Card className="rounded-[16px] border-[#E1E0DA]">
+              <CardHeader>
+                <CardTitle className="font-['Archivo'] text-[#212227] flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5 text-green-600" />
+                  Approved Customers
+                </CardTitle>
+                <CardDescription className="font-['Vazirmatn'] text-[#696A6D]">
+                  Active wholesale accounts with approved access
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {loadingRegistrations ? (
+                  <div className="text-center py-8">Loading registrations...</div>
+                ) : approvedRegistrations.length > 0 ? (
+                  <div className="space-y-4">
+                    {approvedRegistrations.map((reg) => (
+                      <Collapsible key={reg.id}>
+                        <div className="border border-slate-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                          <CollapsibleTrigger className="flex items-center justify-between w-full">
+                            <div className="flex items-center gap-4">
+                              <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+                                Approved
+                              </Badge>
+                              <div>
+                                <h3 className="font-semibold text-slate-900">{reg.firmName}</h3>
+                                <p className="text-sm text-slate-600">{reg.email}</p>
+                              </div>
+                            </div>
+                            <ChevronDown className="w-5 h-5 text-slate-400" />
+                          </CollapsibleTrigger>
+                          <CollapsibleContent className="mt-4 pt-4 border-t border-slate-200">
+                            <div className="grid grid-cols-2 gap-4 text-sm">
+                              <div>
+                                <span className="font-medium text-slate-700">Contact:</span>
+                                <p className="text-slate-600">{reg.firstName} {reg.lastName}</p>
+                              </div>
+                              <div>
+                                <span className="font-medium text-slate-700">Phone:</span>
+                                <p className="text-slate-600">{reg.phone || 'N/A'}</p>
+                              </div>
+                              <div>
+                                <span className="font-medium text-slate-700">City, State:</span>
+                                <p className="text-slate-600">{reg.city}, {reg.state}</p>
+                              </div>
+                              <div>
+                                <span className="font-medium text-slate-700">Clarity ID:</span>
+                                <p className="text-slate-600 font-mono text-xs">{reg.clarityAccountId || 'N/A'}</p>
+                              </div>
+                            </div>
+                            {reg.shopifyCustomerId && (
+                              <div className="mt-4 p-3 bg-green-50 rounded-md">
+                                <p className="text-sm text-green-800">
+                                  ✅ Shopify Customer ID: <span className="font-mono">{reg.shopifyCustomerId}</span>
+                                </p>
+                              </div>
+                            )}
+                          </CollapsibleContent>
+                        </div>
+                      </Collapsible>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-slate-500">No approved customers yet</div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="quotes">
+            <Card className="rounded-[16px] border-[#E1E0DA]">
+              <CardHeader>
+                <CardTitle className="font-['Archivo'] text-[#212227] flex items-center gap-2">
+                  <Calculator className="w-5 h-5 text-[#F2633A]" />
+                  Calculator Quotes
+                </CardTitle>
+                <CardDescription className="font-['Vazirmatn'] text-[#696A6D]">
+                  All pricing quotes generated via the calculator
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {loadingQuotes ? (
+                  <div className="text-center py-8 font-['Vazirmatn'] text-[#696A6D]">Loading...</div>
+                ) : quotes.length === 0 ? (
+                  <div className="text-center py-8 text-[#696A6D] font-['Vazirmatn']">No quotes yet</div>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="font-['Vazirmatn']">Dimensions</TableHead>
+                        <TableHead className="font-['Vazirmatn']">Shape</TableHead>
+                        <TableHead className="font-['Vazirmatn']">Thickness</TableHead>
+                        <TableHead className="font-['Vazirmatn']">Price</TableHead>
+                        <TableHead className="font-['Vazirmatn']">Project</TableHead>
+                        <TableHead className="font-['Vazirmatn']">Date</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {quotes.map((quote: any) => (
+                        <TableRow key={quote.id}>
+                          <TableCell className="font-['Vazirmatn'] text-[#212227]">{quote.width} × {quote.length} ft</TableCell>
+                          <TableCell className="capitalize font-['Vazirmatn'] text-[#212227]">{quote.shape}</TableCell>
+                          <TableCell className="font-['Vazirmatn'] text-[#212227]">{quote.thickness === "thin" ? "⅛\"" : "¼\""}</TableCell>
+                          <TableCell className="font-medium font-['Vazirmatn'] text-[#212227]">${quote.totalPrice}</TableCell>
+                          <TableCell className="font-['Vazirmatn'] text-[#696A6D]">{quote.projectName || "—"}</TableCell>
+                          <TableCell className="font-['Vazirmatn'] text-[#696A6D]">{format(new Date(quote.createdAt), "MMM d, yyyy")}</TableCell>
+                        </TableRow>
                       ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-8 text-slate-500">No approved customers yet</div>
-                  )}
-                </CardContent>
-              </Card>
-            </TabsContent>
+                    </TableBody>
+                  </Table>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-            {/* Calculator Quotes Tab Content */}
-            <TabsContent value="quotes">
-              <Card className="rounded-[11px]">
-                <CardHeader>
-                  <CardTitle className="font-['Archivo'] text-[#212227]">Calculator Quotes</CardTitle>
-                  <CardDescription className="font-['Vazirmatn'] text-[#696A6D]">View all saved calculator quotes</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {loadingQuotes ? (
-                    <div className="text-center py-8 font-['Vazirmatn'] text-[#696A6D]">Loading...</div>
-                  ) : quotes.length === 0 ? (
-                    <div className="text-center py-8 text-[#696A6D] font-['Vazirmatn']">No quotes yet</div>
-                  ) : (
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead className="font-['Vazirmatn']">Dimensions</TableHead>
-                          <TableHead className="font-['Vazirmatn']">Shape</TableHead>
-                          <TableHead className="font-['Vazirmatn']">Thickness</TableHead>
-                          <TableHead className="font-['Vazirmatn']">Price</TableHead>
-                          <TableHead className="font-['Vazirmatn']">Project</TableHead>
-                          <TableHead className="font-['Vazirmatn']">Date</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {quotes.map((quote: any) => (
-                          <TableRow key={quote.id}>
-                            <TableCell className="font-['Vazirmatn'] text-[#212227]">{quote.width} × {quote.length} ft</TableCell>
-                            <TableCell className="capitalize font-['Vazirmatn'] text-[#212227]">{quote.shape}</TableCell>
-                            <TableCell className="font-['Vazirmatn'] text-[#212227]">{quote.thickness === "thin" ? "⅛\"" : "¼\""}</TableCell>
-                            <TableCell className="font-medium font-['Vazirmatn'] text-[#212227]">${quote.totalPrice}</TableCell>
-                            <TableCell className="font-['Vazirmatn'] text-[#696A6D]">{quote.projectName || "—"}</TableCell>
-                            <TableCell className="font-['Vazirmatn'] text-[#696A6D]">{format(new Date(quote.createdAt), "MMM d, yyyy")}</TableCell>
+          <TabsContent value="orders">
+            <Card className="rounded-[16px] border-[#E1E0DA]">
+              <CardHeader>
+                <CardTitle className="font-['Archivo'] text-[#212227] flex items-center gap-2">
+                  <FileText className="w-5 h-5 text-[#F2633A]" />
+                  Draft Orders
+                </CardTitle>
+                <CardDescription className="font-['Vazirmatn'] text-[#696A6D]">
+                  Pending draft orders awaiting completion
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {loadingOrders ? (
+                  <div className="text-center py-8 font-['Vazirmatn'] text-[#696A6D]">Loading...</div>
+                ) : draftOrders.length === 0 ? (
+                  <div className="text-center py-8 text-[#696A6D] font-['Vazirmatn']">No draft orders yet</div>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="font-['Vazirmatn']">Order ID</TableHead>
+                        <TableHead className="font-['Vazirmatn']">Total Price</TableHead>
+                        <TableHead className="font-['Vazirmatn']">Date</TableHead>
+                        <TableHead className="font-['Vazirmatn']">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {draftOrders.map((order: any) => {
+                        // Extract numeric ID from Shopify GID (e.g., "gid://shopify/DraftOrder/123" -> "123")
+                        const draftOrderId = order.shopifyDraftOrderId.split('/').pop();
+                        const shopifyAdminUrl = `https://admin.shopify.com/store/its-under-it-all/draft_orders/${draftOrderId}`;
+
+                        return (
+                          <TableRow key={order.id}>
+                            <TableCell className="font-mono text-sm font-['Vazirmatn'] text-[#212227]">{order.shopifyDraftOrderId}</TableCell>
+                            <TableCell className="font-medium font-['Vazirmatn'] text-[#212227]">${order.totalPrice}</TableCell>
+                            <TableCell className="font-['Vazirmatn'] text-[#696A6D]">{format(new Date(order.createdAt), "MMM d, yyyy")}</TableCell>
+                            <TableCell>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => window.open(shopifyAdminUrl, "_blank")}
+                                className="rounded-[11px] font-['Vazirmatn']"
+                              >
+                                <ExternalLink className="w-3 h-3 mr-1" />
+                                View in Shopify
+                              </Button>
+                            </TableCell>
                           </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  )}
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            {/* Draft Orders Tab Content */}
-            <TabsContent value="orders">
-              <Card className="rounded-[11px]">
-                <CardHeader>
-                  <CardTitle className="font-['Archivo'] text-[#212227]">Draft Orders</CardTitle>
-                  <CardDescription className="font-['Vazirmatn'] text-[#696A6D]">View all created draft orders</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {loadingOrders ? (
-                    <div className="text-center py-8 font-['Vazirmatn'] text-[#696A6D]">Loading...</div>
-                  ) : draftOrders.length === 0 ? (
-                    <div className="text-center py-8 text-[#696A6D] font-['Vazirmatn']">No draft orders yet</div>
-                  ) : (
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead className="font-['Vazirmatn']">Order ID</TableHead>
-                          <TableHead className="font-['Vazirmatn']">Total Price</TableHead>
-                          <TableHead className="font-['Vazirmatn']">Date</TableHead>
-                          <TableHead className="font-['Vazirmatn']">Actions</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {draftOrders.map((order: any) => {
-                          // Extract numeric ID from Shopify GID (e.g., "gid://shopify/DraftOrder/123" -> "123")
-                          const draftOrderId = order.shopifyDraftOrderId.split('/').pop();
-                          const shopifyAdminUrl = `https://admin.shopify.com/store/its-under-it-all/draft_orders/${draftOrderId}`;
-
-                          return (
-                            <TableRow key={order.id}>
-                              <TableCell className="font-mono text-sm font-['Vazirmatn'] text-[#212227]">{order.shopifyDraftOrderId}</TableCell>
-                              <TableCell className="font-medium font-['Vazirmatn'] text-[#212227]">${order.totalPrice}</TableCell>
-                              <TableCell className="font-['Vazirmatn'] text-[#696A6D]">{format(new Date(order.createdAt), "MMM d, yyyy")}</TableCell>
-                              <TableCell>
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => window.open(shopifyAdminUrl, "_blank")}
-                                  className="rounded-[11px] font-['Vazirmatn']"
-                                >
-                                  <ExternalLink className="w-3 h-3 mr-1" />
-                                  View in Shopify
-                                </Button>
-                              </TableCell>
-                            </TableRow>
-                          );
-                        })}
-                      </TableBody>
-                    </Table>
-                  )}
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
-        </div>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
 
       {/* Wholesale Details Modal */}
@@ -1016,13 +1049,13 @@ export default function Admin() {
             {selectedRegistration?.status === "approved" && (
               <div className="flex flex-wrap gap-2 w-full">
                 {selectedRegistration.shopifyCustomerId && (
-                  <a href={`https://admin.shopify.com/store/its-under-it-all/customers/${selectedRegistration.shopifyCustomerId}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#96bf48] hover:bg-[#85aa3d] text-white rounded-[8px] transition-colors font-['Vazirmatn'] text-sm">
+                  <a href={`https://admin.shopify.com/store/its-under-it-all/customers/${selectedRegistration.shopifyCustomerId}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#96bf48] hover:bg-[#85aa3d] text-white rounded-[11px] transition-colors font-['Vazirmatn'] text-sm">
                     <ExternalLink className="w-3 h-3" />
                     Shopify Admin
                   </a>
                 )}
                 {selectedRegistration.clarityAccountId ? (
-                  <a href={`https://www.claritycrm.com/accounts/new4.aspx?m=e&id=${selectedRegistration.clarityAccountId}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-[8px] transition-colors font-['Vazirmatn'] text-sm">
+                  <a href={`https://www.claritycrm.com/accounts/new4.aspx?m=e&id=${selectedRegistration.clarityAccountId}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-[11px] transition-colors font-['Vazirmatn'] text-sm">
                     <CheckCircle2 className="w-3 h-3" />
                     CRM Synced
                   </a>
