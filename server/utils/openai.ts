@@ -177,7 +177,7 @@ You are a helpful AI shopping assistant for UnderItAll — a premium, to-the-tra
       model: "gpt-5", // GPT-5 equivalent (latest model)
       messages,
       temperature: 0.7,
-      max_tokens: 800, // Increased for MCP-enhanced responses
+      max_completion_tokens: 800, // Increased for MCP-enhanced responses
       // Function calling for MCP actions (future enhancement)
       // functions: [...], 
     });
