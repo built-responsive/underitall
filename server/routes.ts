@@ -694,6 +694,85 @@ export function registerRoutes(app: Express) {
     }
   });
 
+  // Chat API endpoints
+  app.post("/api/chat/message", async (req, res) => {
+    try {
+      const { content, conversationId, sessionId } = req.body;
+
+      if (!content || !content.trim()) {
+        return res.status(400).json({ error: "Message content is required" });
+      }
+
+      // Import OpenAI service
+      const { getChatCompletion } = await import("./utils/openai");
+      const storage = await import("./storage");
+
+      let conversation;
+
+      // Get or create conversation
+      if (conversationId) {
+        conversation = await storage.default.getChatConversation(conversationId);
+        if (!conversation) {
+          return res.status(404).json({ error: "Conversation not found" });
+        }
+      } else {
+        // Create new conversation
+        conversation = await storage.default.createChatConversation({
+          sessionId: sessionId || `session_${Date.now()}`,
+          status: "active",
+        });
+      }
+
+      // Save user message
+      const userMessage = await storage.default.createChatMessage({
+        conversationId: conversation.id,
+        role: "user",
+        content: content.trim(),
+      });
+
+      // Get conversation history
+      const messages = await storage.default.getChatMessagesByConversation(conversation.id);
+      const conversationHistory = messages.map(msg => ({
+        role: msg.role,
+        content: msg.content,
+      }));
+
+      // Get AI response
+      const assistantContent = await getChatCompletion(conversationHistory);
+
+      // Save assistant message
+      const assistantMessage = await storage.default.createChatMessage({
+        conversationId: conversation.id,
+        role: "assistant",
+        content: assistantContent,
+      });
+
+      // Update conversation timestamp
+      await storage.default.updateChatConversation(conversation.id, {
+        updatedAt: new Date(),
+      });
+
+      res.json({
+        conversationId: conversation.id,
+        userMessage: {
+          id: userMessage.id,
+          content: userMessage.content,
+          createdAt: userMessage.createdAt,
+        },
+        assistantMessage: {
+          id: assistantMessage.id,
+          content: assistantMessage.content,
+          createdAt: assistantMessage.createdAt,
+        },
+      });
+    } catch (error) {
+      console.error("❌ Chat error:", error);
+      res.status(500).json({
+        error: error instanceof Error ? error.message : "Failed to process message",
+      });
+    }
+  });
+
   // Email Template API endpoints
   app.get("/api/email-templates", async (req, res) => {
     try {
