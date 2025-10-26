@@ -39,6 +39,7 @@ const globalInputStyles = "border-[#7e8d76] font-['Lora_Italic'] placeholder:tex
 export default function Admin() {
   const { toast } = useToast();
   const queryClientInstance = useQueryClient();
+  const [match, params] = useRoute("/dashboard/:id?");
   const [activeTab, setActiveTab] = useState("pending");
   const [selectedRegistration, setSelectedRegistration] = useState<any>(null);
   const [adminNotes, setAdminNotes] = useState("");
