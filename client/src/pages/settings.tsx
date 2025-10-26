@@ -404,13 +404,27 @@ export default function Settings() {
           }
         }
       `;
+      console.log("📥 GraphQL Query (Metafield Definitions):");
+      console.log("%c" + query.trim(), "color: #5E8C61; font-weight: bold; font-family: monospace;");
+      
       const res = await fetch("/api/shopify/graphql", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ query }),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return await res.json();
+      const data = await res.json();
+      
+      console.group("📤 GraphQL Response (Metafield Definitions)");
+      console.log("%cDefinitions found:", "color: #F2633A; font-weight: bold;", data?.data?.metafieldDefinitions?.nodes?.length || 0);
+      if (data?.data?.metafieldDefinitions?.nodes?.length > 0) {
+        console.table(data.data.metafieldDefinitions.nodes);
+      } else {
+        console.log("%cNo app namespace metafields found (TOML not deployed or using 'custom' namespace)", "color: #696A6D; font-style: italic;");
+      }
+      console.groupEnd();
+      
+      return data;
     },
   });
 
@@ -520,7 +534,8 @@ export default function Settings() {
             }
           }
         `;
-        console.log("📥 Fetching customers with wholesale metafields...");
+        console.log("📥 GraphQL Query (Customers with Wholesale Metafields):");
+        console.log("%c" + query.trim(), "color: #96BF48; font-weight: bold; font-family: monospace;");
         const res = await fetch("/api/shopify/graphql", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -528,12 +543,24 @@ export default function Settings() {
         });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
-        console.log("📤 Customer metafield data:", data);
+        
+        console.group("📤 GraphQL Response (Customers)");
+        console.log("%cTotal customers fetched:", "color: #F2633A; font-weight: bold;", data?.data?.customers?.nodes?.length || 0);
+        console.log("%cParsed data:", "color: #7e8d76; font-style: italic;");
+        console.table(data?.data?.customers?.nodes?.map((c: any) => ({
+          email: c.email,
+          name: `${c.firstName} ${c.lastName}`,
+          clarityId: c.clarityId?.value || "—",
+          uiaId: c.uiaId?.value ? c.uiaId.value.substring(0, 8) + "..." : "—",
+          wholesaleName: c.wholesaleName?.value || "—"
+        })) || []);
+        console.groupEnd();
+        
         // Filter to only customers with CRM + UIA linkage (both required)
         const linked = data?.data?.customers?.nodes?.filter((c: any) => 
           c.clarityId?.value && c.uiaId?.value
         ) || [];
-        console.log(`✅ Found ${linked.length} fully linked wholesale customers`);
+        console.log(`%c✅ Filtered: ${linked.length} fully linked wholesale customers`, "color: #96BF48; font-weight: bold;");
         return linked;
       },
     });
