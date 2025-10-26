@@ -1672,6 +1672,10 @@ export function registerRoutes(app: Express) {
           });
         }
 
+        // Track sync timestamp and direction
+        const syncTimestamp = new Date();
+        const syncDirection = 'app_to_crm';
+
         // Create/Update Shopify Customer + Set wholesale_clarity_id metafield
         const shopDomain = process.env.SHOPIFY_SHOP_DOMAIN;
         const adminToken = process.env.SHOPIFY_ADMIN_ACCESS_TOKEN;
@@ -1819,16 +1823,18 @@ export function registerRoutes(app: Express) {
           }
         }
 
-        // Update registration status to approved
+        // Update registration status to approved with sync tracking
         await db
           .update(wholesaleRegistrations)
           .set({
             status: "approved",
             clarityAccountId: clarityAccountId,
+            lastSyncAt: syncTimestamp,
+            lastSyncDirection: syncDirection,
           })
           .where(eq(wholesaleRegistrations.id, id));
 
-        // Send welcome email to customer after CRM account creation
+        // Send welcome email to customer with profile link
         try {
           const { sendNewCRMCustomerEmail } = await import("./services/emailService");
           await sendNewCRMCustomerEmail({
@@ -1847,6 +1853,7 @@ export function registerRoutes(app: Express) {
             zipCode: registration.zipCode,
             isTaxExempt: registration.isTaxExempt,
             taxId: registration.taxId || undefined,
+            profileUrl: "https://account.itsunderitall.com/profile",
           });
           console.log("✅ Welcome email sent to customer:", registration.email);
         } catch (emailError) {

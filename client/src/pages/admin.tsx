@@ -125,8 +125,8 @@ export default function Admin() {
   });
 
   const handleApprove = (registration: any) => {
-    setSelectedRegistration(registration);
-    setActionType("approve");
+    // Start approval flow with CRM duplicate check
+    checkCrmDuplicates(registration.id);
   };
 
   const handleReject = (registration: any) => {
@@ -719,57 +719,119 @@ export default function Admin() {
               </CardHeader>
               <CardContent>
                 {loadingRegistrations ? (
-                  <div className="text-center py-8">Loading registrations...</div>
+                  <div className="text-center py-8 font-['Vazirmatn'] text-[#696A6D]">Loading...</div>
                 ) : approvedRegistrations.length > 0 ? (
                   <div className="space-y-4">
                     {approvedRegistrations.map((reg) => (
-                      <Collapsible key={reg.id}>
-                        <div className="border border-slate-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                          <CollapsibleTrigger className="flex items-center justify-between w-full">
-                            <div className="flex items-center gap-4">
-                              <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
-                                Approved
-                              </Badge>
-                              <div>
-                                <h3 className="font-semibold text-slate-900">{reg.firmName}</h3>
-                                <p className="text-sm text-slate-600">{reg.email}</p>
+                      <Collapsible
+                        key={reg.id}
+                        open={expandedCards.has(reg.id)}
+                        onValueChange={() => toggleCardExpanded(reg.id)}
+                      >
+                        <Card
+                          id={`registration-${reg.id}`}
+                          className="rounded-[16px] border-[#E1E0DA] overflow-hidden transition-all hover:shadow-lg"
+                        >
+                          <CollapsibleTrigger asChild>
+                            <CardHeader className="hover:bg-[#F3F1E9]/50 transition-colors cursor-pointer">
+                              <div className="flex items-center justify-between gap-4">
+                                <div className="flex items-center gap-4 flex-1 min-w-0">
+                                  <div className="text-left flex-1 min-w-0">
+                                    <CardTitle className="font-['Archivo'] text-[#212227] text-lg flex items-center gap-2">
+                                      <Building2 className="w-5 h-5 text-[#F2633A]" />
+                                      {reg.firmName}
+                                    </CardTitle>
+                                    <CardDescription className="font-['Vazirmatn'] text-[#696A6D] mt-1">
+                                      {reg.firstName} {reg.lastName} • {format(new Date(reg.createdAt), "MMM d, yyyy")}
+                                    </CardDescription>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-2 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
+                                  {/* CRM Status Badge */}
+                                  {reg.clarityAccountId ? (
+                                    <a
+                                      href={`https://www.claritycrm.com/accounts/new4.aspx?m=e&id=${reg.clarityAccountId}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="inline-flex items-center gap-1 px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-[11px] transition-colors font-['Vazirmatn'] text-xs"
+                                      title={reg.lastSyncDirection === 'crm_to_shopify' ? 'Last updated from CRM' : 'Last updated to CRM'}
+                                    >
+                                      {reg.lastSyncDirection === 'crm_to_shopify' ? '←' : '→'}
+                                      <CheckCircle2 className="w-3 h-3" />
+                                      CRM
+                                      {reg.lastSyncAt && (
+                                        <span className="ml-1 opacity-75 text-[10px]">
+                                          {format(new Date(reg.lastSyncAt), "MMM d")}
+                                        </span>
+                                      )}
+                                    </a>
+                                  ) : (
+                                    <Button
+                                      onClick={() => checkCrmDuplicates(reg.id)}
+                                      size="sm"
+                                      className="bg-blue-600 hover:bg-blue-700 text-white rounded-[11px] font-['Vazirmatn'] text-xs"
+                                    >
+                                      <ExternalLink className="w-3 h-3 mr-1" />
+                                      Sync CRM
+                                    </Button>
+                                  )}
+
+                                  {/* Shopify Status Badge */}
+                                  {reg.shopifyCustomerId && (
+                                    <a
+                                      href={`https://admin.shopify.com/store/its-under-it-all/customers/${reg.shopifyCustomerId}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="inline-flex items-center gap-1 px-2 py-1 bg-green-600 hover:bg-green-700 text-white rounded-[11px] transition-colors font-['Vazirmatn'] text-xs"
+                                      title={reg.lastSyncDirection === 'shopify_to_crm' ? 'Last updated from Shopify' : 'Last updated to Shopify'}
+                                    >
+                                      {reg.lastSyncDirection === 'shopify_to_crm' ? '←' : '→'}
+                                      <CheckCircle2 className="w-3 h-3" />
+                                      Shopify
+                                      {reg.lastSyncAt && (
+                                        <span className="ml-1 opacity-75 text-[10px]">
+                                          {format(new Date(reg.lastSyncAt), "MMM d")}
+                                        </span>
+                                      )}
+                                    </a>
+                                  )}
+
+                                  {getStatusBadge(reg.status)}
+                                  <ChevronDown className={`w-5 h-5 text-[#696A6D] transition-transform ${expandedCards.has(reg.id) ? 'rotate-180' : ''}`} />
+                                </div>
                               </div>
-                            </div>
-                            <ChevronDown className="w-5 h-5 text-slate-400" />
+                            </CardHeader>
                           </CollapsibleTrigger>
-                          <CollapsibleContent className="mt-4 pt-4 border-t border-slate-200">
-                            <div className="grid grid-cols-2 gap-4 text-sm">
-                              <div>
-                                <span className="font-medium text-slate-700">Contact:</span>
-                                <p className="text-slate-600">{reg.firstName} {reg.lastName}</p>
+                          <CollapsibleContent>
+                            <CardContent className="pt-0 pb-6 space-y-6">
+                              {/* Contact Information */}
+                              <div className="space-y-3">
+                                <h3 className="font-['Archivo'] text-[#212227] font-semibold text-sm uppercase tracking-wide">Contact Information</h3>
+                                <div className="grid md:grid-cols-2 gap-4">
+                                  <div className="flex items-start gap-3">
+                                    <Mail className="w-4 h-4 text-[#F2633A] mt-0.5" />
+                                    <div className="flex-1">
+                                      <p className="text-xs text-[#696A6D] font-['Vazirmatn']">Email</p>
+                                      <p className="font-['Vazirmatn'] text-[#212227]">{reg.email}</p>
+                                    </div>
+                                  </div>
+                                  <div className="flex items-start gap-3">
+                                    <Phone className="w-4 h-4 text-[#F2633A] mt-0.5" />
+                                    <div className="flex-1">
+                                      <p className="text-xs text-[#696A6D] font-['Vazirmatn']">Phone</p>
+                                      <p className="font-['Vazirmatn'] text-[#212227]">{reg.phone}</p>
+                                    </div>
+                                  </div>
+                                </div>
                               </div>
-                              <div>
-                                <span className="font-medium text-slate-700">Phone:</span>
-                                <p className="text-slate-600">{reg.phone || 'N/A'}</p>
-                              </div>
-                              <div>
-                                <span className="font-medium text-slate-700">City, State:</span>
-                                <p className="text-slate-600">{reg.city}, {reg.state}</p>
-                              </div>
-                              <div>
-                                <span className="font-medium text-slate-700">Clarity ID:</span>
-                                <p className="text-slate-600 font-mono text-xs">{reg.clarityAccountId || 'N/A'}</p>
-                              </div>
-                            </div>
-                            {reg.shopifyCustomerId && (
-                              <div className="mt-4 p-3 bg-green-50 rounded-md">
-                                <p className="text-sm text-green-800">
-                                  ✅ Shopify Customer ID: <span className="font-mono">{reg.shopifyCustomerId}</span>
-                                </p>
-                              </div>
-                            )}
+                            </CardContent>
                           </CollapsibleContent>
-                        </div>
+                        </Card>
                       </Collapsible>
                     ))}
                   </div>
                 ) : (
-                  <div className="text-center py-8 text-slate-500">No approved customers yet</div>
+                  <div className="text-center py-8 text-[#696A6D] font-['Vazirmatn']">No approved customers yet</div>
                 )}
               </CardContent>
             </Card>
