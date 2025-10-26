@@ -1,0 +1,501 @@
+7:35:46 AM [vite] hmr update /src/pages/admin.tsx, /src/index.css?v=2qbcChudCk6aSeOj-89Ti
+7:38:32 AM [vite] hmr update /src/pages/admin.tsx, /src/index.css?v=2qbcChudCk6aSeOj-89Ti (x2)
+📥 GraphQL Request:
+{
+  "query": "\n          query {\n            customers(first: 50) {\n              nodes {\n                id\n                email\n                firstName\n                lastName\n                clarityId: metafield(namespace: \"custom\", key: \"wholesale_clarity_id\") { value }\n                uiaId: metafield(namespace: \"custom\", key: \"uia_id\") { value }\n                wholesaleName: metafield(namespace: \"custom\", key: \"wholesale_name\") { value }\n              }\n            }\n          }\n        "
+}
+📥 GraphQL Request:
+{
+  "query": "\n        query {\n          metafieldDefinitions(first: 10, ownerType: CUSTOMER, namespace: \"app\") {\n            nodes {\n              key\n              name\n              namespace\n              type {\n                name\n              }\n            }\n          }\n        }\n      "
+}
+📤 GraphQL Response:
+{
+  "data": {
+    "metafieldDefinitions": {
+      "nodes": []
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 10,
+      "actualQueryCost": 3,
+      "throttleStatus": {
+        "maximumAvailable": 2000,
+        "currentlyAvailable": 1967,
+        "restoreRate": 100
+      }
+    }
+  }
+}
+7:44:18 AM [express] POST /api/shopify/graphql 200 in 166ms :: {"data":{"metafieldDefinitions":{"nod…
+7:44:18 AM [express] GET /api/health 200 in 160ms :: {"status":"ok","timestamp":"2025-10-26T07:44:18…
+📤 GraphQL Response:
+{
+  "data": {
+    "customers": {
+      "nodes": [
+        {
+          "id": "gid://shopify/Customer/6359032463595",
+          "email": "simplewebit@gmail.com",
+          "firstName": "Chris",
+          "lastName": "McArthur",
+          "clarityId": null,
+          "uiaId": null,
+          "wholesaleName": null
+        },
+        {
+          "id": "gid://shopify/Customer/6359292182763",
+          "email": "trimbolipete@gmail.com",
+          "firstName": "Peter",
+          "lastName": "Trimboli",
+          "clarityId": null,
+          "uiaId": null,
+          "wholesaleName": null
+        },
+        {
+          "id": "gid://shopify/Customer/6364289237227",
+          "email": "thompson154@bellsouth.net",
+          "firstName": "John",
+          "lastName": "Thompson",
+          "clarityId": null,
+          "uiaId": null,
+          "wholesaleName": null
+        },
+        {
+          "id": "gid://shopify/Customer/6444366233835",
+          "email": "chris@builtresponsive.com",
+          "firstName": "Chris",
+          "lastName": "McArthur",
+          "clarityId": null,
+          "uiaId": null,
+          "wholesaleName": null
+        },
+        {
+          "id": "gid://shopify/Customer/6499757687019",
+          "email": "john@itsunderitall.com",
+          "firstName": "john",
+          "lastName": "Thompson",
+          "clarityId": null,
+          "uiaId": null,
+          "wholesaleName": null
+        },
+        {
+          "id": "gid://shopify/Customer/6500060528875",
+          "email": "mattblitz1@gmail.com",
+          "firstName": "Matt",
+          "lastName": "Blitz",
+          "clarityId": null,
+          "uiaId": null,
+          "wholesaleName": null
+        },
+        {
+          "id": "gid://shopify/Customer/6534567657707",
+          "email": "anthonyanderson0916@gmail.com",
+          "firstName": null,
+          "lastName": null,
+          "clarityId": null,
+          "uiaId": null,
+          "wholesaleName": null
+        },
+        {
+          "id": "gid://shopify/Customer/6569140224235",
+          "email": "kylehuff2@gmail.com",
+          "firstName": null,
+          "lastName": null,
+          "clarityId": null,
+          "uiaId": null,
+          "wholesaleName": null
+        },
+        {
+          "id": "gid://shopify/Customer/6573210075371",
+          "email": "cphillips@srsworldwide.com",
+          "firstName": "Chris",
+          "lastName": "Phillips",
+          "clarityId": null,
+          "uiaId": null,
+          "wholesaleName": null
+        },
+        {
+          "id": "gid://shopify/Customer/6576341057771",
+          "email": "terrifayeinteriors@gmail.com",
+          "firstName": "terri",
+          "lastName": "levitan",
+          "clarityId": null,
+          "uiaId": null,
+          "wholesaleName": null
+        },
+        {
+          "id": "gid://shopify/Customer/6600236663019",
+          "email": "admin@iannellainteriors.com",
+          "firstName": "Amanda",
+          "lastName": "Iannella",
+          "clarityId": null,
+          "uiaId": null,
+          "wholesaleName": null
+        },
+        {
+          "id": "gid://shopify/Customer/6602543956203",
+          "email": "robb.rice@bbhinsur.com",
+          "firstName": null,
+          "lastName": null,
+          "clarityId": null,
+          "uiaId": null,
+          "wholesaleName": null
+        },
+        {
+          "id": "gid://shopify/Customer/6634392682731",
+          "email": "michellebmarsh@gmail.com",
+          "firstName": "Michelle",
+          "lastName": "Marsh",
+          "clarityId": null,
+          "uiaId": null,
+          "wholesaleName": null
+        },
+        {
+          "id": "gid://shopify/Customer/6648636047595",
+          "email": "sally@shopcapehouse.com",
+          "firstName": null,
+          "lastName": null,
+          "clarityId": null,
+          "uiaId": null,
+          "wholesaleName": null
+        },
+        {
+          "id": "gid://shopify/Customer/6649303826667",
+          "email": "info@shopcapehouse.com",
+          "firstName": "Lauren",
+          "lastName": "Jones",
+          "clarityId": null,
+          "uiaId": null,
+          "wholesaleName": null
+        },
+        {
+          "id": "gid://shopify/Customer/6652336603371",
+          "email": "waltwinters@me.com",
+          "firstName": "Walt",
+          "lastName": "Winters",
+          "clarityId": null,
+          "uiaId": null,
+          "wholesaleName": null
+        },
+        {
+          "id": "gid://shopify/Customer/6660386193643",
+          "email": "meghan@blackdoginteriors.com",
+          "firstName": "Meghan",
+          "lastName": "Luby",
+          "clarityId": null,
+          "uiaId": null,
+          "wholesaleName": null
+        },
+        {
+          "id": "gid://shopify/Customer/6660541448427",
+          "email": "bebemills3@gmail.com",
+          "firstName": "Tamara",
+          "lastName": "Barrus",
+          "clarityId": null,
+          "uiaId": null,
+          "wholesaleName": null
+        },
+        {
+          "id": "gid://shopify/Customer/6664138031339",
+          "email": "allisonsherrill25@gmail.com",
+          "firstName": "Allison",
+          "lastName": "Sherrill",
+          "clarityId": null,
+          "uiaId": null,
+          "wholesaleName": null
+        },
+        {
+          "id": "gid://shopify/Customer/6675054231787",
+          "email": "ew@earlwasserman.com",
+          "firstName": "Earl",
+          "lastName": "Wasserman",
+          "clarityId": null,
+          "uiaId": null,
+          "wholesaleName": null
+        },
+        {
+          "id": "gid://shopify/Customer/6705845797099",
+          "email": "victoria@freespiritdesigns.biz",
+          "firstName": "Victoria",
+          "lastName": "Mankoski",
+          "clarityId": null,
+          "uiaId": null,
+          "wholesaleName": null
+        },
+        {
+          "id": "gid://shopify/Customer/6711215292651",
+          "email": "dorothylburke@gmail.com",
+          "firstName": "Dorothy",
+          "lastName": "Burke",
+          "clarityId": null,
+          "uiaId": null,
+          "wholesaleName": null
+        },
+        {
+          "id": "gid://shopify/Customer/6741458026731",
+          "email": "ptnyr1994@yahoo.com",
+          "firstName": "Peter",
+          "lastName": "Trimboli",
+          "clarityId": null,
+          "uiaId": null,
+          "wholesaleName": null
+        },
+        {
+          "id": "gid://shopify/Customer/6744396857579",
+          "email": "uetta@aol.com",
+          "firstName": "Shelley",
+          "lastName": "Dickerson",
+          "clarityId": null,
+          "uiaId": null,
+          "wholesaleName": null
+        },
+        {
+          "id": "gid://shopify/Customer/6782951162091",
+          "email": "rohitsaini.shinedezign@gmail.com",
+          "firstName": "Rohit",
+          "lastName": "Saini",
+          "clarityId": null,
+          "uiaId": null,
+          "wholesaleName": null
+        },
+        {
+          "id": "gid://shopify/Customer/6811916009707",
+          "email": "rkarmiol@gmail.com",
+          "firstName": "Rita",
+          "lastName": "Karmiol",
+          "clarityId": null,
+          "uiaId": null,
+          "wholesaleName": null
+        },
+        {
+          "id": "gid://shopify/Customer/6878498980075",
+          "email": "hello@southerngirlinteriors.com",
+          "firstName": "Chantee",
+          "lastName": "Sneed",
+          "clarityId": null,
+          "uiaId": null,
+          "wholesaleName": null
+        },
+        {
+          "id": "gid://shopify/Customer/6894777729259",
+          "email": null,
+          "firstName": "Debra",
+          "lastName": "Willbanks",
+          "clarityId": null,
+          "uiaId": null,
+          "wholesaleName": null
+        },
+        {
+          "id": "gid://shopify/Customer/6906082132203",
+          "email": "admin@mikoandboonehome.com",
+          "firstName": "Amy",
+          "lastName": "Ferrer",
+          "clarityId": null,
+          "uiaId": null,
+          "wholesaleName": null
+        },
+        {
+          "id": "gid://shopify/Customer/6909643227371",
+          "email": "sobeitinteriors@gmail.com",
+          "firstName": "stephanie",
+          "lastName": "everhart",
+          "clarityId": null,
+          "uiaId": null,
+          "wholesaleName": null
+        },
+        {
+          "id": "gid://shopify/Customer/6920893694187",
+          "email": "atlantadesignerrugs@gmail.com",
+          "firstName": "Shobhi",
+          "lastName": "Mehrotra",
+          "clarityId": null,
+          "uiaId": null,
+          "wholesaleName": null
+        },
+        {
+          "id": "gid://shopify/Customer/6947185262827",
+          "email": "john.doe@shopify.com",
+          "firstName": "John",
+          "lastName": "Doe",
+          "clarityId": null,
+          "uiaId": null,
+          "wholesaleName": null
+        },
+        {
+          "id": "gid://shopify/Customer/6947185295595",
+          "email": "jane.doe@shopify.com",
+          "firstName": "Jane",
+          "lastName": "Doe",
+          "clarityId": null,
+          "uiaId": null,
+          "wholesaleName": null
+        },
+        {
+          "id": "gid://shopify/Customer/6947185361131",
+          "email": "angelitalscott@gmail.com",
+          "firstName": "Angelita",
+          "lastName": "Scott",
+          "clarityId": null,
+          "uiaId": null,
+          "wholesaleName": null
+        },
+        {
+          "id": "gid://shopify/Customer/6947185393899",
+          "email": "ernestabuin@gmail.com",
+          "firstName": "Ernest",
+          "lastName": "Abuin",
+          "clarityId": null,
+          "uiaId": null,
+          "wholesaleName": null
+        },
+        {
+          "id": "gid://shopify/Customer/6947185426667",
+          "email": "nigerpurdie@gmail.com",
+          "firstName": "Niger",
+          "lastName": "Purdie",
+          "clarityId": null,
+          "uiaId": null,
+          "wholesaleName": null
+        },
+        {
+          "id": "gid://shopify/Customer/6947185459435",
+          "email": "christine@ccrawfordandco.com",
+          "firstName": "Christine",
+          "lastName": "Crawford",
+          "clarityId": null,
+          "uiaId": null,
+          "wholesaleName": null
+        },
+        {
+          "id": "gid://shopify/Customer/6947185492203",
+          "email": "simplylotusinteriors@gmail.com",
+          "firstName": "Shannon",
+          "lastName": "Baig",
+          "clarityId": null,
+          "uiaId": null,
+          "wholesaleName": null
+        },
+        {
+          "id": "gid://shopify/Customer/6947185524971",
+          "email": "cmvillwock@gmail.com",
+          "firstName": "Christine",
+          "lastName": "Villwock",
+          "clarityId": null,
+          "uiaId": null,
+          "wholesaleName": null
+        },
+        {
+          "id": "gid://shopify/Customer/6947185557739",
+          "email": "amanda@archambaultinteriors.com",
+          "firstName": "Amanda",
+          "lastName": "Archambault",
+          "clarityId": null,
+          "uiaId": null,
+          "wholesaleName": null
+        },
+        {
+          "id": "gid://shopify/Customer/6947185590507",
+          "email": "hhc35119@uga.edu",
+          "firstName": "Lauren",
+          "lastName": "Choi",
+          "clarityId": null,
+          "uiaId": null,
+          "wholesaleName": null
+        },
+        {
+          "id": "gid://shopify/Customer/6947185623275",
+          "email": "courtney_yapp@yahoo.com",
+          "firstName": "Courtney",
+          "lastName": "Yapp",
+          "clarityId": null,
+          "uiaId": null,
+          "wholesaleName": null
+        },
+        {
+          "id": "gid://shopify/Customer/6947185656043",
+          "email": "mdwdecor@me.com",
+          "firstName": "Maureen",
+          "lastName": "Wheeler",
+          "clarityId": null,
+          "uiaId": null,
+          "wholesaleName": null
+        },
+        {
+          "id": "gid://shopify/Customer/6947185721579",
+          "email": "barber.debora@gmail.com",
+          "firstName": "Debora",
+          "lastName": "Barber",
+          "clarityId": null,
+          "uiaId": null,
+          "wholesaleName": null
+        },
+        {
+          "id": "gid://shopify/Customer/6947185754347",
+          "email": "zoederm@gmail.com",
+          "firstName": "Zoe",
+          "lastName": "Dermatas",
+          "clarityId": null,
+          "uiaId": null,
+          "wholesaleName": null
+        },
+        {
+          "id": "gid://shopify/Customer/6947185787115",
+          "email": "justdesignit2@gmail.com",
+          "firstName": "Carmeana",
+          "lastName": "Smith",
+          "clarityId": null,
+          "uiaId": null,
+          "wholesaleName": null
+        },
+        {
+          "id": "gid://shopify/Customer/6947185819883",
+          "email": "mirandamegan22@yahoo.com",
+          "firstName": "Miranda",
+          "lastName": "Montgomery",
+          "clarityId": null,
+          "uiaId": null,
+          "wholesaleName": null
+        },
+        {
+          "id": "gid://shopify/Customer/6947185852651",
+          "email": "kati.heilmann@gmail.com",
+          "firstName": "Kati",
+          "lastName": "Heilmann",
+          "clarityId": null,
+          "uiaId": null,
+          "wholesaleName": null
+        },
+        {
+          "id": "gid://shopify/Customer/6947185885419",
+          "email": "emmavittoriaid@gmail.com",
+          "firstName": "Emma",
+          "lastName": "Walker",
+          "clarityId": null,
+          "uiaId": null,
+          "wholesaleName": null
+        },
+        {
+          "id": "gid://shopify/Customer/6947185918187",
+          "email": "lindsey@lindseywhitedesigns.com",
+          "firstName": "Lindsey",
+          "lastName": "White",
+          "clarityId": null,
+          "uiaId": null,
+          "wholesaleName": null
+        }
+      ]
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 30,
+      "actualQueryCost": 30,
+      "throttleStatus": {
+        "maximumAvailable": 2000,
+        "currentlyAvailable": 1970,
+        "restoreRate": 100
+      }
+    }
+  }
+}
