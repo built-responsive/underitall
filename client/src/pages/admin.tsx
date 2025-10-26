@@ -511,14 +511,14 @@ export default function Admin() {
                                     </CardDescription>
                                   </div>
                                 </div>
-                                <div className="flex items-center gap-2 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
+                                <div className="flex items-center gap-2 flex-shrink-0">
                                   {reg.status === "pending" && (
                                     <>
-                                      <Button onClick={() => { setSelectedRegistration(reg); setActionType("approve"); }} size="sm" className="bg-[#F2633A] hover:bg-[#F2633A]/90 text-white rounded-[11px] font-['Vazirmatn']">
+                                      <Button onClick={(e) => { e.stopPropagation(); setSelectedRegistration(reg); setActionType("approve"); }} size="sm" className="bg-[#F2633A] hover:bg-[#F2633A]/90 text-white rounded-[11px] font-['Vazirmatn']">
                                         <CheckCircle className="w-3 h-3 mr-1" />
                                         Approve
                                       </Button>
-                                      <Button onClick={() => { setSelectedRegistration(reg); setActionType("reject"); }} size="sm" variant="outline" className="rounded-[11px] font-['Vazirmatn']">
+                                      <Button onClick={(e) => { e.stopPropagation(); setSelectedRegistration(reg); setActionType("reject"); }} size="sm" variant="outline" className="rounded-[11px] font-['Vazirmatn']">
                                         <XCircle className="w-3 h-3 mr-1" />
                                         Reject
                                       </Button>
@@ -527,18 +527,18 @@ export default function Admin() {
                                   {reg.status === "approved" && (
                                     <>
                                       {reg.shopifyCustomerId && (
-                                        <a href={`https://admin.shopify.com/store/its-under-it-all/customers/${reg.shopifyCustomerId}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 px-2 py-1 bg-[#96bf48] hover:bg-[#85aa3d] text-white rounded-[11px] transition-colors font-['Vazirmatn'] text-xs">
+                                        <a href={`https://admin.shopify.com/store/its-under-it-all/customers/${reg.shopifyCustomerId}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 px-2 py-1 bg-[#96bf48] hover:bg-[#85aa3d] text-white rounded-[11px] transition-colors font-['Vazirmatn'] text-xs" onClick={(e) => e.stopPropagation()}>
                                           <ExternalLink className="w-3 h-3" />
                                           Shopify
                                         </a>
                                       )}
                                       {reg.clarityAccountId ? (
-                                        <a href={`https://www.claritycrm.com/accounts/new4.aspx?m=e&id=${reg.clarityAccountId}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 px-2 py-1 bg-green-600 hover:bg-green-700 text-white rounded-[11px] transition-colors font-['Vazirmatn'] text-xs">
+                                        <a href={`https://www.claritycrm.com/accounts/new4.aspx?m=e&id=${reg.clarityAccountId}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 px-2 py-1 bg-green-600 hover:bg-green-700 text-white rounded-[11px] transition-colors font-['Vazirmatn'] text-xs" onClick={(e) => e.stopPropagation()}>
                                           <CheckCircle2 className="w-3 h-3" />
                                           CRM
                                         </a>
                                       ) : (
-                                        <Button onClick={() => { checkCrmDuplicates(reg.id); }} size="sm" className="bg-[#F2633A] hover:bg-[#F2633A]/90 text-white rounded-[11px] font-['Vazirmatn'] text-xs">
+                                        <Button onClick={(e) => { e.stopPropagation(); checkCrmDuplicates(reg.id); }} size="sm" className="bg-[#F2633A] hover:bg-[#F2633A]/90 text-white rounded-[11px] font-['Vazirmatn'] text-xs">
                                           <ExternalLink className="w-3 h-3 mr-1" />
                                           Sync CRM
                                         </Button>
