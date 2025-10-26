@@ -32,7 +32,7 @@ localPort = 80
 
 [[ports]]
 localPort = 3000
-externalPort = 3001
+externalPort = 80
 exposeLocalhost = true
 
 [[ports]]
@@ -47,12 +47,21 @@ exposeLocalhost = true
 
 [[ports]]
 localPort = 5000
-externalPort = 80
+externalPort = 3001
 
 [[ports]]
 localPort = 9293
 externalPort = 3003
 exposeLocalhost = true
+
+[[ports]]
+localPort = 35919
+externalPort = 4200
+exposeLocalhost = true
+
+[[ports]]
+localPort = 40541
+externalPort = 5000
 
 [deployment]
 deploymentTarget = "gce"
